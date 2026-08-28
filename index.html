@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CA Spiny Lobster Catch Log</title>
 
-  <!-- iMessage / Text Preview Image Tags -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CA Spiny Lobster Catch Log" />
   <meta property="og:description" content="Field entry, set tracker & CDFW report card assistant." />
   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
-  <!-- App Icon on Home Screen -->
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
@@ -148,7 +146,6 @@
   <h1>🦞 CA Spiny Lobster Catch Log</h1>
   <p class="subtitle">Field Entry, Set Tracker & CDFW Report Helper</p>
 
-  <!-- Season Running Tally -->
   <div class="season-banner">
     <div>
       <div class="stat-val" id="totalSeasonKept">0</div>
@@ -164,7 +161,6 @@
     </div>
   </div>
 
-  <!-- User Personal Settings (Local Only) -->
   <details class="card" style="margin-bottom: 16px;">
     <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings (Email Nightly Reports)</summary>
     <div style="margin-top: 10px;">
@@ -178,7 +174,6 @@
   </details>
 
   <form id="logForm">
-    <!-- Top Trip & Timing with Night Status -->
     <div class="card">
       <div class="section-title">⏱️ Trip & Timing</div>
       <div class="grid">
@@ -229,11 +224,9 @@
         </div>
       </div>
 
-      <!-- Close Out Button Appears Here ONLY on End Night -->
       <button type="button" class="btn btn-closeout" id="closeoutBtn" onclick="finalizeNight()">🛑 Finalize & Close Out Night</button>
     </div>
 
-    <!-- Sets Section -->
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
@@ -249,7 +242,6 @@
           </select>
         </div>
 
-        <!-- Lobsters: Shorts & Legals -->
         <div>
           <label style="color: var(--green); font-weight: bold;">Lobster: Shorts</label>
           <div class="stepper">
@@ -268,7 +260,6 @@
           </div>
         </div>
 
-        <!-- Crabs Sections -->
         <div>
           <label>Rock Crab Kept</label>
           <div class="stepper">
@@ -287,7 +278,6 @@
           </div>
         </div>
 
-        <!-- Other Species & Notes -->
         <div class="full-width">
           <label>Other Species & Notes</label>
           <input type="text" id="otherSpecies" placeholder="e.g., Octopus, Horn Shark, Moray Eel, Calico Bass..." />
@@ -295,7 +285,6 @@
       </div>
     </div>
 
-    <!-- Conditions & Gear -->
     <div class="card">
       <div class="section-title">🌊 Conditions & Gear</div>
       <div class="grid">
@@ -342,7 +331,6 @@
       </div>
     </div>
 
-    <!-- CDFW Official Report Card Section -->
     <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
       <div class="section-title cdfw-title">📋 CDFW Report Card Reference</div>
       <div class="grid">
@@ -387,7 +375,6 @@
     <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
   </form>
 
-  <!-- History Section -->
   <div class="card" style="margin-top: 24px;">
     <div class="section-title">
       <span>📖 Catch History (<span id="logCount">0</span> Nights)</span>
@@ -454,8 +441,11 @@
   setLiveDateTime();
 
   // Load User Saved Email
-  const savedUserEmail = localStorage.getItem('lobsterLog_userEmail') || '';
-  document.getElementById('userEmail').value = savedUserEmail;
+  function loadUserEmail() {
+    const savedUserEmail = localStorage.getItem('lobsterLog_userEmail') || '';
+    document.getElementById('userEmail').value = savedUserEmail;
+  }
+  loadUserEmail();
 
   function saveUserEmail() {
     const email = document.getElementById('userEmail').value.trim();
@@ -595,9 +585,10 @@
   }
 
   function nukeEntireLog() {
-    const confirmation = prompt("WARNING: This will permanently delete ALL catch history and reset the entire app. Type 'NUKE' to confirm:");
+    const confirmation = prompt("WARNING: This will permanently delete ALL catch history, saved email, and reset the entire app. Type 'NUKE' to confirm:");
     if (confirmation === 'NUKE') {
-      localStorage.removeItem('lobsterNightLogs');
+      localStorage.clear(); // Wipes all storage (logs, email, settings)
+      document.getElementById('userEmail').value = '';
       resetFormOnly();
       renderLogs();
       alert('App has been completely wiped and factory reset.');
@@ -724,7 +715,6 @@
     });
   }
 
-  // Automatic CSV Download Helper
   function downloadNightCSV(tripRecord) {
     const headers = [
       "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
@@ -798,7 +788,6 @@ ${csvData}
     window.location.href = mailtoUrl;
   }
 
-  // Finalize & Close Out Night Execution
   function finalizeNight() {
     saveCurrentSetToBuffer();
 
@@ -845,17 +834,14 @@ ${csvData}
     logs.push(tripRecord);
     saveLogs(logs);
 
-    // 1. Download tonight's direct CSV file
     downloadNightCSV(tripRecord);
 
-    // 2. Launch Mail client with draft
     setTimeout(() => {
       sendNightEmailReport(tripRecord);
       resetFormOnly();
     }, 400);
   }
 
-  // Active Set Button (Bottom) Form Handler
   document.getElementById('logForm').addEventListener('submit', (e) => {
     e.preventDefault();
     saveCurrentSetToBuffer();
