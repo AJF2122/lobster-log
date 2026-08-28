@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CA Spiny Lobster Catch Log</title>
 
+  <!-- iMessage / Text Preview Image Tags -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CA Spiny Lobster Catch Log" />
   <meta property="og:description" content="Field entry, set tracker & CDFW report card assistant." />
   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
+  <!-- App Icon on Home Screen -->
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
@@ -133,6 +135,7 @@
   <h1>🦞 CA Spiny Lobster Catch Log</h1>
   <p class="subtitle">Field Entry, Set Tracker & CDFW Report Helper</p>
 
+  <!-- Season Running Tally -->
   <div class="season-banner">
     <div>
       <div class="stat-val" id="totalSeasonKept">0</div>
@@ -148,7 +151,21 @@
     </div>
   </div>
 
+  <!-- User Personal Settings (Local Only) -->
+  <details class="card" style="margin-bottom: 16px;">
+    <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings (Email Nightly Reports)</summary>
+    <div style="margin-top: 10px;">
+      <label>Your Personal Email Address (Stored privately on this device):</label>
+      <div style="display: flex; gap: 6px;">
+        <input type="email" id="userEmail" placeholder="yourname@gmail.com" />
+        <button type="button" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="saveUserEmail()">Save</button>
+      </div>
+      <p style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;">Closing out a night will automatically launch your mail client with tonight's CSV data drafted to this address.</p>
+    </div>
+  </details>
+
   <form id="logForm">
+    <!-- Top Trip & Timing with Night Status -->
     <div class="card">
       <div class="section-title">⏱️ Trip & Timing</div>
       <div class="grid">
@@ -157,7 +174,7 @@
           <select id="nightStatus" onchange="handleNightStatusChange(this.value)">
             <option value="">-- Select Status --</option>
             <option value="Start Night">🟢 Start Night (Active Fishing)</option>
-            <option value="End Night">🔴 End Night (Close Out Night & Save)</option>
+            <option value="End Night">🔴 End Night (Close Out Night & Email Report)</option>
           </select>
         </div>
         <div>
@@ -200,6 +217,7 @@
       </div>
     </div>
 
+    <!-- Sets Section -->
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
@@ -215,6 +233,7 @@
           </select>
         </div>
 
+        <!-- Lobsters: Shorts & Legals -->
         <div>
           <label style="color: var(--green); font-weight: bold;">Lobster: Shorts</label>
           <div class="stepper">
@@ -233,6 +252,7 @@
           </div>
         </div>
 
+        <!-- Crabs Sections -->
         <div>
           <label>Rock Crab Kept</label>
           <div class="stepper">
@@ -251,6 +271,7 @@
           </div>
         </div>
 
+        <!-- Other Species & Notes -->
         <div class="full-width">
           <label>Other Species & Notes</label>
           <input type="text" id="otherSpecies" placeholder="e.g., Octopus, Horn Shark, Moray Eel, Calico Bass..." />
@@ -258,6 +279,7 @@
       </div>
     </div>
 
+    <!-- Conditions & Gear -->
     <div class="card">
       <div class="section-title">🌊 Conditions & Gear</div>
       <div class="grid">
@@ -304,6 +326,7 @@
       </div>
     </div>
 
+    <!-- CDFW Official Report Card Section -->
     <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
       <div class="section-title cdfw-title">📋 CDFW Report Card Reference</div>
       <div class="grid">
@@ -348,6 +371,7 @@
     <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
   </form>
 
+  <!-- History Section -->
   <div class="card" style="margin-top: 24px;">
     <div class="section-title">
       <span>📖 Catch History (<span id="logCount">0</span> Nights)</span>
@@ -411,8 +435,17 @@
     document.getElementById('logTime').value = getCurrentFormattedTime();
   }
 
-  // Auto-populate when the app opens
   setLiveDateTime();
+
+  // Load User Saved Email
+  const savedUserEmail = localStorage.getItem('lobsterLog_userEmail') || '';
+  document.getElementById('userEmail').value = savedUserEmail;
+
+  function saveUserEmail() {
+    const email = document.getElementById('userEmail').value.trim();
+    localStorage.setItem('lobsterLog_userEmail', email);
+    alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
+  }
 
   function syncRetainedFromSets() {
     let sumLegals = 0;
@@ -477,7 +510,6 @@
     if (status === 'End Night') {
       btn.innerText = "🛑 Finalize & Close Out Night";
       btn.style.backgroundColor = "var(--accent)";
-      // Auto generate close-out timestamp in Trip & Timing
       document.getElementById('logTime').value = getCurrentFormattedTime();
       syncRetainedFromSets();
     } else {
@@ -678,6 +710,53 @@
     });
   }
 
+  function sendNightEmailReport(tripRecord) {
+    const userEmail = localStorage.getItem('lobsterLog_userEmail') || '';
+    const subject = `🦞 Lobster Trip Report - ${tripRecord.date} (${tripRecord.fishingArea || 'SoCal'})`;
+    
+    let setBreakdownText = '';
+    if (tripRecord.setDetails) {
+      Object.keys(tripRecord.setDetails).forEach(setName => {
+        const s = tripRecord.setDetails[setName];
+        setBreakdownText += `${setName} (${s.time || '--'}): Legals: ${s.legalsKept} | Shorts: ${s.shorts} | Rock Crab: ${s.rockCrab} | Spider Crab: ${s.spiderCrab} | Notes: ${s.other || 'None'}\n`;
+      });
+    }
+
+    const csvData = [
+      "Date,Time,Fishing Area,DFW Code,DFW Gear,Lobsters Retained,Shorts Released,Rock Crab,Spider Crab,Air Temp,Water Temp,Depth,Tide,Moon,Bait,GPS,Notes",
+      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.fishingArea}","${tripRecord.dfwCode}","${tripRecord.dfwGear}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},${tripRecord.totalSpiderCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.depth}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.bait}","${tripRecord.gps}","${tripRecord.otherSpeciesSummary}"`
+    ].join("\n");
+
+    const body = `CA SPINY LOBSTER TRIP REPORT
+----------------------------------
+Date: ${tripRecord.date}
+Close-Out Time: ${tripRecord.time}
+Location: ${tripRecord.fishingArea || 'N/A'}
+DFW Code: ${tripRecord.dfwCode} (${tripRecord.dfwGear})
+GPS: ${tripRecord.gps || 'N/A'}
+
+TOTAL NIGHT CATCH:
+- Legal Lobsters Retained: ${tripRecord.totalLegals}
+- Shorts Released: ${tripRecord.totalShorts}
+- Rock Crabs: ${tripRecord.totalRockCrab}
+- Spider Crabs: ${tripRecord.totalSpiderCrab}
+
+CONDITIONS:
+- Water Temp: ${tripRecord.waterTemp ? tripRecord.waterTemp + '°F' : 'N/A'} | Air Temp: ${tripRecord.airTemp ? tripRecord.airTemp + '°F' : 'N/A'}
+- Depth: ${tripRecord.depth ? tripRecord.depth + ' ft' : 'N/A'} | Tide: ${tripRecord.tide || 'N/A'} | Moon: ${tripRecord.moon || 'N/A'}
+- Bait: ${tripRecord.bait || 'N/A'}
+
+PULL-BY-PULL BREAKDOWN:
+${setBreakdownText}
+----------------------------------
+RAW CSV DATA:
+${csvData}
+`;
+
+    const mailtoUrl = `mailto:${encodeURIComponent(userEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+  }
+
   document.getElementById('logForm').addEventListener('submit', (e) => {
     e.preventDefault();
     saveCurrentSetToBuffer();
@@ -690,7 +769,7 @@
         setSelect.selectedIndex += 1;
         switchSet(setSelect.value);
       } else if (setSelect.selectedIndex === 0) {
-        setSelect.selectedIndex = 1; // Default to Set 1 if left unselected
+        setSelect.selectedIndex = 1;
         switchSet('Set 1');
       }
       syncRetainedFromSets();
@@ -742,8 +821,8 @@
     logs.push(tripRecord);
     saveLogs(logs);
 
+    sendNightEmailReport(tripRecord);
     resetFormOnly();
-    alert(`Night Closed Out & Saved to History!\nTotal Legals Retained: ${finalRetained}\nTotal Shorts Released: ${nightShorts}`);
   });
 
   function exportToCSV() {
@@ -753,7 +832,7 @@
     const headers = [
       "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
       "Lobsters Retained", "Total Shorts Released", "Total Rock Crab", "Total Spider Crab",
-      "Other Species & Notes", "Air Temp (F)", "Water Temp (F)", "Depth (ft)", "Tide", "Moon", 
+      "Other Species & Notes", "Air Temp", "Water Temp", "Depth (ft)", "Tide", "Moon", 
       "Bait", "GPS"
     ];
 
