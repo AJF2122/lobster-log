@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CA Spiny Lobster Catch Log</title>
 
-  <!-- iMessage / Text Preview Image Tags -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CA Spiny Lobster Catch Log" />
   <meta property="og:description" content="Field entry, set tracker & CDFW report card assistant." />
   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
-  <!-- App Icon on Home Screen -->
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
@@ -77,6 +75,19 @@
       padding: 12px 16px; border-radius: 4px; font-weight: bold; font-size: 1rem; width: 100%;
     }
     .btn:hover { filter: brightness(1.1); }
+    .btn-closeout {
+      background-color: var(--accent);
+      margin-top: 12px;
+      display: none; /* Hidden until 'End Night' is selected */
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .btn-closeout:hover { background-color: var(--accent-hover); }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .btn-secondary { background-color: #334155; margin-top: 8px; }
     .btn-secondary:hover { background-color: #475569; }
     .btn-nuke { background-color: #7f1d1d; margin-top: 8px; }
@@ -135,7 +146,6 @@
   <h1>🦞 CA Spiny Lobster Catch Log</h1>
   <p class="subtitle">Field Entry, Set Tracker & CDFW Report Helper</p>
 
-  <!-- Season Running Tally -->
   <div class="season-banner">
     <div>
       <div class="stat-val" id="totalSeasonKept">0</div>
@@ -151,7 +161,6 @@
     </div>
   </div>
 
-  <!-- User Personal Settings (Local Only) -->
   <details class="card" style="margin-bottom: 16px;">
     <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings (Email Nightly Reports)</summary>
     <div style="margin-top: 10px;">
@@ -165,7 +174,6 @@
   </details>
 
   <form id="logForm">
-    <!-- Top Trip & Timing with Night Status -->
     <div class="card">
       <div class="section-title">⏱️ Trip & Timing</div>
       <div class="grid">
@@ -215,9 +223,10 @@
           </div>
         </div>
       </div>
+
+      <button type="button" class="btn btn-closeout" id="closeoutBtn" onclick="finalizeNight()">🛑 Finalize & Close Out Night</button>
     </div>
 
-    <!-- Sets Section -->
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
@@ -233,7 +242,6 @@
           </select>
         </div>
 
-        <!-- Lobsters: Shorts & Legals -->
         <div>
           <label style="color: var(--green); font-weight: bold;">Lobster: Shorts</label>
           <div class="stepper">
@@ -252,7 +260,6 @@
           </div>
         </div>
 
-        <!-- Crabs Sections -->
         <div>
           <label>Rock Crab Kept</label>
           <div class="stepper">
@@ -271,7 +278,6 @@
           </div>
         </div>
 
-        <!-- Other Species & Notes -->
         <div class="full-width">
           <label>Other Species & Notes</label>
           <input type="text" id="otherSpecies" placeholder="e.g., Octopus, Horn Shark, Moray Eel, Calico Bass..." />
@@ -279,7 +285,6 @@
       </div>
     </div>
 
-    <!-- Conditions & Gear -->
     <div class="card">
       <div class="section-title">🌊 Conditions & Gear</div>
       <div class="grid">
@@ -326,7 +331,6 @@
       </div>
     </div>
 
-    <!-- CDFW Official Report Card Section -->
     <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
       <div class="section-title cdfw-title">📋 CDFW Report Card Reference</div>
       <div class="grid">
@@ -371,7 +375,6 @@
     <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
   </form>
 
-  <!-- History Section -->
   <div class="card" style="margin-top: 24px;">
     <div class="section-title">
       <span>📖 Catch History (<span id="logCount">0</span> Nights)</span>
@@ -506,15 +509,13 @@
   }
 
   function handleNightStatusChange(status) {
-    const btn = document.getElementById('actionBtn');
+    const closeoutBtn = document.getElementById('closeoutBtn');
     if (status === 'End Night') {
-      btn.innerText = "🛑 Finalize & Close Out Night";
-      btn.style.backgroundColor = "var(--accent)";
+      closeoutBtn.style.display = 'block';
       document.getElementById('logTime').value = getCurrentFormattedTime();
       syncRetainedFromSets();
     } else {
-      btn.innerText = "➕ Update Active Set";
-      btn.style.backgroundColor = "#0284c7";
+      closeoutBtn.style.display = 'none';
       setLiveDateTime();
     }
   }
@@ -757,27 +758,10 @@ ${csvData}
     window.location.href = mailtoUrl;
   }
 
-  document.getElementById('logForm').addEventListener('submit', (e) => {
-    e.preventDefault();
+  // Finalize & Close Out Night Execution
+  function finalizeNight() {
     saveCurrentSetToBuffer();
 
-    const status = document.getElementById('nightStatus').value;
-
-    if (!status || status === 'Start Night') {
-      const setSelect = document.getElementById('setNumber');
-      if (setSelect.selectedIndex < 5 && setSelect.selectedIndex > 0) {
-        setSelect.selectedIndex += 1;
-        switchSet(setSelect.value);
-      } else if (setSelect.selectedIndex === 0) {
-        setSelect.selectedIndex = 1;
-        switchSet('Set 1');
-      }
-      syncRetainedFromSets();
-      alert('Set saved! Switched to next set with counters ready.');
-      return;
-    }
-
-    // CLOSE OUT NIGHT LOGIC
     let nightLegals = 0;
     let nightShorts = 0;
     let nightRockCrab = 0;
@@ -823,6 +807,23 @@ ${csvData}
 
     sendNightEmailReport(tripRecord);
     resetFormOnly();
+  }
+
+  // Active Set Button (Bottom) Form Handler
+  document.getElementById('logForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveCurrentSetToBuffer();
+
+    const setSelect = document.getElementById('setNumber');
+    if (setSelect.selectedIndex < 5 && setSelect.selectedIndex > 0) {
+      setSelect.selectedIndex += 1;
+      switchSet(setSelect.value);
+    } else if (setSelect.selectedIndex === 0) {
+      setSelect.selectedIndex = 1;
+      switchSet('Set 1');
+    }
+    syncRetainedFromSets();
+    alert('Set saved! Switched to next set with counters ready.');
   });
 
   function exportToCSV() {
