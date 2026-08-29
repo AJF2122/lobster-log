@@ -88,9 +88,9 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .btn-secondary { background-color: #334155; margin-top: 8px; }
+    .btn-secondary { background-color: #334155; }
     .btn-secondary:hover { background-color: #475569; }
-    .btn-nuke { background-color: #7f1d1d; margin-top: 8px; }
+    .btn-nuke { background-color: #7f1d1d; }
     .btn-nuke:hover { background-color: #991b1b; }
     .btn-gps { background-color: #0284c7; padding: 6px 10px; font-size: 0.75rem; margin-top: 4px; }
     .btn-del { background: transparent; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 2px 6px; }
@@ -169,7 +169,7 @@
         <input type="email" id="userEmail" placeholder="yourname@gmail.com" />
         <button type="button" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="saveUserEmail()">Save</button>
       </div>
-      <p style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;">Closing out a night will automatically download the CSV file to your device and launch your email app with the complete summary ready to send.</p>
+      <p style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;">Closing out a night will automatically launch your mail app with tonight's summary drafted to this address.</p>
     </div>
   </details>
 
@@ -182,7 +182,7 @@
           <select id="nightStatus" onchange="handleNightStatusChange(this.value)">
             <option value="">-- Select Status --</option>
             <option value="Start Night">🟢 Start Night (Active Fishing)</option>
-            <option value="End Night">🔴 End Night (Close Out Night, Download CSV & Email)</option>
+            <option value="End Night">🔴 End Night (Close Out Night & Email Report)</option>
           </select>
         </div>
         <div>
@@ -403,9 +403,10 @@
   </div>
 
   <div style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-    <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export All Season CSV</button>
-    <button class="btn btn-secondary" style="background-color: #0369a1;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
-    <button class="btn btn-nuke full-width" onclick="nukeEntireLog()">🧨 Nuke Entire Log (Factory Reset)</button>
+    <button class="btn btn-secondary" style="background-color: #0284c7;" onclick="exportTonightDailyCSV()">📥 Download Tonight's CSV</button>
+    <button class="btn btn-secondary" onclick="exportSeasonCSV()">📁 Export Season CSV</button>
+    <button class="btn btn-secondary" style="background-color: #334155;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
+    <button class="btn btn-nuke" onclick="nukeEntireLog()">🧨 Nuke Log (Factory Reset)</button>
   </div>
 </div>
 
@@ -587,7 +588,7 @@
   function nukeEntireLog() {
     const confirmation = prompt("WARNING: This will permanently delete ALL catch history, saved email, and reset the entire app. Type 'NUKE' to confirm:");
     if (confirmation === 'NUKE') {
-      localStorage.clear(); // Wipes all storage (logs, email, settings)
+      localStorage.clear();
       document.getElementById('userEmail').value = '';
       resetFormOnly();
       renderLogs();
@@ -715,32 +716,6 @@
     });
   }
 
-  function downloadNightCSV(tripRecord) {
-    const headers = [
-      "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
-      "Lobsters Retained", "Total Shorts Released", "Total Rock Crab", "Total Spider Crab",
-      "Other Species & Notes", "Air Temp", "Water Temp", "Depth (ft)", "Tide", "Moon", 
-      "Bait", "GPS"
-    ];
-
-    const row = [
-      `"${tripRecord.date}"`, `"${tripRecord.time}"`, `"${tripRecord.fishingArea}"`, `"${tripRecord.dfwCode}"`, `"${tripRecord.dfwGear}"`,
-      tripRecord.totalLegals, tripRecord.totalShorts, tripRecord.totalRockCrab, tripRecord.totalSpiderCrab,
-      `"${(tripRecord.otherSpeciesSummary || '').replace(/"/g, '""')}"`,
-      tripRecord.airTemp, tripRecord.waterTemp, tripRecord.depth, `"${tripRecord.tide}"`, `"${tripRecord.moon}"`,
-      `"${(tripRecord.bait || '').replace(/"/g, '""')}"`, `"${tripRecord.gps || ''}"`
-    ];
-
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), row.join(",")].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Lobster_Trip_${tripRecord.date}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
   function sendNightEmailReport(tripRecord) {
     const userEmail = localStorage.getItem('lobsterLog_userEmail') || '';
     const subject = `🦞 Lobster Trip Report - ${tripRecord.date} (${tripRecord.fishingArea || 'SoCal'})`;
@@ -753,17 +728,12 @@
       });
     }
 
-    const csvData = [
-      "Date,Time,Fishing Area,DFW Code,DFW Gear,Lobsters Retained,Shorts Released,Rock Crab,Spider Crab,Air Temp,Water Temp,Depth,Tide,Moon,Bait,GPS,Notes",
-      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.fishingArea}","${tripRecord.dfwCode}","${tripRecord.dfwGear}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},${tripRecord.totalSpiderCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.depth}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.bait}","${tripRecord.gps}","${tripRecord.otherSpeciesSummary}"`
-    ].join("\n");
-
     const body = `CA SPINY LOBSTER TRIP REPORT
 ----------------------------------
 Date: ${tripRecord.date}
 Close-Out Time: ${tripRecord.time}
 Location: ${tripRecord.fishingArea || 'N/A'}
-DFW Code: ${tripRecord.dfwCode} (${tripRecord.dfwGear})
+DFW Code: ${tripRecord.dfwCode || 'N/A'} (${tripRecord.dfwGear || 'N/A'})
 GPS: ${tripRecord.gps || 'N/A'}
 
 TOTAL NIGHT CATCH:
@@ -773,15 +743,18 @@ TOTAL NIGHT CATCH:
 - Spider Crabs: ${tripRecord.totalSpiderCrab}
 
 CONDITIONS:
-- Water Temp: ${tripRecord.waterTemp ? tripRecord.waterTemp + '°F' : 'N/A'} | Air Temp: ${tripRecord.airTemp ? tripRecord.airTemp + '°F' : 'N/A'}
-- Depth: ${tripRecord.depth ? tripRecord.depth + ' ft' : 'N/A'} | Tide: ${tripRecord.tide || 'N/A'} | Moon: ${tripRecord.moon || 'N/A'}
+- Water Temp: ${tripRecord.waterTemp ? tripRecord.waterTemp + '°F' : 'N/A'}
+- Air Temp: ${tripRecord.airTemp ? tripRecord.airTemp + '°F' : 'N/A'}
+- Depth: ${tripRecord.depth ? tripRecord.depth + ' ft' : 'N/A'}
+- Tide: ${tripRecord.tide || 'N/A'}
+- Moon: ${tripRecord.moon || 'N/A'}
 - Bait: ${tripRecord.bait || 'N/A'}
 
 PULL-BY-PULL BREAKDOWN:
 ${setBreakdownText}
 ----------------------------------
-RAW CSV DATA:
-${csvData}
+Other Species & Notes:
+${tripRecord.otherSpeciesSummary || 'None'}
 `;
 
     const mailtoUrl = `mailto:${encodeURIComponent(userEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -834,12 +807,8 @@ ${csvData}
     logs.push(tripRecord);
     saveLogs(logs);
 
-    downloadNightCSV(tripRecord);
-
-    setTimeout(() => {
-      sendNightEmailReport(tripRecord);
-      resetFormOnly();
-    }, 400);
+    sendNightEmailReport(tripRecord);
+    resetFormOnly();
   }
 
   document.getElementById('logForm').addEventListener('submit', (e) => {
@@ -858,9 +827,74 @@ ${csvData}
     alert('Set saved! Switched to next set with counters ready.');
   });
 
-  function exportToCSV() {
+  // 1. Download Tonight's Daily CSV Only
+  function exportTonightDailyCSV() {
+    saveCurrentSetToBuffer();
+
+    let nightLegals = 0;
+    let nightShorts = 0;
+    let nightRockCrab = 0;
+    let nightSpiderCrab = 0;
+    let otherList = [];
+
+    Object.keys(activeNightSets).forEach(k => {
+      nightLegals += activeNightSets[k].legalsKept;
+      nightShorts += activeNightSets[k].shorts;
+      nightRockCrab += activeNightSets[k].rockCrab;
+      nightSpiderCrab += activeNightSets[k].spiderCrab;
+      if (activeNightSets[k].other) otherList.push(`${k}: ${activeNightSets[k].other}`);
+    });
+
+    const finalRetained = parseInt(document.getElementById('dfwRetained').value || nightLegals, 10);
+    const dateVal = document.getElementById('logDate').value || getCurrentFormattedDate();
+
+    const headers = [
+      "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
+      "Lobsters Retained", "Total Shorts Released", "Total Rock Crab", "Total Spider Crab",
+      "Other Species & Notes", "Air Temp", "Water Temp", "Depth (ft)", "Tide", "Moon", 
+      "Bait", "GPS"
+    ];
+
+    const row = [
+      `"${dateVal}"`,
+      `"${document.getElementById('logTime').value || ''}"`,
+      `"${document.getElementById('fishingArea').value || ''}"`,
+      `"${document.getElementById('dfwCode').value || ''}"`,
+      `"${document.getElementById('dfwGear').value || ''}"`,
+      finalRetained,
+      nightShorts,
+      nightRockCrab,
+      nightSpiderCrab,
+      `"${otherList.join(' | ').replace(/"/g, '""')}"`,
+      document.getElementById('airTemp').value,
+      document.getElementById('waterTemp').value,
+      document.getElementById('depth').value,
+      `"${document.getElementById('tide').value || ''}"`,
+      `"${document.getElementById('moon').value || ''}"`,
+      `"${(document.getElementById('bait').value || '').replace(/"/g, '""')}"`,
+      `"${document.getElementById('gps').value || ''}"`
+    ];
+
+    const csvString = [headers.join(","), row.join(",")].join("\r\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `Lobster_Trip_${dateVal}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 200);
+  }
+
+  // 2. Download Master All Season CSV
+  function exportSeasonCSV() {
     const logs = getStoredLogs();
-    if (logs.length === 0) return alert('No logs to export.');
+    if (logs.length === 0) return alert('No completed trips found in history to export.');
 
     const headers = [
       "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
@@ -870,21 +904,27 @@ ${csvData}
     ];
 
     const rows = logs.map(l => [
-      `"${l.date}"`, `"${l.time}"`, `"${l.fishingArea}"`, `"${l.dfwCode}"`, `"${l.dfwGear}"`,
+      `"${l.date}"`, `"${l.time}"`, `"${l.fishingArea || ''}"`, `"${l.dfwCode || ''}"`, `"${l.dfwGear || ''}"`,
       l.totalLegals, l.totalShorts, l.totalRockCrab, l.totalSpiderCrab,
       `"${(l.otherSpeciesSummary || '').replace(/"/g, '""')}"`,
-      l.airTemp, l.waterTemp, l.depth, `"${l.tide}"`, `"${l.moon}"`,
+      l.airTemp, l.waterTemp, l.depth, `"${l.tide || ''}"`, `"${l.moon || ''}"`,
       `"${(l.bait || '').replace(/"/g, '""')}"`, `"${l.gps || ''}"`
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvString = [headers.join(","), ...rows.map(e => e.join(","))].join("\r\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.href = url;
     link.setAttribute("download", `Lobster_Season_Report_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 200);
   }
 
   renderLogs();
