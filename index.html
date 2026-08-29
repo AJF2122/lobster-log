@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CA Spiny Lobster Catch Log</title>
 
+  <!-- Prevent Mobile Browsers From Holding Stale Code (Auto-Update Support) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <!-- iMessage / Text Preview Image Tags -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CA Spiny Lobster Catch Log" />
@@ -102,7 +107,6 @@
     .badge-gold { border-color: var(--gold); color: var(--gold); }
     .badge-green { border-color: var(--green); color: var(--green); }
     .badge-blue { border-color: var(--blue); color: var(--blue); }
-    .badge-limit { background: #065f46; border-color: #34d399; color: #a7f3d0; font-weight: bold; }
     
     details.set-breakdown {
       margin-top: 8px;
@@ -258,7 +262,7 @@
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
-        <!-- Bait Used, Depth & Set Notes -->
+        <!-- Setup Details per Pull -->
         <div>
           <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
           <input type="text" id="bait" placeholder="e.g., Mackerel, Salmon" />
@@ -453,6 +457,19 @@
 </div>
 
 <script>
+  // Auto-Update Engine (Silently updates app when you commit new versions to GitHub)
+  const CURRENT_APP_VERSION = "2.2.0";
+
+  (function checkAppVersion() {
+    const savedVersion = localStorage.getItem('lobsterLog_appVersion');
+    if (savedVersion !== CURRENT_APP_VERSION) {
+      localStorage.setItem('lobsterLog_appVersion', CURRENT_APP_VERSION);
+      if (savedVersion) {
+        window.location.reload(true);
+      }
+    }
+  })();
+
   let activeNightSets = {
     "Set 1": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
     "Set 2": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
@@ -864,7 +881,7 @@ ${csvData}
         const nextSetKey = setSelect.value;
         switchSet(nextSetKey);
 
-        // Carry forward previous setup settings if next set is blank
+        // Auto carry forward setup options
         if (!activeNightSets[nextSetKey].area) document.getElementById('setArea').value = prevArea;
         if (!activeNightSets[nextSetKey].bait) document.getElementById('bait').value = prevBait;
         if (!activeNightSets[nextSetKey].depth) document.getElementById('depth').value = prevDepth;
