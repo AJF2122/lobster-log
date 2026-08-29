@@ -151,7 +151,7 @@
     </div>
   </div>
 
-  <!-- User Personal Settings (Local Only) -->
+  <!-- User Settings Card -->
   <details class="card" style="margin-bottom: 16px;">
     <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings (Email Nightly Reports)</summary>
     <div style="margin-top: 10px;">
@@ -165,13 +165,13 @@
   </details>
 
   <form id="logForm">
-    <!-- Top Trip & Timing with Night Status -->
+    <!-- Top Trip & Timing -->
     <div class="card">
       <div class="section-title">⏱️ Trip & Timing</div>
       <div class="grid">
         <div class="full-width">
-          <label style="color: var(--gold); font-weight: bold;">Night Status</label>
-          <select id="nightStatus" onchange="handleNightStatusChange(this.value)">
+          <label style="color: var(--gold); font-weight: bold;">Trip Status</label>
+          <select id="tripStatus" onchange="handleTripStatusChange(this.value)">
             <option value="">-- Select Status --</option>
             <option value="Start Night">🟢 Start Night (Active Fishing)</option>
             <option value="End Night">🔴 End Night (Close Out Night & Email Report)</option>
@@ -185,39 +185,10 @@
           <label>Time</label>
           <input type="time" id="logTime" required />
         </div>
-        <div class="full-width">
-          <label>Fishing Areas</label>
-          <select id="fishingArea">
-            <option value="">-- Select Area --</option>
-            <option value="Harbor Scenic B-wall N">Harbor Scenic B-wall N</option>
-            <option value="Harbor Scenic B-wall S">Harbor Scenic B-wall S</option>
-            <option value="Cosco Wall">Cosco Wall</option>
-            <option value="Park Point">Park Point</option>
-            <option value="Nimitz Wall">Nimitz Wall</option>
-            <option value="Tree B-Wall">Tree B-Wall</option>
-            <option value="Navy Bridge">Navy Bridge</option>
-            <option value="Lobster Wall">Lobster Wall</option>
-            <option value="Rock Crab Point">Rock Crab Point</option>
-            <option value="Navy Wall S">Navy Wall S</option>
-            <option value="Navy Wall W">Navy Wall W</option>
-            <option value="Breakwall SP">Breakwall SP</option>
-            <option value="Breakwall Mid">Breakwall Mid</option>
-            <option value="Breakwall Nacho">Breakwall Nacho</option>
-            <option value="Chaffe">Chaffe</option>
-            <option value="Other Area">Other / Unlisted Spot</option>
-          </select>
-        </div>
-        <div class="full-width">
-          <label>GPS Coordinates</label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="gps" placeholder="Lat, Long" />
-            <button type="button" class="btn btn-gps" style="width: auto; white-space: nowrap;" onclick="getGPS()">📍 Get GPS</button>
-          </div>
-        </div>
       </div>
     </div>
 
-    <!-- Conditions Section (Moved Above Sets) -->
+    <!-- Conditions Section -->
     <div class="card">
       <div class="section-title">🌊 Conditions</div>
       <div class="grid">
@@ -275,11 +246,11 @@
       </div>
     </div>
 
-    <!-- Sets & Catch Tracking -->
+    <!-- Sets & Catch Tracking with Per-Set Fishing Area -->
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
-        <!-- Bait Used & Set Notes (Above Select Active Set) -->
+        <!-- Bait Used & Set Notes -->
         <div style="grid-column: span 1;">
           <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
           <input type="text" id="bait" placeholder="e.g., Mackerel, Salmon Heads" />
@@ -289,7 +260,7 @@
           <input type="text" id="setQuickNotes" placeholder="e.g., 45 min soak, seal bite" />
         </div>
 
-        <!-- Select Active Set (Green text) -->
+        <!-- Select Active Set -->
         <div class="full-width">
           <label style="font-weight: bold; color: var(--green);">Select Active Set</label>
           <select id="setNumber" onchange="switchSet(this.value)">
@@ -300,6 +271,37 @@
             <option value="Set 4">Set 4</option>
             <option value="Set 5">Set 5</option>
           </select>
+        </div>
+
+        <!-- Per-Set Location & GPS -->
+        <div class="full-width">
+          <label style="color: var(--gold); font-weight: bold;">Fishing Area for this Set</label>
+          <select id="setArea">
+            <option value="">-- Select Area --</option>
+            <option value="Harbor Scenic B-wall N">Harbor Scenic B-wall N</option>
+            <option value="Harbor Scenic B-wall S">Harbor Scenic B-wall S</option>
+            <option value="Cosco Wall">Cosco Wall</option>
+            <option value="Park Point">Park Point</option>
+            <option value="Nimitz Wall">Nimitz Wall</option>
+            <option value="Tree B-Wall">Tree B-Wall</option>
+            <option value="Navy Bridge">Navy Bridge</option>
+            <option value="Lobster Wall">Lobster Wall</option>
+            <option value="Rock Crab Point">Rock Crab Point</option>
+            <option value="Navy Wall S">Navy Wall S</option>
+            <option value="Navy Wall W">Navy Wall W</option>
+            <option value="Breakwall SP">Breakwall SP</option>
+            <option value="Breakwall Mid">Breakwall Mid</option>
+            <option value="Breakwall Nacho">Breakwall Nacho</option>
+            <option value="Chaffe">Chaffe</option>
+            <option value="Other Area">Other / Unlisted Spot</option>
+          </select>
+        </div>
+        <div class="full-width">
+          <label>Set GPS Coordinates</label>
+          <div style="display:flex; gap:6px;">
+            <input type="text" id="gps" placeholder="Lat, Long" />
+            <button type="button" class="btn btn-gps" style="width: auto; white-space: nowrap;" onclick="getGPS()">📍 Get GPS</button>
+          </div>
         </div>
 
         <!-- Lobsters: Shorts & Legals -->
@@ -430,11 +432,11 @@
 
 <script>
   let activeNightSets = {
-    "Set 1": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 2": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 3": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 4": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 5": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
+    "Set 1": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+    "Set 2": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+    "Set 3": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+    "Set 4": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+    "Set 5": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
   };
 
   function getCurrentFormattedTime() {
@@ -491,6 +493,8 @@
 
   function switchSet(setName) {
     if (!setName) {
+      document.getElementById('setArea').value = '';
+      document.getElementById('gps').value = '';
       document.getElementById('shorts').value = 0;
       document.getElementById('legalsKept').value = 0;
       document.getElementById('rockCrab').value = 0;
@@ -506,6 +510,8 @@
     document.getElementById('logTime').value = activeNightSets[setName].time;
 
     const data = activeNightSets[setName];
+    document.getElementById('setArea').value = data.area || '';
+    document.getElementById('gps').value = data.gps || '';
     document.getElementById('bait').value = data.bait || '';
     document.getElementById('setQuickNotes').value = data.setNotes || '';
     document.getElementById('shorts').value = data.shorts || 0;
@@ -520,6 +526,8 @@
     if (!currentSet) return;
     activeNightSets[currentSet] = {
       time: document.getElementById('logTime').value,
+      area: document.getElementById('setArea').value,
+      gps: document.getElementById('gps').value,
       bait: document.getElementById('bait').value,
       setNotes: document.getElementById('setQuickNotes').value,
       shorts: parseInt(document.getElementById('shorts').value || 0, 10),
@@ -530,7 +538,7 @@
     };
   }
 
-  function handleNightStatusChange(status) {
+  function handleTripStatusChange(status) {
     const btn = document.getElementById('actionBtn');
     if (status === 'End Night') {
       btn.innerText = "🛑 Finalize & Close Out Night";
@@ -575,11 +583,11 @@
   }
 
   function resetFormOnly() {
-    document.getElementById('nightStatus').value = '';
-    handleNightStatusChange('');
-    document.getElementById('fishingArea').value = '';
-    document.getElementById('gps').value = '';
+    document.getElementById('tripStatus').value = '';
+    handleTripStatusChange('');
     document.getElementById('setNumber').value = '';
+    document.getElementById('setArea').value = '';
+    document.getElementById('gps').value = '';
     document.getElementById('bait').value = '';
     document.getElementById('setQuickNotes').value = '';
     document.getElementById('shorts').value = 0;
@@ -599,11 +607,11 @@
     document.getElementById('dfwRetained').value = 0;
 
     activeNightSets = {
-      "Set 1": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 2": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 3": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 4": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 5": { time: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
+      "Set 1": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+      "Set 2": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+      "Set 3": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+      "Set 4": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
+      "Set 5": { time: '', area: '', gps: '', bait: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
     };
     setLiveDateTime();
   }
@@ -640,7 +648,7 @@
     const query = (document.getElementById('searchFilter')?.value || '').toLowerCase();
     let logs = rawLogs.filter(l => {
       return (
-        (l.fishingArea && l.fishingArea.toLowerCase().includes(query)) ||
+        (l.areasSummary && l.areasSummary.toLowerCase().includes(query)) ||
         (l.sky && l.sky.toLowerCase().includes(query)) ||
         (l.condNotes && l.condNotes.toLowerCase().includes(query)) ||
         (l.otherSpeciesSummary && l.otherSpeciesSummary.toLowerCase().includes(query))
@@ -659,7 +667,7 @@
         case 'shorts-desc':
           return parseInt(b.totalShorts || 0) - parseInt(a.totalShorts || 0);
         case 'area-asc':
-          return (a.fishingArea || '').localeCompare(b.fishingArea || '');
+          return (a.areasSummary || '').localeCompare(b.areasSummary || '');
         case 'waterTemp-desc':
           return (parseFloat(b.waterTemp) || 0) - (parseFloat(a.waterTemp) || 0);
         default:
@@ -680,10 +688,11 @@
       if (log.setDetails) {
         Object.keys(log.setDetails).forEach(setName => {
           const s = log.setDetails[setName];
-          if (s.shorts > 0 || s.legalsKept > 0 || s.rockCrab > 0 || s.spiderCrab > 0 || s.other || s.bait || s.setNotes) {
+          if (s.shorts > 0 || s.legalsKept > 0 || s.rockCrab > 0 || s.spiderCrab > 0 || s.other || s.bait || s.setNotes || s.area) {
             setRows += `
               <tr>
                 <td><strong>${setName}</strong> ${s.time ? `(${s.time})` : ''}</td>
+                <td style="color:#60a5fa; font-weight:bold;">${s.area || '--'}</td>
                 <td style="color:#4ade80;">${s.legalsKept}</td>
                 <td style="color:var(--green);">${s.shorts}</td>
                 <td>${s.rockCrab}</td>
@@ -700,7 +709,7 @@
       item.className = 'log-item';
       item.innerHTML = `
         <div class="log-header">
-          <span>${log.date} ${log.time} - <strong>${log.fishingArea || 'General Area'}</strong></span>
+          <span>${log.date} ${log.time} - <strong>${log.areasSummary || 'General Area'}</strong></span>
           <div>
             <span style="color:#4ade80; margin-right:8px; font-weight:bold;">${log.totalLegals} Legals Kept</span>
             <button class="btn-del" onclick="deleteLog(${log.id})" title="Delete entry">✕</button>
@@ -715,8 +724,6 @@
           ${log.dfwCode ? `<span class="badge badge-gold">DFW: ${log.dfwCode} (${log.dfwRetained || log.totalLegals} Retained)</span>` : ''}
         </div>
         ${log.condNotes ? `<div style="font-size:0.75rem; color:#93c5fd; margin-top:2px;">Conditions: ${log.condNotes}</div>` : ''}
-        ${log.otherSpeciesSummary ? `<div style="font-size:0.75rem; color:#f87171; margin-top:2px;">Other: ${log.otherSpeciesSummary}</div>` : ''}
-        ${log.gps ? `<div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">📍 ${log.gps}</div>` : ''}
         ${setRows ? `
           <details class="set-breakdown">
             <summary>📊 View Tonight's Catch by Sets</summary>
@@ -724,6 +731,7 @@
               <thead>
                 <tr>
                   <th>Set</th>
+                  <th>Area</th>
                   <th>Legals</th>
                   <th>Shorts</th>
                   <th>R-Crab</th>
@@ -745,28 +753,27 @@
 
   function sendNightEmailReport(tripRecord) {
     const userEmail = localStorage.getItem('lobsterLog_userEmail') || '';
-    const subject = `🦞 Lobster Trip Report - ${tripRecord.date} (${tripRecord.fishingArea || 'SoCal'})`;
+    const subject = `🦞 Lobster Trip Report - ${tripRecord.date} (${tripRecord.areasSummary || 'SoCal'})`;
     
     let setBreakdownText = '';
     if (tripRecord.setDetails) {
       Object.keys(tripRecord.setDetails).forEach(setName => {
         const s = tripRecord.setDetails[setName];
-        setBreakdownText += `${setName} (${s.time || '--'}): Legals: ${s.legalsKept} | Shorts: ${s.shorts} | Rock Crab: ${s.rockCrab} | Spider Crab: ${s.spiderCrab} | Bait: ${s.bait || 'N/A'} | Notes: ${s.setNotes || ''} ${s.other || ''}\n`;
+        setBreakdownText += `${setName} (${s.time || '--'} @ ${s.area || 'N/A'}): Legals: ${s.legalsKept} | Shorts: ${s.shorts} | Rock Crab: ${s.rockCrab} | Spider Crab: ${s.spiderCrab} | Bait: ${s.bait || 'N/A'} | Notes: ${s.setNotes || ''} ${s.other || ''}\n`;
       });
     }
 
     const csvData = [
-      "Date,Time,Fishing Area,DFW Code,DFW Gear,Lobsters Retained,Shorts Released,Rock Crab,Spider Crab,Air Temp,Water Temp,Depth,Tide,Moon,Sky,Conditions Notes,GPS,Set Details",
-      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.fishingArea}","${tripRecord.dfwCode}","${tripRecord.dfwGear}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},${tripRecord.totalSpiderCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.depth}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.gps}","${tripRecord.otherSpeciesSummary}"`
+      "Date,Time,Areas Fished,DFW Code,DFW Gear,Lobsters Retained,Shorts Released,Rock Crab,Spider Crab,Air Temp,Water Temp,Depth,Tide,Moon,Sky,Conditions Notes,Set Details",
+      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.areasSummary}","${tripRecord.dfwCode}","${tripRecord.dfwGear}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},${tripRecord.totalSpiderCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.depth}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.otherSpeciesSummary}"`
     ].join("\n");
 
     const body = `CA SPINY LOBSTER TRIP REPORT
 ----------------------------------
 Date: ${tripRecord.date}
 Close-Out Time: ${tripRecord.time}
-Location: ${tripRecord.fishingArea || 'N/A'}
+Areas Visited: ${tripRecord.areasSummary || 'N/A'}
 DFW Code: ${tripRecord.dfwCode} (${tripRecord.dfwGear})
-GPS: ${tripRecord.gps || 'N/A'}
 
 TOTAL NIGHT CATCH:
 - Legal Lobsters Retained: ${tripRecord.totalLegals}
@@ -794,7 +801,7 @@ ${csvData}
     e.preventDefault();
     saveCurrentSetToBuffer();
 
-    const status = document.getElementById('nightStatus').value;
+    const status = document.getElementById('tripStatus').value;
 
     if (!status || status === 'Start Night') {
       const setSelect = document.getElementById('setNumber');
@@ -816,25 +823,28 @@ ${csvData}
     let nightRockCrab = 0;
     let nightSpiderCrab = 0;
     let otherList = [];
+    let areasVisited = new Set();
 
     Object.keys(activeNightSets).forEach(k => {
-      nightLegals += activeNightSets[k].legalsKept;
-      nightShorts += activeNightSets[k].shorts;
-      nightRockCrab += activeNightSets[k].rockCrab;
-      nightSpiderCrab += activeNightSets[k].spiderCrab;
-      if (activeNightSets[k].other || activeNightSets[k].setNotes) {
-        otherList.push(`${k}: ${activeNightSets[k].setNotes || ''} ${activeNightSets[k].other || ''}`);
+      const s = activeNightSets[k];
+      nightLegals += s.legalsKept;
+      nightShorts += s.shorts;
+      nightRockCrab += s.rockCrab;
+      nightSpiderCrab += s.spiderCrab;
+      if (s.area) areasVisited.add(s.area);
+      if (s.other || s.setNotes || s.area) {
+        otherList.push(`${k} (${s.area || 'N/A'}): ${s.setNotes || ''} ${s.other || ''}`);
       }
     });
 
     const finalRetained = parseInt(document.getElementById('dfwRetained').value || nightLegals, 10);
+    const areasString = Array.from(areasVisited).join(' ➔ ') || 'General Harbor';
 
     const tripRecord = {
       id: Date.now(),
       date: document.getElementById('logDate').value,
       time: document.getElementById('logTime').value,
-      fishingArea: document.getElementById('fishingArea').value,
-      gps: document.getElementById('gps').value,
+      areasSummary: areasString,
       totalLegals: finalRetained,
       totalShorts: nightShorts,
       totalRockCrab: nightRockCrab,
@@ -866,18 +876,18 @@ ${csvData}
     if (logs.length === 0) return alert('No logs to export.');
 
     const headers = [
-      "Date", "Time", "Fishing Area", "DFW Code", "DFW Gear",
+      "Date", "Time", "Areas Visited", "DFW Code", "DFW Gear",
       "Lobsters Retained", "Total Shorts Released", "Total Rock Crab", "Total Spider Crab",
       "Sky", "Conditions Notes", "Air Temp", "Water Temp", "Depth (ft)", "Tide", "Moon", 
-      "GPS", "Set Notes / Other Species"
+      "Set Breakdown / Other Notes"
     ];
 
     const rows = logs.map(l => [
-      `"${l.date}"`, `"${l.time}"`, `"${l.fishingArea}"`, `"${l.dfwCode}"`, `"${l.dfwGear}"`,
+      `"${l.date}"`, `"${l.time}"`, `"${l.areasSummary}"`, `"${l.dfwCode}"`, `"${l.dfwGear}"`,
       l.totalLegals, l.totalShorts, l.totalRockCrab, l.totalSpiderCrab,
       `"${l.sky || ''}"`, `"${(l.condNotes || '').replace(/"/g, '""')}"`,
       l.airTemp, l.waterTemp, l.depth, `"${l.tide}"`, `"${l.moon}"`,
-      `"${l.gps || ''}"`, `"${(l.otherSpeciesSummary || '').replace(/"/g, '""')}"`
+      `"${(l.otherSpeciesSummary || '').replace(/"/g, '""')}"`
     ]);
 
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
