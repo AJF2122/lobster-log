@@ -21,6 +21,9 @@
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
+  <!-- Leaflet Map CSS for Interactive Spot Mapping -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
   <style>
     :root {
       --bg: #0d1520;
@@ -66,6 +69,12 @@
       width: 100%; padding: 8px; background-color: var(--input-bg); border: 1px solid var(--border);
       border-radius: 4px; color: var(--text); font-size: 0.9rem;
     }
+    input:disabled {
+      background-color: #1e293b;
+      color: #94a3b8;
+      border-color: #334155;
+      cursor: not-allowed;
+    }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
     
     .stepper { display: flex; align-items: center; gap: 4px; }
@@ -82,6 +91,16 @@
       padding: 12px 16px; border-radius: 4px; font-weight: bold; font-size: 1rem; width: 100%;
     }
     .btn:hover { filter: brightness(1.1); }
+    .btn-finalize {
+      background-color: var(--accent);
+      color: white;
+      font-size: 1.05rem;
+      padding: 14px;
+      margin-top: 10px;
+      display: none;
+      box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
+    }
+    .btn-finalize:hover { background-color: var(--accent-hover); }
     .btn-secondary { background-color: #334155; margin-top: 8px; }
     .btn-secondary:hover { background-color: #475569; }
     .btn-nuke { background-color: #7f1d1d; margin-top: 8px; }
@@ -135,6 +154,43 @@
     .set-table th { background: #0f172a; color: var(--muted); }
     .gps-link { color: var(--blue); text-decoration: none; }
     .gps-link:hover { text-decoration: underline; }
+
+    /* Modals Styling */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .spot-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    #mapContainer {
+      width: 100%;
+      height: 380px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
@@ -158,16 +214,43 @@
     </div>
   </div>
 
-  <!-- User Personal Settings (Local Only) -->
+  <!-- User Personal Settings Card -->
   <details class="card" style="margin-bottom: 16px;">
-    <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings (Email Nightly Reports)</summary>
+    <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings & Waypoints</summary>
     <div style="margin-top: 10px;">
-      <label>Your Personal Email Address (Stored privately on this device):</label>
-      <div style="display: flex; gap: 6px;">
-        <input type="email" id="userEmail" placeholder="yourname@gmail.com" />
-        <button type="button" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="saveUserEmail()">Save</button>
+      <label>Email for Nightly Reports (Stored privately on this device):</label>
+      <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+        <input type="email" id="userEmail" placeholder="yourname@gmail.com" disabled />
+        <button type="button" id="emailEditBtn" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="toggleEmailEdit()">✏️ Edit</button>
       </div>
-      <p style="font-size: 0.7rem; color: var(--muted); margin-top: 4px;">Closing out a night will automatically launch your mail client with tonight's CSV data drafted to this address.</p>
+
+      <!-- Live Map & Waypoints Management Section -->
+      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
+        <label style="font-weight: bold; color: var(--gold);">🗺️ Spot Map & Waypoint Tools:</label>
+        <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map</button>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="exportWaypointsCSV()">📥 Export GPS (CSV)</button>
+          <input type="file" id="gpsCsvFileInput" accept=".csv" style="display: none;" onchange="importWaypointsCSV(event)" />
+          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="document.getElementById('gpsCsvFileInput').click()">📂 Import GPS (CSV)</button>
+        </div>
+      </div>
+
+      <!-- Past Catch Logs Backup -->
+      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px;">
+        <label style="font-weight: bold; color: var(--blue);">📁 Catch Log History Backup:</label>
+        <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+          <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSVFile(event)" />
+          <button type="button" class="btn btn-secondary" style="margin-top:0; font-size: 0.85rem;" onclick="document.getElementById('csvFileInput').click()">📂 Import Past Logs (CSV)</button>
+        </div>
+      </div>
+
+      <!-- Spot List & Resets -->
+      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; background-color: #0369a1;" onclick="openSpotManager()">📍 Manage Spots</button>
+        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomSpots()">Reset Default Spots</button>
+        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomBaits()">Reset Custom Baits</button>
+      </div>
     </div>
   </details>
 
@@ -194,14 +277,14 @@
         </div>
         <div class="full-width">
           <label style="color: #60a5fa; font-weight: bold;">Anglers on Boat (CDFW Cardholders)</label>
-          <select id="anglerCount" onchange="syncRetainedFromSets()">
-            <option value="1">1 Person (Max 7 Lobsters)</option>
-            <option value="2">2 Persons (Max 14 Lobsters)</option>
-            <option value="3">3 Persons (Max 21 Lobsters)</option>
-            <option value="4">4 Persons (Max 28 Lobsters)</option>
+          <select id="anglerCount" onchange="handleAnglerChange(this.value)">
+            <!-- Populated Dynamically -->
           </select>
         </div>
       </div>
+
+      <!-- Prominent Finalize Button -->
+      <button type="button" id="finalizeBtn" class="btn btn-finalize" onclick="triggerCloseOut()">🛑 Finalize & Close Out Night</button>
     </div>
 
     <!-- Conditions Section -->
@@ -262,10 +345,12 @@
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
-        <!-- Setup Details per Pull -->
+        <!-- Bait Used, Depth, Soak, Nets -->
         <div>
           <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
-          <input type="text" id="bait" placeholder="e.g., Mackerel, Salmon" />
+          <select id="bait" onchange="handleBaitChange(this.value)">
+            <!-- Populated Dynamically -->
+          </select>
         </div>
         <div>
           <label style="color: var(--blue); font-weight: bold;">Depth (ft)</label>
@@ -288,42 +373,21 @@
         <div class="full-width">
           <label style="font-weight: bold; color: var(--green);">Select Active Set</label>
           <select id="setNumber" onchange="switchSet(this.value)">
-            <option value="">-- Select Set --</option>
-            <option value="Set 1">Set 1</option>
-            <option value="Set 2">Set 2</option>
-            <option value="Set 3">Set 3</option>
-            <option value="Set 4">Set 4</option>
-            <option value="Set 5">Set 5</option>
+            <!-- Populated Dynamically (Starts with 4 Sets) -->
           </select>
         </div>
 
         <!-- Per-Set Location & GPS -->
         <div class="full-width">
           <label style="color: var(--gold); font-weight: bold;">Fishing Area for this Set</label>
-          <select id="setArea">
-            <option value="">-- Select Area --</option>
-            <option value="Harbor Scenic B-wall N">Harbor Scenic B-wall N</option>
-            <option value="Harbor Scenic B-wall S">Harbor Scenic B-wall S</option>
-            <option value="Cosco Wall">Cosco Wall</option>
-            <option value="Park Point">Park Point</option>
-            <option value="Nimitz Wall">Nimitz Wall</option>
-            <option value="Tree B-Wall">Tree B-Wall</option>
-            <option value="Navy Bridge">Navy Bridge</option>
-            <option value="Lobster Wall">Lobster Wall</option>
-            <option value="Rock Crab Point">Rock Crab Point</option>
-            <option value="Navy Wall S">Navy Wall S</option>
-            <option value="Navy Wall W">Navy Wall W</option>
-            <option value="Breakwall SP">Breakwall SP</option>
-            <option value="Breakwall Mid">Breakwall Mid</option>
-            <option value="Breakwall Nacho">Breakwall Nacho</option>
-            <option value="Chaffe">Chaffe</option>
-            <option value="Other Area">Other / Unlisted Spot</option>
+          <select id="setArea" onchange="handleSpotChange(this.value)">
+            <!-- Populated Dynamically -->
           </select>
         </div>
         <div class="full-width">
-          <label>Set GPS Coordinates</label>
+          <label>Set GPS Coordinates (Lat, Long)</label>
           <div style="display:flex; gap:6px;">
-            <input type="text" id="gps" placeholder="Lat, Long" />
+            <input type="text" id="gps" placeholder="33.7250, -118.2700" onchange="handleGPSInput(this.value)" />
             <button type="button" class="btn btn-gps" style="width: auto; white-space: nowrap;" onclick="getGPS()">📍 Get GPS</button>
           </div>
         </div>
@@ -456,9 +520,38 @@
   </div>
 </div>
 
+<!-- Manage Spots Modal -->
+<div id="spotModal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+      <span style="font-weight: bold; color: var(--gold); font-size: 1.1rem;">📍 Manage Fishing Spots</span>
+      <button type="button" class="btn-del" onclick="closeSpotManager()" style="font-size: 1.2rem;">✕</button>
+    </div>
+    <div id="spotModalList" style="margin-bottom: 14px;"></div>
+    <button type="button" class="btn btn-secondary" onclick="closeSpotManager()">Done</button>
+  </div>
+</div>
+
+<!-- Live All-Spots Map Modal -->
+<div id="mapModal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 620px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
+      <span style="font-weight: bold; color: var(--gold); font-size: 1.1rem;">🗺️ All Saved Spots Map</span>
+      <button type="button" class="btn-del" onclick="closeSpotMapModal()" style="font-size: 1.2rem;">✕</button>
+    </div>
+    <div id="mapContainer"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span id="mapPinCount" style="font-size: 0.75rem; color: var(--muted);">0 spot pins plotted</span>
+      <button type="button" class="btn btn-secondary" style="width: auto; padding: 6px 14px;" onclick="closeSpotMapModal()">Close Map</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet Map JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <script>
-  // Auto-Update Engine (Silently updates app when you commit new versions to GitHub)
-  const CURRENT_APP_VERSION = "2.2.0";
+  const CURRENT_APP_VERSION = "2.7.0";
 
   (function checkAppVersion() {
     const savedVersion = localStorage.getItem('lobsterLog_appVersion');
@@ -470,13 +563,413 @@
     }
   })();
 
-  let activeNightSets = {
-    "Set 1": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 2": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 3": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 4": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-    "Set 5": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
-  };
+  const DEFAULT_SPOTS = [
+    "Harbor Scenic B-wall N", "Harbor Scenic B-wall S", "Cosco Wall",
+    "Park Point", "Nimitz Wall", "Tree B-Wall", "Navy Bridge",
+    "Lobster Wall", "Rock Crab Point", "Navy Wall S", "Navy Wall W",
+    "Breakwall SP", "Breakwall Mid", "Breakwall Nacho", "Chaffe"
+  ];
+
+  const DEFAULT_BAITS = ["Mackerel", "Sardines", "Salmon Heads"];
+
+  // Default to 4 sets
+  let activeSetList = ["Set 1", "Set 2", "Set 3", "Set 4"];
+  let activeNightSets = {};
+  activeSetList.forEach(setName => {
+    activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+  });
+
+  let anglerOptions = [1, 2, 3, 4];
+  let leafletMapInstance = null;
+  let previousTripStatus = '';
+
+  function getCustomSpots() {
+    return JSON.parse(localStorage.getItem('lobsterLog_customSpots') || '[]');
+  }
+
+  function getDeletedDefaultSpots() {
+    return JSON.parse(localStorage.getItem('lobsterLog_deletedDefaults') || '[]');
+  }
+
+  function getSpotGPSMap() {
+    return JSON.parse(localStorage.getItem('lobsterLog_spotGPSMap') || '{}');
+  }
+
+  function setSpotGPSMap(map) {
+    localStorage.setItem('lobsterLog_spotGPSMap', JSON.stringify(map));
+  }
+
+  function getAllActiveSpots() {
+    const customs = getCustomSpots();
+    const deleted = getDeletedDefaultSpots();
+    const activeDefaults = DEFAULT_SPOTS.filter(s => !deleted.includes(s));
+    return [...activeDefaults, ...customs];
+  }
+
+  function getCustomBaits() {
+    return JSON.parse(localStorage.getItem('lobsterLog_customBaits') || '[]');
+  }
+
+  function populateSpotDropdown(selectedVal = '') {
+    const el = document.getElementById('setArea');
+    const allSpots = getAllActiveSpots();
+
+    let html = '<option value="">-- Select Area --</option>';
+    allSpots.forEach(spot => {
+      html += `<option value="${spot}" ${spot === selectedVal ? 'selected' : ''}>${spot}</option>`;
+    });
+    html += '<option value="__ADD_NEW_SPOT__" style="color:var(--gold); font-weight:bold;">➕ Add New Spot...</option>';
+    el.innerHTML = html;
+  }
+
+  function populateBaitDropdown(selectedVal = '') {
+    const el = document.getElementById('bait');
+    const customs = getCustomBaits();
+    const allBaits = [...DEFAULT_BAITS, ...customs];
+
+    let html = '<option value="">-- Select Bait --</option>';
+    allBaits.forEach(bait => {
+      html += `<option value="${bait}" ${bait === selectedVal ? 'selected' : ''}>${bait}</option>`;
+    });
+    html += '<option value="__ADD_NEW_BAIT__" style="color:var(--gold); font-weight:bold;">➕ Add New Bait...</option>';
+    el.innerHTML = html;
+  }
+
+  function populateSetDropdown(selectedVal = '') {
+    const el = document.getElementById('setNumber');
+    let html = '<option value="">-- Select Set --</option>';
+    activeSetList.forEach(s => {
+      html += `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}</option>`;
+    });
+    html += '<option value="__ADD_NEW_SET__" style="color:var(--gold); font-weight:bold;">➕ Add Next Set...</option>';
+    el.innerHTML = html;
+  }
+
+  function populateAnglerDropdown(selectedVal = 1) {
+    const el = document.getElementById('anglerCount');
+    let html = '';
+    anglerOptions.forEach(num => {
+      const max = num * 7;
+      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''} (Max ${max} Lobsters)</option>`;
+    });
+    html += '<option value="__ADD_ANGLERS__" style="color:var(--gold); font-weight:bold;">➕ Add More Anglers...</option>';
+    el.innerHTML = html;
+  }
+
+  function handleAnglerChange(val) {
+    if (val === '__ADD_ANGLERS__') {
+      const countStr = prompt("Enter total number of anglers on board:");
+      const num = parseInt(countStr, 10);
+      if (num && num > 0) {
+        if (!anglerOptions.includes(num)) {
+          anglerOptions.push(num);
+          anglerOptions.sort((a, b) => a - b);
+        }
+        populateAnglerDropdown(num);
+        syncRetainedFromSets();
+        return;
+      }
+      populateAnglerDropdown(1);
+    } else {
+      syncRetainedFromSets();
+    }
+  }
+
+  function handleSpotChange(val) {
+    if (val === '__ADD_NEW_SPOT__') {
+      const newSpot = prompt("Enter the name of the new fishing spot:");
+      if (newSpot && newSpot.trim()) {
+        const cleanSpot = newSpot.trim();
+        if (confirm(`Add "${cleanSpot}" to your permanent spots list?`)) {
+          const customs = getCustomSpots();
+          if (!customs.includes(cleanSpot)) {
+            customs.push(cleanSpot);
+            localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
+          }
+          populateSpotDropdown(cleanSpot);
+          saveCurrentSetToBuffer();
+          return;
+        }
+      }
+      document.getElementById('setArea').value = '';
+    } else {
+      if (val) {
+        const gpsMap = getSpotGPSMap();
+        if (gpsMap[val] && !document.getElementById('gps').value) {
+          document.getElementById('gps').value = gpsMap[val];
+        }
+      }
+      saveCurrentSetToBuffer();
+    }
+  }
+
+  function handleBaitChange(val) {
+    if (val === '__ADD_NEW_BAIT__') {
+      const newBait = prompt("Enter the name of the new bait:");
+      if (newBait && newBait.trim()) {
+        const cleanBait = newBait.trim();
+        if (confirm(`Add "${cleanBait}" to your permanent bait list?`)) {
+          const customs = getCustomBaits();
+          if (!customs.includes(cleanBait) && !DEFAULT_BAITS.includes(cleanBait)) {
+            customs.push(cleanBait);
+            localStorage.setItem('lobsterLog_customBaits', JSON.stringify(customs));
+          }
+          populateBaitDropdown(cleanBait);
+          saveCurrentSetToBuffer();
+          return;
+        }
+      }
+      document.getElementById('bait').value = '';
+    } else {
+      saveCurrentSetToBuffer();
+    }
+  }
+
+  function handleGPSInput(val) {
+    const area = document.getElementById('setArea').value;
+    if (area && val && val.includes(',')) {
+      const gpsMap = getSpotGPSMap();
+      gpsMap[area] = val.trim();
+      setSpotGPSMap(gpsMap);
+    }
+    saveCurrentSetToBuffer();
+  }
+
+  function getGPS() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const formatted = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+          document.getElementById('gps').value = formatted;
+          handleGPSInput(formatted);
+        },
+        () => alert('Unable to retrieve GPS.')
+      );
+    } else {
+      alert('Geolocation not supported on this device.');
+    }
+  }
+
+  // Spot Management Modal
+  function openSpotManager() {
+    const listEl = document.getElementById('spotModalList');
+    const spots = getAllActiveSpots();
+    const gpsMap = getSpotGPSMap();
+    listEl.innerHTML = '';
+
+    if (spots.length === 0) {
+      listEl.innerHTML = '<div style="color:var(--muted); padding:8px 0;">No active spots.</div>';
+    } else {
+      spots.forEach(spot => {
+        const row = document.createElement('div');
+        row.className = 'spot-list-item';
+        const coords = gpsMap[spot] ? `<span style="font-size:0.75rem; color:var(--blue); margin-left:6px;">(${gpsMap[spot]})</span>` : '';
+        row.innerHTML = `
+          <div><strong>${spot}</strong>${coords}</div>
+          <button type="button" class="btn-del" onclick="deleteSpecificSpot('${spot.replace(/'/g, "\\'")}')" title="Delete spot">✕</button>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+    document.getElementById('spotModal').style.display = 'flex';
+  }
+
+  function closeSpotManager() {
+    document.getElementById('spotModal').style.display = 'none';
+    populateSpotDropdown();
+  }
+
+  function deleteSpecificSpot(spotName) {
+    if (confirm(`Delete "${spotName}" from your spots list?`)) {
+      let customs = getCustomSpots();
+      if (customs.includes(spotName)) {
+        customs = customs.filter(s => s !== spotName);
+        localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
+      } else if (DEFAULT_SPOTS.includes(spotName)) {
+        let deleted = getDeletedDefaultSpots();
+        if (!deleted.includes(spotName)) {
+          deleted.push(spotName);
+          localStorage.setItem('lobsterLog_deletedDefaults', JSON.stringify(deleted));
+        }
+      }
+      let gpsMap = getSpotGPSMap();
+      delete gpsMap[spotName];
+      setSpotGPSMap(gpsMap);
+      openSpotManager();
+    }
+  }
+
+  function clearCustomSpots() {
+    if (confirm("Reset all spots and saved coordinates back to factory defaults?")) {
+      localStorage.removeItem('lobsterLog_customSpots');
+      localStorage.removeItem('lobsterLog_deletedDefaults');
+      localStorage.removeItem('lobsterLog_spotGPSMap');
+      populateSpotDropdown();
+      alert("Spots reset to defaults.");
+    }
+  }
+
+  function clearCustomBaits() {
+    if (confirm("Reset custom baits back to defaults?")) {
+      localStorage.removeItem('lobsterLog_customBaits');
+      populateBaitDropdown();
+      alert("Custom baits reset.");
+    }
+  }
+
+  // Live Map Viewer Functions
+  function openSpotMapModal() {
+    document.getElementById('mapModal').style.display = 'flex';
+
+    if (!leafletMapInstance) {
+      leafletMapInstance = L.map('mapContainer').setView([33.7400, -118.2300], 11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(leafletMapInstance);
+    }
+
+    leafletMapInstance.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        leafletMapInstance.removeLayer(layer);
+      }
+    });
+
+    const gpsMap = getSpotGPSMap();
+    const logs = getStoredLogs();
+    let markerBounds = [];
+    let pinCount = 0;
+
+    const unifiedPoints = {};
+
+    Object.keys(gpsMap).forEach(name => {
+      if (gpsMap[name] && gpsMap[name].includes(',')) {
+        unifiedPoints[name] = { coords: gpsMap[name], label: name, source: 'Saved Waypoint' };
+      }
+    });
+
+    logs.forEach(log => {
+      if (log.setDetails) {
+        Object.keys(log.setDetails).forEach(setKey => {
+          const s = log.setDetails[setKey];
+          if (s.gps && s.gps.includes(',')) {
+            const spotName = s.area || log.areasSummary || 'Logged Spot';
+            if (!unifiedPoints[spotName]) {
+              unifiedPoints[spotName] = { coords: s.gps, label: spotName, source: `${log.date} (${s.legalsKept} Legals)` };
+            }
+          }
+        });
+      }
+    });
+
+    Object.keys(unifiedPoints).forEach(spotName => {
+      const item = unifiedPoints[spotName];
+      const parts = item.coords.split(',');
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const marker = L.marker([lat, lng]).addTo(leafletMapInstance);
+        const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        marker.bindPopup(`
+          <div style="font-family:sans-serif; font-size:12px;">
+            <strong style="color:#0284c7; font-size:13px;">${item.label}</strong><br/>
+            <span>📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}</span><br/>
+            <small style="color:#64748b;">${item.source}</small><br/>
+            <a href="${googleMapsUrl}" target="_blank" style="display:inline-block; margin-top:6px; background:#0284c7; color:white; padding:4px 8px; border-radius:4px; text-decoration:none; font-weight:bold;">🚗 Open in Google Maps</a>
+          </div>
+        `);
+        markerBounds.push([lat, lng]);
+        pinCount++;
+      }
+    });
+
+    document.getElementById('mapPinCount').innerText = `${pinCount} spot pins plotted`;
+
+    setTimeout(() => {
+      leafletMapInstance.invalidateSize();
+      if (markerBounds.length > 0) {
+        leafletMapInstance.fitBounds(markerBounds, { padding: [30, 30] });
+      } else {
+        leafletMapInstance.setView([33.7400, -118.2300], 11);
+      }
+    }, 200);
+  }
+
+  function closeSpotMapModal() {
+    document.getElementById('mapModal').style.display = 'none';
+  }
+
+  function exportWaypointsCSV() {
+    const confirmation = prompt("To export GPS Waypoints CSV, type 'GPS':");
+    if (confirmation !== 'GPS') return;
+
+    const spots = getAllActiveSpots();
+    const gpsMap = getSpotGPSMap();
+
+    const headers = ["Spot Name", "Coordinates", "Latitude", "Longitude"];
+    const rows = spots.map(spot => {
+      const coords = gpsMap[spot] || '';
+      let lat = '', lng = '';
+      if (coords.includes(',')) {
+        const parts = coords.split(',');
+        lat = parts[0].trim();
+        lng = parts[1].trim();
+      }
+      return [`"${spot}"`, `"${coords}"`, lat, lng];
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Lobster_Waypoints_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function importWaypointsCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+      if (lines.length <= 1) return alert('No waypoint records found.');
+
+      let customs = getCustomSpots();
+      let gpsMap = getSpotGPSMap();
+      let importedCount = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+        if (row.length < 2) continue;
+
+        const clean = row.map(cell => cell.replace(/^"|"$/g, '').trim());
+        const spotName = clean[0];
+        const coords = clean[1] || (clean[2] && clean[3] ? `${clean[2]}, ${clean[3]}` : '');
+
+        if (spotName) {
+          if (!customs.includes(spotName) && !DEFAULT_SPOTS.includes(spotName)) {
+            customs.push(spotName);
+          }
+          if (coords && coords.includes(',')) {
+            gpsMap[spotName] = coords;
+          }
+          importedCount++;
+        }
+      }
+
+      localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
+      setSpotGPSMap(gpsMap);
+      populateSpotDropdown();
+      alert(`Imported & updated ${importedCount} waypoint spots successfully!`);
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  }
 
   function getCurrentFormattedTime() {
     const d = new Date();
@@ -493,15 +986,33 @@
     document.getElementById('logTime').value = getCurrentFormattedTime();
   }
 
+  populateSpotDropdown();
+  populateBaitDropdown();
+  populateSetDropdown();
+  populateAnglerDropdown();
   setLiveDateTime();
 
   const savedUserEmail = localStorage.getItem('lobsterLog_userEmail') || '';
-  document.getElementById('userEmail').value = savedUserEmail;
+  const emailInput = document.getElementById('userEmail');
+  const emailEditBtn = document.getElementById('emailEditBtn');
+  emailInput.value = savedUserEmail;
+  if (!savedUserEmail) {
+    emailInput.disabled = false;
+    emailEditBtn.innerText = "💾 Save";
+  }
 
-  function saveUserEmail() {
-    const email = document.getElementById('userEmail').value.trim();
-    localStorage.setItem('lobsterLog_userEmail', email);
-    alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
+  function toggleEmailEdit() {
+    if (emailInput.disabled) {
+      emailInput.disabled = false;
+      emailInput.focus();
+      emailEditBtn.innerText = "💾 Save";
+    } else {
+      const email = emailInput.value.trim();
+      localStorage.setItem('lobsterLog_userEmail', email);
+      emailInput.disabled = true;
+      emailEditBtn.innerText = "✏️ Edit";
+      alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
+    }
   }
 
   function getMaxBoatLimit() {
@@ -538,12 +1049,23 @@
   }
 
   function switchSet(setName) {
+    if (setName === '__ADD_NEW_SET__') {
+      const nextNum = activeSetList.length + 1;
+      const nextSetName = `Set ${nextNum}`;
+      activeSetList.push(nextSetName);
+      activeNightSets[nextSetName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+      populateSetDropdown(nextSetName);
+      switchSet(nextSetName);
+      return;
+    }
+
     if (!setName) {
       document.getElementById('setArea').value = '';
       document.getElementById('gps').value = '';
       document.getElementById('depth').value = '';
       document.getElementById('soakTime').value = '';
       document.getElementById('netsCount').value = '';
+      document.getElementById('bait').value = '';
       document.getElementById('shorts').value = 0;
       document.getElementById('legalsKept').value = 0;
       document.getElementById('rockCrab').value = 0;
@@ -559,9 +1081,9 @@
     document.getElementById('logTime').value = activeNightSets[setName].time;
 
     const data = activeNightSets[setName];
-    document.getElementById('setArea').value = data.area || '';
+    populateSpotDropdown(data.area || '');
+    populateBaitDropdown(data.bait || '');
     document.getElementById('gps').value = data.gps || '';
-    document.getElementById('bait').value = data.bait || '';
     document.getElementById('depth').value = data.depth || '';
     document.getElementById('soakTime').value = data.soak || '';
     document.getElementById('netsCount').value = data.nets || '';
@@ -575,7 +1097,7 @@
 
   function saveCurrentSetToBuffer() {
     const currentSet = document.getElementById('setNumber').value;
-    if (!currentSet) return;
+    if (!currentSet || currentSet === '__ADD_NEW_SET__') return;
     activeNightSets[currentSet] = {
       time: document.getElementById('logTime').value,
       area: document.getElementById('setArea').value,
@@ -594,29 +1116,32 @@
   }
 
   function handleTripStatusChange(status) {
-    const btn = document.getElementById('actionBtn');
-    if (status === 'End Night') {
-      btn.innerText = "🛑 Finalize & Close Out Night";
-      btn.style.backgroundColor = "var(--accent)";
+    const statusSelect = document.getElementById('tripStatus');
+    const finalizeBtn = document.getElementById('finalizeBtn');
+
+    if (status === 'Start Night') {
+      const confirmed = confirm("Are you sure you want to START the night's fishing log?");
+      if (!confirmed) {
+        statusSelect.value = previousTripStatus;
+        return;
+      }
+      previousTripStatus = 'Start Night';
+      finalizeBtn.style.display = "none";
+      setLiveDateTime();
+    } else if (status === 'End Night') {
+      const confirmed = confirm("Are you sure you want to END the night's trip and prepare close-out?");
+      if (!confirmed) {
+        statusSelect.value = previousTripStatus;
+        return;
+      }
+      previousTripStatus = 'End Night';
+      finalizeBtn.style.display = "block";
       document.getElementById('logTime').value = getCurrentFormattedTime();
       syncRetainedFromSets();
     } else {
-      btn.innerText = "➕ Update Active Set";
-      btn.style.backgroundColor = "#0284c7";
+      previousTripStatus = '';
+      finalizeBtn.style.display = "none";
       setLiveDateTime();
-    }
-  }
-
-  function getGPS() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          document.getElementById('gps').value = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
-        },
-        () => alert('Unable to retrieve GPS.')
-      );
-    } else {
-      alert('Geolocation not supported on this device.');
     }
   }
 
@@ -638,8 +1163,17 @@
   }
 
   function resetFormOnly() {
+    const confirmation = prompt("To clear active form entries, type 'CLEAR':");
+    if (confirmation === 'CLEAR') {
+      executeFormReset();
+      alert("Form cleared.");
+    }
+  }
+
+  function executeFormReset() {
     document.getElementById('tripStatus').value = '';
-    handleTripStatusChange('');
+    previousTripStatus = '';
+    document.getElementById('finalizeBtn').style.display = "none";
     document.getElementById('setNumber').value = '';
     document.getElementById('setArea').value = '';
     document.getElementById('gps').value = '';
@@ -663,13 +1197,12 @@
     document.getElementById('dfwGear').value = '';
     document.getElementById('dfwRetained').value = 0;
 
-    activeNightSets = {
-      "Set 1": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 2": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 3": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 4": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' },
-      "Set 5": { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' }
-    };
+    activeSetList = ["Set 1", "Set 2", "Set 3", "Set 4"];
+    activeNightSets = {};
+    activeSetList.forEach(setName => {
+      activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+    });
+    populateSetDropdown();
     setLiveDateTime();
     syncRetainedFromSets();
   }
@@ -678,7 +1211,11 @@
     const confirmation = prompt("WARNING: This will permanently delete ALL catch history and reset the entire app. Type 'NUKE' to confirm:");
     if (confirmation === 'NUKE') {
       localStorage.removeItem('lobsterNightLogs');
-      resetFormOnly();
+      localStorage.removeItem('lobsterLog_customSpots');
+      localStorage.removeItem('lobsterLog_deletedDefaults');
+      localStorage.removeItem('lobsterLog_spotGPSMap');
+      localStorage.removeItem('lobsterLog_customBaits');
+      executeFormReset();
       renderLogs();
       alert('App has been completely wiped and factory reset.');
     }
@@ -747,7 +1284,7 @@
         Object.keys(log.setDetails).forEach(setName => {
           const s = log.setDetails[setName];
           if (s.shorts > 0 || s.legalsKept > 0 || s.rockCrab > 0 || s.spiderCrab > 0 || s.other || s.bait || s.setNotes || s.area || s.depth) {
-            const gpsLink = s.gps ? `<a class="gps-link" href="https://maps.apple.com/?q=${encodeURIComponent(s.gps)}" target="_blank">📍 Pin</a>` : '';
+            const gpsLink = s.gps ? `<a class="gps-link" href="https://www.google.com/maps?q=${encodeURIComponent(s.gps)}" target="_blank">📍 Pin</a>` : '';
             setRows += `
               <tr>
                 <td><strong>${setName}</strong> ${s.time ? `(${s.time})` : ''}</td>
@@ -862,41 +1399,13 @@ ${csvData}
     window.location.href = mailtoUrl;
   }
 
-  document.getElementById('logForm').addEventListener('submit', (e) => {
-    e.preventDefault();
+  function triggerCloseOut() {
     saveCurrentSetToBuffer();
 
-    const status = document.getElementById('tripStatus').value;
-
-    if (!status || status === 'Start Night') {
-      const setSelect = document.getElementById('setNumber');
-      const prevArea = document.getElementById('setArea').value;
-      const prevBait = document.getElementById('bait').value;
-      const prevDepth = document.getElementById('depth').value;
-      const prevSoak = document.getElementById('soakTime').value;
-      const prevNets = document.getElementById('netsCount').value;
-
-      if (setSelect.selectedIndex < 5 && setSelect.selectedIndex > 0) {
-        setSelect.selectedIndex += 1;
-        const nextSetKey = setSelect.value;
-        switchSet(nextSetKey);
-
-        // Auto carry forward setup options
-        if (!activeNightSets[nextSetKey].area) document.getElementById('setArea').value = prevArea;
-        if (!activeNightSets[nextSetKey].bait) document.getElementById('bait').value = prevBait;
-        if (!activeNightSets[nextSetKey].depth) document.getElementById('depth').value = prevDepth;
-        if (!activeNightSets[nextSetKey].soak) document.getElementById('soakTime').value = prevSoak;
-        if (!activeNightSets[nextSetKey].nets) document.getElementById('netsCount').value = prevNets;
-      } else if (setSelect.selectedIndex === 0) {
-        setSelect.selectedIndex = 1;
-        switchSet('Set 1');
-      }
-      syncRetainedFromSets();
-      alert('Set saved! Switched to next set with previous spot/depth carried forward.');
+    if (!confirm("Are you ready to close out tonight's trip and draft your email report?")) {
       return;
     }
 
-    // CLOSE OUT NIGHT LOGIC
     let nightLegals = 0;
     let nightShorts = 0;
     let nightRockCrab = 0;
@@ -947,12 +1456,50 @@ ${csvData}
     saveLogs(logs);
 
     sendNightEmailReport(tripRecord);
-    resetFormOnly();
+    executeFormReset();
+  }
+
+  document.getElementById('logForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveCurrentSetToBuffer();
+
+    const status = document.getElementById('tripStatus').value;
+    if (status === 'End Night') {
+      triggerCloseOut();
+      return;
+    }
+
+    const setSelect = document.getElementById('setNumber');
+    const prevArea = document.getElementById('setArea').value;
+    const prevBait = document.getElementById('bait').value;
+    const prevDepth = document.getElementById('depth').value;
+    const prevSoak = document.getElementById('soakTime').value;
+    const prevNets = document.getElementById('netsCount').value;
+
+    if (setSelect.selectedIndex < activeSetList.length && setSelect.selectedIndex > 0) {
+      setSelect.selectedIndex += 1;
+      const nextSetKey = setSelect.value;
+      switchSet(nextSetKey);
+
+      if (!activeNightSets[nextSetKey].area) document.getElementById('setArea').value = prevArea;
+      if (!activeNightSets[nextSetKey].bait) document.getElementById('bait').value = prevBait;
+      if (!activeNightSets[nextSetKey].depth) document.getElementById('depth').value = prevDepth;
+      if (!activeNightSets[nextSetKey].soak) document.getElementById('soakTime').value = prevSoak;
+      if (!activeNightSets[nextSetKey].nets) document.getElementById('netsCount').value = prevNets;
+    } else if (setSelect.selectedIndex === 0) {
+      setSelect.selectedIndex = 1;
+      switchSet('Set 1');
+    }
+    syncRetainedFromSets();
+    alert('Set saved! Switched to next set with previous spot/depth/bait carried forward.');
   });
 
   function exportToCSV() {
     const logs = getStoredLogs();
     if (logs.length === 0) return alert('No logs to export.');
+
+    const confirmation = prompt("To export and download season CSV, type 'CSV':");
+    if (confirmation !== 'CSV') return;
 
     const headers = [
       "Date", "Time", "Areas Visited", "Anglers", "DFW Code", "DFW Gear",
@@ -977,6 +1524,64 @@ ${csvData}
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+
+  function importCSVFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+      if (lines.length <= 1) return alert('No records found in selected file.');
+
+      const existingLogs = getStoredLogs();
+      let importedCount = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+        if (row.length < 10) continue;
+
+        const clean = row.map(cell => cell.replace(/^"|"$/g, '').trim());
+
+        const date = clean[0] || '';
+        const time = clean[1] || '';
+        const areasSummary = clean[2] || '';
+        const anglers = clean[3] || '1';
+        const dfwCode = clean[4] || '';
+        const dfwGear = clean[5] || '';
+        const totalLegals = parseInt(clean[6] || 0, 10);
+        const totalShorts = parseInt(clean[7] || 0, 10);
+        const totalRockCrab = parseInt(clean[8] || 0, 10);
+        const totalSpiderCrab = parseInt(clean[9] || 0, 10);
+        const sky = clean[10] || '';
+        const condNotes = clean[11] || '';
+        const airTemp = clean[12] || '';
+        const waterTemp = clean[13] || '';
+        const tide = clean[14] || '';
+        const moon = clean[15] || '';
+        const otherSpeciesSummary = clean[16] || '';
+
+        const exists = existingLogs.some(l => l.date === date && l.time === time);
+        if (!exists) {
+          existingLogs.push({
+            id: Date.now() + i,
+            date, time, areasSummary, anglers, dfwCode, dfwGear,
+            totalLegals, totalShorts, totalRockCrab, totalSpiderCrab,
+            sky, condNotes, airTemp, waterTemp, tide, moon,
+            otherSpeciesSummary,
+            setDetails: null
+          });
+          importedCount++;
+        }
+      }
+
+      saveLogs(existingLogs);
+      alert(`Import Complete! Successfully merged ${importedCount} past trip(s) into your history.`);
+      event.target.value = '';
+    };
+    reader.readAsText(file);
   }
 
   renderLogs();
