@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.ajf2122.hoophooklog",
+        "sha256_cert_fingerprints": ["67:6C:E3:8A:1F:D1:DC:ED:1D:4B:14:7E:06:AD:F2:0C:05:B8:66:D1:51:6E:BD:D6:73:70:4D:2A:B7:49:F7:8F"]
+      }
+    }]
