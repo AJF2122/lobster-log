@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Hoop & Hook Log: Spiny Lobster Edition" />
   <meta property="og:description" content="Multi-species marine catch tracker, diver log & CDFW/FWC report assistant." />
-   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png?v=2" />
+  <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png?v=2" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
   <link rel="manifest" href="manifest.json" />
@@ -359,6 +359,123 @@
       border: 1px solid var(--border);
     }
     .reg-box { background: var(--reg-box-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.8rem; line-height: 1.45; }
+
+    /* --- PRO & PAYWALL OVERLAY STYLES --- */
+    .pro-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    #mapContainer.map-blur-locked {
+      position: relative;
+    }
+
+    #mapContainer.map-blur-locked > div:not(.map-locked-overlay) {
+      filter: blur(8px);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .map-locked-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13, 21, 32, 0.78);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .paywall-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 999999;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .paywall-modal.active {
+      display: flex;
+    }
+
+    .paywall-card {
+      background: #16222f;
+      border: 1px solid #26384a;
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      color: #fff;
+      font-family: inherit;
+    }
+
+    .paywall-card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      color: #f59e0b;
+    }
+
+    .paywall-features {
+      text-align: left;
+      background: #0d1520;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 16px 0;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    .paywall-features li {
+      margin-bottom: 6px;
+      list-style: none;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .paywall-features li::before {
+      content: "✔";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .btn-unlock-pro {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      font-size: 1.05rem;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .btn-close-paywall {
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      margin-top: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
   </style>
 </head>
 <body>
@@ -880,6 +997,29 @@
   </div>
 </div>
 
+<!-- Freemium Paywall Modal -->
+<div id="paywallModal" class="paywall-modal">
+  <div class="paywall-card">
+    <h2>⚓ Upgrade to Hoop & Hook PRO</h2>
+    <p style="color: #94a3b8; font-size: 0.88rem;">Unlock full marine logbook capabilities on the water.</p>
+    
+    <ul class="paywall-features">
+      <li><strong>Full Bag Catch Logs:</strong> Log beyond the 5-catch free limit & multi-trip history</li>
+      <li><strong>Unblurred GPS Spot Mapping:</strong> Full waypoint & drift tracking view</li>
+      <li><strong>Boat Crews & Strings:</strong> 3+ Anglers & 5–10 active net deployments</li>
+      <li><strong>Custom Baits:</strong> Bonito, Squid, Sardines, Salmon heads & custom bait recipes</li>
+      <li><strong>Diver Suite:</strong> Multi-drop dives, Start/End PSI tracking & underwater visibility</li>
+      <li><strong>Compliance Export:</strong> Automated CDFW & FWC CSV report generation</li>
+    </ul>
+
+    <button id="btnBuyPro" class="btn-unlock-pro" onclick="processProUpgrade()">
+      Unlock Pro Lifetime • $4.99
+    </button>
+    <br>
+    <button class="btn-close-paywall" onclick="closePaywallModal()">Maybe Later</button>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
@@ -983,7 +1123,9 @@
 
     let html = '<option value="">-- Select Bait --</option>';
     allBaits.forEach(bait => {
-      html += `<option value="${bait}" ${bait === selectedVal ? 'selected' : ''}>${bait}</option>`;
+      const isMackerel = bait.toLowerCase().includes('mackerel');
+      const proTag = (!isPro() && !isMackerel) ? ' (🔒 PRO)' : '';
+      html += `<option value="${bait}" ${bait === selectedVal ? 'selected' : ''}>${bait}${proTag}</option>`;
     });
     html += '<option value="__ADD_NEW_BAIT__" style="color:var(--gold); font-weight:bold;">➕ Add New Bait...</option>';
     el.innerHTML = html;
@@ -993,7 +1135,9 @@
     const el = document.getElementById('setNumber');
     let html = '<option value="">-- Select Set --</option>';
     activeSetList.forEach(s => {
-      html += `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}</option>`;
+      const setNum = parseInt(s.replace(/\D/g, '') || '0', 10);
+      const proTag = (!isPro() && setNum > 2) ? ' (🔒 PRO)' : '';
+      html += `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}${proTag}</option>`;
     });
     html += '<option value="__ADD_NEW_SET__" style="color:var(--gold); font-weight:bold;">➕ Add Next Set...</option>';
     el.innerHTML = html;
@@ -1005,14 +1149,27 @@
     anglerOptions.forEach(num => {
       const max = num * ((activeTargetMode === 'lobster' && activeLobsterState === 'FL') ? 6 : 7);
       const limitText = (activeTargetMode === 'lobster') ? ` (Max ${max} Lobsters)` : '';
-      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''}${limitText}</option>`;
+      const proTag = (!isPro() && num > 2) ? ' (🔒 PRO)' : '';
+      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''}${limitText}${proTag}</option>`;
     });
     html += '<option value="__ADD_ANGLERS__" style="color:var(--gold); font-weight:bold;">➕ Add More Anglers...</option>';
     el.innerHTML = html;
   }
 
   function handleAnglerChange(val) {
+    if (!isPro() && parseInt(val, 10) > 2) {
+      showPaywall();
+      populateAnglerDropdown(2);
+      syncRetainedFromSets();
+      return;
+    }
+
     if (val === '__ADD_ANGLERS__') {
+      if (!isPro()) {
+        showPaywall();
+        populateAnglerDropdown(2);
+        return;
+      }
       const countStr = prompt("Enter total number of anglers/divers on board:");
       const num = parseInt(countStr, 10);
       if (num && num > 0) {
@@ -1059,7 +1216,18 @@
   }
 
   function handleBaitChange(val) {
+    if (!isPro() && val && !val.toLowerCase().includes('mackerel')) {
+      showPaywall();
+      populateBaitDropdown('Mackerel');
+      return;
+    }
+
     if (val === '__ADD_NEW_BAIT__') {
+      if (!isPro()) {
+        showPaywall();
+        populateBaitDropdown('Mackerel');
+        return;
+      }
       const newBait = prompt("Enter the name of the new bait:");
       if (newBait && newBait.trim()) {
         const cleanBait = newBait.trim();
@@ -1105,7 +1273,6 @@
     }
   }
 
-  // Populate State Select Dropdown based on Species Mode
   function populateStateDropdown() {
     const select = document.getElementById('stateRegionSelect');
     select.innerHTML = '';
@@ -1300,7 +1467,6 @@
     }
   }
 
-  // Active Session Lock Controller
   function setSessionLock(locked) {
     isSessionLocked = locked;
     const stateSelect = document.getElementById('stateRegionSelect');
@@ -1325,7 +1491,6 @@
     }
   }
 
-  // Spot Management Modal
   function openSpotManager() {
     const listEl = document.getElementById('spotModalList');
     const spots = getAllActiveSpots();
@@ -1384,7 +1549,6 @@
     }
   }
 
-  // Live Map Viewer Functions
   function openSpotMapModal() {
     document.getElementById('mapModal').style.display = 'flex';
 
@@ -1461,6 +1625,8 @@
         leafletMapInstance.setView([33.7400, -118.2300], 11);
       }
     }, 200);
+
+    enforceMapTier();
   }
 
   function closeSpotMapModal() {
@@ -1468,6 +1634,10 @@
   }
 
   function exportWaypointsCSV() {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
     const confirmation = prompt("To export GPS Waypoints CSV, type 'GPS':");
     if (confirmation !== 'GPS') return;
 
@@ -1497,6 +1667,10 @@
   }
 
   function importWaypointsCSV(event) {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
     const file = event.target.files[0];
     if (!file) return;
 
@@ -1602,7 +1776,15 @@
 
   function adjustCount(id, delta) {
     const el = document.getElementById(id);
-    let val = parseInt(el.value || 0, 10) + delta;
+    let val = parseInt(el.value || 0, 10);
+
+    // Free Tier Guard: Catch Counts capped at 5
+    if (!isPro() && delta > 0 && (id === 'count1' || id === 'dfwRetained') && val >= 5) {
+      showPaywall();
+      return;
+    }
+
+    val += delta;
     if (val < 0) val = 0;
     el.value = val;
     if (id !== 'dfwRetained') {
@@ -1612,7 +1794,19 @@
   }
 
   function switchSet(setName) {
+    const setNum = parseInt(setName.replace(/\D/g, '') || '0', 10);
+    if (!isPro() && setNum > 2) {
+      showPaywall();
+      document.getElementById('setNumber').value = 'Set 2';
+      return;
+    }
+
     if (setName === '__ADD_NEW_SET__') {
+      if (!isPro()) {
+        showPaywall();
+        document.getElementById('setNumber').value = 'Set 2';
+        return;
+      }
       const nextNum = activeSetList.length + 1;
       const nextSetName = `Set ${nextNum}`;
       activeSetList.push(nextSetName);
@@ -1704,6 +1898,13 @@
     const finalizeBtn = document.getElementById('finalizeBtn');
 
     if (status === 'Start Night') {
+      const storedTrips = getStoredLogs();
+      if (!isPro() && storedTrips.length >= 1) {
+        showPaywall();
+        statusSelect.value = previousTripStatus;
+        return;
+      }
+
       const confirmed = confirm("Are you sure you want to START the session log? Species mode & Region will be locked for this trip.");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
@@ -2085,6 +2286,11 @@ ${csvData}
     const prevNets = document.getElementById('netsCount').value;
 
     if (setSelect.selectedIndex < activeSetList.length && setSelect.selectedIndex > 0) {
+      if (!isPro() && (setSelect.selectedIndex + 1) > 2) {
+        showPaywall();
+        return;
+      }
+
       setSelect.selectedIndex += 1;
       const nextSetKey = setSelect.value;
       switchSet(nextSetKey);
@@ -2103,6 +2309,11 @@ ${csvData}
   });
 
   function exportToCSV() {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
+
     const logs = getStoredLogs();
     if (logs.length === 0) return alert('No logs to export.');
 
@@ -2135,6 +2346,11 @@ ${csvData}
   }
 
   function importCSVFile(event) {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
+
     const file = event.target.files[0];
     if (!file) return;
 
@@ -2192,6 +2408,103 @@ ${csvData}
     reader.readAsText(file);
   }
 
+  // Freemium Helper Logic
+  function isPro() {
+    return localStorage.getItem('hoop_hook_pro_unlocked') === 'true';
+  }
+
+  function showPaywall() {
+    const modal = document.getElementById('paywallModal');
+    if (modal) modal.classList.add('active');
+  }
+
+  function closePaywallModal() {
+    const modal = document.getElementById('paywallModal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function enforceMapTier() {
+    const mapEl = document.getElementById('mapContainer');
+    if (!mapEl) return;
+
+    if (!isPro()) {
+      mapEl.classList.add('map-blur-locked');
+      if (!document.getElementById('mapLockOverlay')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'mapLockOverlay';
+        overlay.className = 'map-locked-overlay';
+        overlay.innerHTML = `
+          <h3 style="color:#f59e0b; margin-bottom:6px; font-size:1.1rem;">🔒 Map Spots Locked</h3>
+          <p style="font-size:0.85rem; color:#cbd5e1; max-width:260px; margin-bottom:12px;">Waypoint and hot spot map viewing requires the PRO tier.</p>
+          <button class="btn-unlock-pro" style="width:auto; padding:8px 18px; font-size:0.85rem;" onclick="showPaywall()">Unlock Map ($4.99)</button>
+        `;
+        mapEl.appendChild(overlay);
+      }
+    } else {
+      mapEl.classList.remove('map-blur-locked');
+      const overlay = document.getElementById('mapLockOverlay');
+      if (overlay) overlay.remove();
+    }
+  }
+
+  function setupDiverInterception() {
+    const restrictedDiverIds = ['divePSI', 'diveViz'];
+    restrictedDiverIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !isPro()) {
+        el.placeholder = "🔒 PRO Feature";
+        el.readOnly = true;
+        el.style.cursor = "pointer";
+        el.onclick = () => showPaywall();
+      }
+    });
+
+    const envFields = ['waterTemp', 'moon'];
+    envFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !isPro()) {
+        if (el.tagName === 'INPUT') el.placeholder = "🔒 PRO";
+        el.onfocus = () => {
+          if (!isPro()) {
+            el.blur();
+            showPaywall();
+          }
+        };
+      }
+    });
+  }
+
+  async function processProUpgrade() {
+    if ('getDigitalGoodsService' in window) {
+      try {
+        const service = await window.getDigitalGoodsService('https://play.google.com/billing');
+        const paymentMethod = [{
+          supportedMethods: 'https://play.google.com/billing',
+          data: { sku: 'hoop_hook_pro_lifetime' }
+        }];
+        const paymentDetails = {
+          total: { label: 'Hoop & Hook Pro Lifetime', amount: { currency: 'USD', value: '4.99' } }
+        };
+
+        const request = new PaymentRequest(paymentMethod, paymentDetails);
+        const paymentResponse = await request.show();
+        await paymentResponse.complete('success');
+
+        localStorage.setItem('hoop_hook_pro_unlocked', 'true');
+        alert('⚓ Welcome to Hoop & Hook PRO! All features unlocked.');
+        location.reload();
+      } catch (err) {
+        console.error('Purchase flow error:', err);
+      }
+    } else {
+      if (confirm("Unlock PRO Lifetime for $4.99? (Local Test Mode)")) {
+        localStorage.setItem('hoop_hook_pro_unlocked', 'true');
+        alert("⚓ Hoop & Hook PRO Unlocked!");
+        location.reload();
+      }
+    }
+  }
+
   // Initialize
   initTheme();
   populateStateDropdown();
@@ -2202,6 +2515,7 @@ ${csvData}
   setLiveDateTime();
   switchTargetMode('lobster');
   renderLogs();
+  setupDiverInterception();
 </script>
 </body>
 </html>
