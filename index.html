@@ -3,52 +3,190 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CA Spiny Lobster Catch Log</title>
+  <title>Hoop & Hook Log: Spiny Lobster Edition</title>
 
-  <!-- Prevent Mobile Browsers From Holding Stale Code (Auto-Update Support) -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <!-- iMessage / Text Preview Image Tags -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="CA Spiny Lobster Catch Log" />
-  <meta property="og:description" content="Field entry, set tracker & CDFW report card assistant." />
+  <meta property="og:title" content="Hoop & Hook Log: Spiny Lobster Edition" />
+  <meta property="og:description" content="Multi-species marine catch tracker, diver log & CDFW/FWC report assistant." />
   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
-  <!-- App Icon on Home Screen -->
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
-  <!-- Leaflet Map CSS for Interactive Spot Mapping -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <style>
     :root {
+      /* Dark Theme (Night Mode) */
       --bg: #0d1520;
       --card-bg: #16222f;
       --border: #26384a;
       --text: #e2e8f0;
+      --muted: #8899a6;
+      --input-bg: #0f172a;
+      --banner-bg: linear-gradient(135deg, #1e293b, #0f172a);
+      --stepper-btn-bg: #334155;
+      --stepper-btn-hover: #475569;
+      --reg-box-bg: #0f172a;
+
+      /* Brand Accents */
       --accent: #e63946;
       --accent-hover: #d62839;
       --gold: #f59e0b;
       --green: #10b981;
-      --blue: #38bdf8;
-      --muted: #8899a6;
-      --input-bg: #0f172a;
+      --blue: #0284c7;
+      --crab-orange: #ea580c;
     }
+
+    /* Light Theme (Day Mode) */
+    body.light-theme {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --muted: #64748b;
+      --input-bg: #f8fafc;
+      --banner-bg: linear-gradient(135deg, #ffffff, #e2e8f0);
+      --stepper-btn-bg: #e2e8f0;
+      --stepper-btn-hover: #cbd5e1;
+      --reg-box-bg: #f8fafc;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; display: flex; justify-content: center; transition: background-color 0.25s ease, color 0.25s ease; }
     .container { width: 100%; max-width: 680px; }
-    h1 { text-align: center; color: var(--accent); margin-bottom: 4px; font-size: 1.6rem; }
-    p.subtitle { text-align: center; color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; }
     
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    h1 { 
+      color: var(--accent); 
+      font-size: 1.45rem; 
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Spiny Lobster Custom SVG Icon Sizes */
+    .spiny-icon-inline {
+      width: 1.25em;
+      height: 1.25em;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .spiny-icon-header {
+      width: 1.8rem;
+      height: 1.8rem;
+      flex-shrink: 0;
+    }
+    
+    .theme-toggle-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
+    
+    /* Target Mode Switcher */
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: var(--input-bg);
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .mode-btn {
+      padding: 10px 4px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s ease;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+      gap: 2px;
+    }
+    .mode-btn.active.lob-active {
+      background: #0284c7;
+      color: white;
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+    }
+    .mode-btn.active.crab-active {
+      background: var(--crab-orange);
+      color: white;
+      box-shadow: 0 0 10px rgba(234, 88, 12, 0.4);
+    }
+    .mode-btn.disabled-btn {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border: 1px dashed var(--border);
+    }
+    .mode-btn .badge-soon {
+      font-size: 0.6rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-top: 2px;
+      font-weight: normal;
+    }
+
+    /* State Switchers */
+    .state-selector {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: var(--input-bg);
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .state-selector.two-col { grid-template-columns: 1fr 1fr; }
+    .state-selector.three-col { grid-template-columns: repeat(3, 1fr); }
+    .state-btn {
+      padding: 8px 4px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+    .state-btn.active.lob-state { background: #0284c7; color: white; }
+    .state-btn.active.crab-state { background: var(--crab-orange); color: white; }
+
     .season-banner {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
+      background: var(--banner-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px;
@@ -59,32 +197,43 @@
     .stat-lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
     .card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    .section-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; color: #60a5fa; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+    .section-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 12px; color: #0284c7; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
     .cdfw-title { color: var(--gold); }
     
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
     .full-width { grid-column: 1 / -1; }
     label { font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 4px; }
-    input, select, textarea {
+    
+    .counter-label {
+      min-height: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .sub-measure { font-size: 0.68rem; font-weight: normal; color: var(--muted); }
+
+    input, select {
       width: 100%; padding: 8px; background-color: var(--input-bg); border: 1px solid var(--border);
       border-radius: 4px; color: var(--text); font-size: 0.9rem;
     }
     input:disabled {
-      background-color: #1e293b;
-      color: #94a3b8;
-      border-color: #334155;
+      background-color: var(--stepper-btn-bg);
+      color: var(--muted);
       cursor: not-allowed;
     }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
     
     .stepper { display: flex; align-items: center; gap: 4px; }
     .stepper input { text-align: center; font-weight: bold; font-size: 1rem; }
     .step-btn {
-      background-color: #334155; color: white; border: 1px solid var(--border);
+      background-color: var(--stepper-btn-bg); color: var(--text); border: 1px solid var(--border);
       border-radius: 4px; width: 36px; height: 38px; font-weight: bold; font-size: 1.1rem;
       cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .step-btn:hover { background-color: #475569; }
+    .step-btn:hover { background-color: var(--stepper-btn-hover); }
 
     .btn {
       cursor: pointer; background-color: #0284c7; color: white; border: none;
@@ -101,8 +250,8 @@
       box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
     }
     .btn-finalize:hover { background-color: var(--accent-hover); }
-    .btn-secondary { background-color: #334155; margin-top: 8px; }
-    .btn-secondary:hover { background-color: #475569; }
+    .btn-secondary { background-color: var(--stepper-btn-bg); color: var(--text); margin-top: 8px; border: 1px solid var(--border); }
+    .btn-secondary:hover { background-color: var(--stepper-btn-hover); }
     .btn-nuke { background-color: #7f1d1d; margin-top: 8px; }
     .btn-nuke:hover { background-color: #991b1b; }
     .btn-gps { background-color: #0284c7; padding: 6px 10px; font-size: 0.75rem; margin-top: 4px; }
@@ -113,7 +262,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-bottom: 14px;
-      background: #0f172a;
+      background: var(--input-bg);
       padding: 10px;
       border-radius: 6px;
       border: 1px solid var(--border);
@@ -122,14 +271,14 @@
     .log-item { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 10px; font-size: 0.85rem; }
     .log-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; color: var(--accent); margin-bottom: 6px; }
     .log-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-    .badge { background: #1e293b; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); font-size: 0.75rem; }
+    .badge { background: var(--card-bg); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); font-size: 0.75rem; }
     .badge-gold { border-color: var(--gold); color: var(--gold); }
     .badge-green { border-color: var(--green); color: var(--green); }
     .badge-blue { border-color: var(--blue); color: var(--blue); }
     
     details.set-breakdown {
       margin-top: 8px;
-      background: #1e293b;
+      background: var(--card-bg);
       padding: 6px 10px;
       border-radius: 4px;
       border: 1px solid var(--border);
@@ -151,7 +300,7 @@
       padding: 4px 6px;
       text-align: center;
     }
-    .set-table th { background: #0f172a; color: var(--muted); }
+    .set-table th { background: var(--input-bg); color: var(--muted); }
     .gps-link { color: var(--blue); text-decoration: none; }
     .gps-link:hover { text-decoration: underline; }
 
@@ -191,30 +340,156 @@
       margin-bottom: 12px;
       border: 1px solid var(--border);
     }
+    .reg-box { background: var(--reg-box-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 6px; font-size: 0.8rem; line-height: 1.4; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>🦞 CA Spiny Lobster Catch Log</h1>
-  <p class="subtitle">Field Entry, Set Tracker & CDFW Report Helper</p>
 
-  <!-- Season Running Tally -->
+<svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="icon-spiny-lobster" viewBox="0 0 550 650">
+    <path d="M225,140 Q130,95 48,220 Q30,340 58,580" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round"/>
+    <path d="M225,140 Q130,95 48,220 Q30,340 58,580" fill="none" stroke="#f97316" stroke-width="9" stroke-linecap="round"/>
+    
+    <path d="M325,140 Q420,95 502,220 Q520,340 492,580" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round"/>
+    <path d="M325,140 Q420,95 502,220 Q520,340 492,580" fill="none" stroke="#f97316" stroke-width="9" stroke-linecap="round"/>
+
+    <path d="M250,120 L160,12" fill="none" stroke="#220606" stroke-width="9" stroke-linecap="round"/>
+    <path d="M250,120 L160,12" fill="none" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
+    <path d="M300,120 L390,12" fill="none" stroke="#220606" stroke-width="9" stroke-linecap="round"/>
+    <path d="M300,120 L390,12" fill="none" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
+
+    <polyline points="220,185 160,165 75,180 50,215" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="220,185 160,165 75,180 50,215" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="70" y1="180" x2="56" y2="200" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="220,225 140,220 65,255 38,300" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="220,225 140,220 65,255 38,300" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="56" y1="265" x2="45" y2="285" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="220,265 130,280 60,340 38,390" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="220,265 130,280 60,340 38,390" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="52" y1="355" x2="42" y2="375" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="220,305 135,345 75,430 60,475" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="220,305 135,345 75,430 60,475" fill="none" stroke="#681313" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="70" y1="440" x2="63" y2="462" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="220,345 155,410 112,500 98,540" fill="none" stroke="#220606" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="220,345 155,410 112,500 98,540" fill="none" stroke="#681313" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="108" y1="510" x2="101" y2="532" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+
+    <polyline points="330,185 390,165 475,180 500,215" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="330,185 390,165 475,180 500,215" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="480" y1="180" x2="494" y2="200" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="330,225 410,220 485,255 512,300" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="330,225 410,220 485,255 512,300" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="494" y1="265" x2="505" y2="285" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="330,265 420,280 490,340 512,390" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="330,265 420,280 490,340 512,390" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="498" y1="355" x2="508" y2="375" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="330,305 415,345 475,430 490,475" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="330,305 415,345 475,430 490,475" fill="none" stroke="#681313" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="480" y1="440" x2="487" y2="462" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polyline points="330,345 395,410 438,500 452,540" fill="none" stroke="#220606" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="330,345 395,410 438,500 452,540" fill="none" stroke="#681313" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="442" y1="510" x2="449" y2="532" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+
+    <path d="M225,145 Q175,125 155,165 Q185,195 220,175 Z" fill="#881337" stroke="#220606" stroke-width="4"/>
+    <circle cx="180" cy="155" r="4.5" fill="#f59e0b"/>
+    <path d="M325,145 Q375,125 395,165 Q365,195 330,175 Z" fill="#881337" stroke="#220606" stroke-width="4"/>
+    <circle cx="370" cy="155" r="4.5" fill="#f59e0b"/>
+
+    <path d="M185,580 Q155,645 230,655 Q250,600 225,580 Z" fill="#881337" stroke="#220606" stroke-width="4.5"/>
+    <path d="M365,580 Q395,645 320,655 Q300,600 325,580 Z" fill="#881337" stroke="#220606" stroke-width="4.5"/>
+    <path d="M195,600 Q275,675 355,600 Q345,665 275,670 Q205,665 195,600 Z" fill="#f97316" stroke="#220606" stroke-width="4.5"/>
+
+    <path d="M248,555 L302,555 L298,605 L252,605 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+
+    <path d="M238,505 Q275,515 312,505 L308,550 Q275,560 242,550 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+    <path d="M243,535 Q275,545 307,535" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polygon points="233,528 240,518 241,538" fill="#f59e0b"/>
+    <polygon points="317,528 310,518 309,538" fill="#f59e0b"/>
+
+    <path d="M233,455 Q275,465 317,455 L312,505 Q275,515 238,505 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+    <path d="M238,485 Q275,495 312,485" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polygon points="228,478 235,468 236,488" fill="#f59e0b"/>
+    <polygon points="322,478 315,468 314,488" fill="#f59e0b"/>
+
+    <path d="M228,405 Q275,415 322,405 L317,455 Q275,465 233,455 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+    <path d="M233,435 Q275,445 317,435" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polygon points="223,428 230,418 231,438" fill="#f59e0b"/>
+    <polygon points="327,428 320,418 319,438" fill="#f59e0b"/>
+
+    <path d="M224,355 Q275,365 326,355 L322,405 Q275,415 228,405 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+    <path d="M228,385 Q275,395 322,385" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polygon points="219,378 226,368 227,388" fill="#f59e0b"/>
+    <polygon points="331,378 324,368 323,388" fill="#f59e0b"/>
+
+    <path d="M220,310 Q275,320 330,310 L326,355 Q275,365 224,355 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
+    <path d="M224,335 Q275,345 326,335" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
+    <polygon points="215,328 222,318 223,338" fill="#f59e0b"/>
+    <polygon points="335,328 328,318 327,338" fill="#f59e0b"/>
+
+    <path d="M225,180 Q275,160 325,180 Q350,230 335,360 Q275,370 215,360 Q200,230 225,180 Z" fill="#7a1a1a" stroke="#220606" stroke-width="5"/>
+    <path d="M245,210 Q275,195 305,210 Q320,250 310,335 Q275,345 240,335 Q230,250 245,210 Z" fill="#5c1212"/>
+
+    <path d="M250,135 Q275,125 300,135 L310,180 L240,180 Z" fill="#681313" stroke="#220606" stroke-width="3"/>
+
+    <path d="M228,180 L238,95 Q262,115 252,180 Z" fill="#f97316" stroke="#220606" stroke-width="4"/>
+    <path d="M322,180 L312,95 Q288,115 298,180 Z" fill="#f97316" stroke="#220606" stroke-width="4"/>
+  </symbol>
+</svg>
+
+<div class="container">
+  <div class="header-row">
+    <h1 id="mainTitle">
+      <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
+      <span>Hoop & Hook Log: Spiny Lobster Edition</span>
+    </h1>
+    <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+      <span id="themeIcon">☀️</span> <span id="themeText">Day Mode</span>
+    </button>
+  </div>
+  <p class="subtitle">Field Entry, Set Tracker & Multi-Species Logbook</p>
+
+  <div class="mode-selector">
+    <button type="button" id="btnLobsterMode" class="mode-btn active lob-active" onclick="switchTargetMode('lobster')">
+      <div style="display:flex; align-items:center; gap:4px;">
+        <svg class="spiny-icon-inline"><use href="#icon-spiny-lobster"/></svg>
+        <span>Lobster</span>
+      </div>
+    </button>
+    <button type="button" class="mode-btn disabled-btn" onclick="return false;" title="Fish Mode coming in future update">
+      <span>🎣 Fish Mode</span>
+      <span class="badge-soon">Coming Soon</span>
+    </button>
+    <button type="button" id="btnCrabMode" class="mode-btn" onclick="switchTargetMode('crab')">
+      <span>🦀 Crab</span>
+    </button>
+  </div>
+
+  <div class="state-selector two-col" id="lobsterStateSelector">
+    <button type="button" id="btnLobCA" class="state-btn active lob-state" onclick="setLobsterState('CA')">California (CDFW)</button>
+    <button type="button" id="btnLobFL" class="state-btn" onclick="setLobsterState('FL')">Florida (FWC)</button>
+  </div>
+
+  <div class="state-selector three-col" id="crabStateSelector" style="display:none;">
+    <button type="button" id="btnCA" class="state-btn active crab-state" onclick="setCrabState('CA')">California (CDFW)</button>
+    <button type="button" id="btnOR" class="state-btn" onclick="setCrabState('OR')">Oregon (ODFW)</button>
+    <button type="button" id="btnWA" class="state-btn" onclick="setCrabState('WA')">Washington (WDFW)</button>
+  </div>
+
   <div class="season-banner">
     <div>
-      <div class="stat-val" id="totalSeasonKept">0</div>
-      <div class="stat-lbl">Season Retained</div>
+      <div class="stat-val" id="bannerStat1">0</div>
+      <div class="stat-lbl" id="bannerStat1Lbl">Season Retained</div>
     </div>
     <div>
-      <div class="stat-val" style="color: var(--green);" id="totalShortsReleased">0</div>
-      <div class="stat-lbl">Shorts Released</div>
+      <div class="stat-val" style="color: var(--blue);" id="bannerStat2">0</div>
+      <div class="stat-lbl" id="bannerStat2Lbl">Shorts Released</div>
     </div>
     <div>
-      <div class="stat-val" style="color: #60a5fa;" id="totalTripsLogged">0</div>
-      <div class="stat-lbl">Nights Fished</div>
+      <div class="stat-val" style="color: var(--green);" id="bannerStat3">0</div>
+      <div class="stat-lbl" id="bannerStat3Lbl">Nights Fished</div>
     </div>
   </div>
 
-  <!-- User Personal Settings Card -->
   <details class="card" style="margin-bottom: 16px;">
     <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings & Waypoints</summary>
     <div style="margin-top: 10px;">
@@ -224,7 +499,6 @@
         <button type="button" id="emailEditBtn" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="toggleEmailEdit()">✏️ Edit</button>
       </div>
 
-      <!-- Live Map & Waypoints Management Section -->
       <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
         <label style="font-weight: bold; color: var(--gold);">🗺️ Spot Map & Waypoint Tools:</label>
         <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map</button>
@@ -236,7 +510,6 @@
         </div>
       </div>
 
-      <!-- Past Catch Logs Backup -->
       <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px;">
         <label style="font-weight: bold; color: var(--blue);">📁 Catch Log History Backup:</label>
         <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
@@ -245,9 +518,8 @@
         </div>
       </div>
 
-      <!-- Spot List & Resets -->
       <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
-        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; background-color: #0369a1;" onclick="openSpotManager()">📍 Manage Spots</button>
+        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; background-color: #0369a1; color:white;" onclick="openSpotManager()">📍 Manage Spots</button>
         <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomSpots()">Reset Default Spots</button>
         <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomBaits()">Reset Custom Baits</button>
       </div>
@@ -255,7 +527,6 @@
   </details>
 
   <form id="logForm">
-    <!-- Top Trip & Timing -->
     <div class="card">
       <div class="section-title">⏱️ Trip & Timing</div>
       <div class="grid">
@@ -263,8 +534,8 @@
           <label style="color: var(--gold); font-weight: bold;">Trip Status</label>
           <select id="tripStatus" onchange="handleTripStatusChange(this.value)">
             <option value="">-- Select Status --</option>
-            <option value="Start Night">🟢 Start Night (Active Fishing)</option>
-            <option value="End Night">🔴 End Night (Close Out Night & Email Report)</option>
+            <option value="Start Night">🟢 Start Session (Active Fishing/Pulling)</option>
+            <option value="End Night">🔴 End Session (Close Out & Email Report)</option>
           </select>
         </div>
         <div>
@@ -276,18 +547,15 @@
           <input type="time" id="logTime" required />
         </div>
         <div class="full-width">
-          <label style="color: #60a5fa; font-weight: bold;">Anglers on Boat (CDFW Cardholders)</label>
+          <label id="anglerTitleLabel" style="color: var(--blue); font-weight: bold;">Anglers on Boat (CDFW Cardholders)</label>
           <select id="anglerCount" onchange="handleAnglerChange(this.value)">
-            <!-- Populated Dynamically -->
-          </select>
+            </select>
         </div>
       </div>
 
-      <!-- Prominent Finalize Button -->
       <button type="button" id="finalizeBtn" class="btn btn-finalize" onclick="triggerCloseOut()">🛑 Finalize & Close Out Night</button>
     </div>
 
-    <!-- Conditions Section -->
     <div class="card">
       <div class="section-title">🌊 Conditions</div>
       <div class="grid">
@@ -341,16 +609,13 @@
       </div>
     </div>
 
-    <!-- Sets & Catch Tracking -->
     <div class="card">
       <div class="section-title">🎯 Sets & Catch Tracking</div>
       <div class="grid">
-        <!-- Bait Used, Depth, Soak, Nets -->
         <div>
           <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
           <select id="bait" onchange="handleBaitChange(this.value)">
-            <!-- Populated Dynamically -->
-          </select>
+            </select>
         </div>
         <div>
           <label style="color: var(--blue); font-weight: bold;">Depth (ft)</label>
@@ -361,7 +626,7 @@
           <input type="number" id="soakTime" placeholder="45" />
         </div>
         <div>
-          <label style="color: var(--blue); font-weight: bold;">Hoops Pulled</label>
+          <label style="color: var(--blue); font-weight: bold;">Hoops / Pots Pulled</label>
           <input type="number" id="netsCount" placeholder="10" />
         </div>
         <div class="full-width">
@@ -369,20 +634,16 @@
           <input type="text" id="setQuickNotes" placeholder="e.g., inside wall, heavy current, seal bite" />
         </div>
 
-        <!-- Select Active Set -->
         <div class="full-width">
           <label style="font-weight: bold; color: var(--green);">Select Active Set</label>
           <select id="setNumber" onchange="switchSet(this.value)">
-            <!-- Populated Dynamically (Starts with 4 Sets) -->
-          </select>
+            </select>
         </div>
 
-        <!-- Per-Set Location & GPS -->
         <div class="full-width">
-          <label style="color: var(--gold); font-weight: bold;">Fishing Area for this Set</label>
+          <label style="color: var(--gold); font-weight: bold;">Fishing / Crabbing Area for this Set</label>
           <select id="setArea" onchange="handleSpotChange(this.value)">
-            <!-- Populated Dynamically -->
-          </select>
+            </select>
         </div>
         <div class="full-width">
           <label>Set GPS Coordinates (Lat, Long)</label>
@@ -392,135 +653,195 @@
           </div>
         </div>
 
-        <!-- Lobsters: Shorts & Legals -->
         <div>
-          <label style="color: var(--green); font-weight: bold;">Lobster: Shorts</label>
+          <div class="counter-label" id="box1Title" style="color: var(--green);">
+            <span>Lobster Keepers</span>
+            <span class="sub-measure" id="box1Sub">(3 1/4" min)</span>
+          </div>
           <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('shorts', -1)">-</button>
-            <input type="number" id="shorts" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('shorts', 1)">+</button>
+            <button type="button" class="step-btn" onclick="adjustCount('count1', -1)">-</button>
+            <input type="number" id="count1" min="0" value="0" />
+            <button type="button" class="step-btn" onclick="adjustCount('count1', 1)">+</button>
           </div>
         </div>
 
         <div>
-          <label style="color: #4ade80; font-weight: bold;">Lobster: Legals (Kept)</label>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('legalsKept', -1)">-</button>
-            <input type="number" id="legalsKept" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('legalsKept', 1)">+</button>
+          <div class="counter-label" id="box2Title" style="color: var(--green);">
+            <span>Rock Crabs Kept</span>
+            <span class="sub-measure" id="box2Sub">(4 1/4" min)</span>
           </div>
-        </div>
-
-        <!-- Crabs Sections -->
-        <div>
-          <label>Rock Crab Kept</label>
           <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('rockCrab', -1)">-</button>
-            <input type="number" id="rockCrab" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('rockCrab', 1)">+</button>
+            <button type="button" class="step-btn" onclick="adjustCount('count2', -1)">-</button>
+            <input type="number" id="count2" min="0" value="0" />
+            <button type="button" class="step-btn" onclick="adjustCount('count2', 1)">+</button>
           </div>
         </div>
 
         <div>
-          <label>Spider Crabs</label>
+          <div class="counter-label" id="box3Title" style="color: var(--blue);">
+            <span id="box3Main">Lobster Shorts</span>
+            <span class="sub-measure">Released</span>
+          </div>
           <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('spiderCrab', -1)">-</button>
-            <input type="number" id="spiderCrab" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('spiderCrab', 1)">+</button>
+            <button type="button" class="step-btn" onclick="adjustCount('count3', -1)">-</button>
+            <input type="number" id="count3" min="0" value="0" />
+            <button type="button" class="step-btn" onclick="adjustCount('count3', 1)">+</button>
           </div>
         </div>
 
-        <!-- Other Species & Notes -->
+        <div>
+          <div class="counter-label" id="box4Title" style="color: var(--blue);">
+            <span id="box4Main">Rock Crab Shorts</span>
+            <span class="sub-measure">Released</span>
+          </div>
+          <div class="stepper">
+            <button type="button" class="step-btn" onclick="adjustCount('count4', -1)">-</button>
+            <input type="number" id="count4" min="0" value="0" />
+            <button type="button" class="step-btn" onclick="adjustCount('count4', 1)">+</button>
+          </div>
+        </div>
+
         <div class="full-width">
-          <label>Other Species & Notes</label>
-          <input type="text" id="otherSpecies" placeholder="e.g., Octopus, Horn Shark, Moray Eel, Calico Bass..." />
+          <details style="background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 4px;">
+            <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--blue);">
+              🤿 Diver Logs & Dive Profile (Optional)
+            </summary>
+            <div class="grid" style="margin-top: 10px;">
+              <div>
+                <label>Dive Method</label>
+                <select id="diveMethod">
+                  <option value="">-- Select Method --</option>
+                  <option value="Freedive / Snorkel">Freedive / Snorkel</option>
+                  <option value="SCUBA">SCUBA</option>
+                  <option value="Hookah / Surface">Hookah / Surface Line</option>
+                </select>
+              </div>
+              <div>
+                <label>Entry Type</label>
+                <select id="diveEntry">
+                  <option value="Boat Dive">Boat Dive</option>
+                  <option value="Shore / Beach">Shore / Beach Entry</option>
+                  <option value="Kayak / Skiff">Kayak / Skiff Dive</option>
+                </select>
+              </div>
+              <div>
+                <label>Bottom Time (min)</label>
+                <input type="number" id="diveTime" placeholder="45" />
+              </div>
+              <div>
+                <label>Max Dive Depth (ft)</label>
+                <input type="number" id="diveMaxDepth" placeholder="30" />
+              </div>
+              <div>
+                <label>Start / End Tank PSI</label>
+                <input type="text" id="divePSI" placeholder="3000 / 700" />
+              </div>
+              <div>
+                <label>Water Visibility (ft)</label>
+                <input type="number" id="diveViz" placeholder="15" />
+              </div>
+              <div class="full-width">
+                <label>Dive Buddy & Route Notes</label>
+                <input type="text" id="diveNotes" placeholder="e.g., Buddy: Mike, checked south ledges, high surge on bottom..." />
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="full-width">
+          <label>Other Species & Incidental Notes</label>
+          <input type="text" id="otherSpecies" placeholder="e.g., Spider Crab, Octopus, Horn Shark, Calico Bass..." />
         </div>
       </div>
     </div>
 
-    <!-- CDFW Official Report Card Section -->
     <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
-      <div class="section-title cdfw-title">📋 CDFW Report Card Reference</div>
-      <div class="grid">
-        <div class="full-width">
-          <label>DFW Location Code</label>
-          <select id="dfwCode">
-            <option value="">-- Select DFW Code --</option>
-            <option value="203">203 - Los Angeles / Long Beach Harbor & Breakwater</option>
-            <option value="202">202 - Palos Verdes Point to Point Vicente</option>
-            <option value="201">201 - Santa Monica Bay / Malibu</option>
-            <option value="204">204 - Sunset Beach to Newport Beach</option>
-            <option value="205">205 - Dana Point to San Mateo Point</option>
-            <option value="206">206 - Oceanside to Encinitas</option>
-            <option value="207">207 - Point La Jolla to Point Loma</option>
-            <option value="208">208 - San Diego Bay & Zuniga Jetty</option>
-            <option value="301">301 - Santa Catalina Island (East/Harbors)</option>
-            <option value="302">302 - Santa Catalina Island (West/Backside)</option>
-            <option value="101">101 - Ventura / Channel Islands Harbor</option>
-          </select>
-        </div>
-        <div>
-          <label>Gear Type</label>
-          <select id="dfwGear">
-            <option value="">-- Select Gear --</option>
-            <option value="H-B">Hoop Net (Boat)</option>
-            <option value="H-S">Hoop Net (Shore/Pier)</option>
-            <option value="D-F">Diving (Freedive)</option>
-            <option value="D-S">Diving (SCUBA)</option>
-          </select>
-        </div>
-        <div>
-          <label style="color: var(--gold); font-weight: bold;">
-            Total Boat Keepers <span id="limitLabel" style="font-size:0.7rem; color:var(--muted);">(Boat Limit: 7)</span>
-          </label>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', -1)">-</button>
-            <input type="number" id="dfwRetained" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', 1)">+</button>
+      <div class="section-title cdfw-title" id="regCardTitle">📋 CDFW Report Card Reference (California)</div>
+      
+      <div id="lobsterCDFWFields">
+        <div class="grid">
+          <div class="full-width">
+            <label>DFW Location Code</label>
+            <select id="dfwCode">
+              <option value="">-- Select DFW Code --</option>
+              <option value="203">203 - Los Angeles / Long Beach Harbor & Breakwater</option>
+              <option value="202">202 - Palos Verdes Point to Point Vicente</option>
+              <option value="201">201 - Santa Monica Bay / Malibu</option>
+              <option value="204">204 - Sunset Beach to Newport Beach</option>
+              <option value="205">205 - Dana Point to San Mateo Point</option>
+              <option value="206">206 - Oceanside to Encinitas</option>
+              <option value="207">207 - Point La Jolla to Point Loma</option>
+              <option value="208">208 - San Diego Bay & Zuniga Jetty</option>
+              <option value="301">301 - Santa Catalina Island (East/Harbors)</option>
+              <option value="302">302 - Santa Catalina Island (West/Backside)</option>
+              <option value="101">101 - Ventura / Channel Islands Harbor</option>
+            </select>
+          </div>
+          <div>
+            <label>Gear Type</label>
+            <select id="dfwGear">
+              <option value="">-- Select Gear --</option>
+              <option value="H-B">Hoop Net (Boat)</option>
+              <option value="H-S">Hoop Net (Shore/Pier)</option>
+              <option value="D-F">Diving (Freedive)</option>
+              <option value="D-S">Diving (SCUBA)</option>
+            </select>
+          </div>
+          <div>
+            <label style="color: var(--gold); font-weight: bold;">
+              Total Boat Keepers <span id="limitLabel" style="font-size:0.7rem; color:var(--muted);">(Boat Limit: 7)</span>
+            </label>
+            <div class="stepper">
+              <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', -1)">-</button>
+              <input type="number" id="dfwRetained" min="0" value="0" />
+              <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', 1)">+</button>
+            </div>
           </div>
         </div>
       </div>
+
+      <div class="reg-box" id="regCardContent" style="display: none;"></div>
     </div>
 
     <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
   </form>
 
-  <!-- History Section -->
-  <div class="card" style="margin-top: 24px;">
-    <div class="section-title">
-      <span>📖 Catch History (<span id="logCount">0</span> Nights)</span>
-    </div>
+  <details class="card" style="margin-top: 24px;">
+    <summary style="cursor: pointer; font-size: 0.95rem; font-weight: bold; color: var(--gold);">
+      📖 Catch History (<span id="logCount">0</span> Nights)
+    </summary>
 
-    <div class="history-controls">
-      <div>
-        <label>Sort By</label>
-        <select id="sortField" onchange="renderLogs()">
-          <option value="">-- Select Sort --</option>
-          <option value="date-desc">Date (Newest First)</option>
-          <option value="date-asc">Date (Oldest First)</option>
-          <option value="legals-desc">Legals Kept (High → Low)</option>
-          <option value="shorts-desc">Shorts (High → Low)</option>
-          <option value="area-asc">Area (A → Z)</option>
-          <option value="waterTemp-desc">Water Temp (Warm → Cold)</option>
-        </select>
+    <div style="margin-top: 14px;">
+      <div class="history-controls">
+        <div>
+          <label>Sort By</label>
+          <select id="sortField" onchange="renderLogs()">
+            <option value="">-- Select Sort --</option>
+            <option value="date-desc">Date (Newest First)</option>
+            <option value="date-asc">Date (Oldest First)</option>
+            <option value="legals-desc">Legals Kept (High → Low)</option>
+            <option value="shorts-desc">Shorts (High → Low)</option>
+            <option value="area-asc">Area (A → Z)</option>
+            <option value="waterTemp-desc">Water Temp (Warm → Cold)</option>
+          </select>
+        </div>
+        <div>
+          <label>Search / Filter</label>
+          <input type="text" id="searchFilter" placeholder="Search area, bait, notes..." oninput="renderLogs()" />
+        </div>
       </div>
-      <div>
-        <label>Search / Filter</label>
-        <input type="text" id="searchFilter" placeholder="Search area, bait, notes..." oninput="renderLogs()" />
-      </div>
-    </div>
 
-    <div id="logList"></div>
-  </div>
+      <div id="logList"></div>
+    </div>
+  </details>
 
   <div style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
     <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
-    <button class="btn btn-secondary" style="background-color: #0369a1;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
+    <button class="btn btn-secondary" style="background-color: #0369a1; color:white;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
     <button class="btn btn-nuke full-width" onclick="nukeEntireLog()">🧨 Nuke Entire Log (Factory Reset)</button>
   </div>
 </div>
 
-<!-- Manage Spots Modal -->
 <div id="spotModal" class="modal-overlay">
   <div class="modal-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
@@ -532,7 +853,6 @@
   </div>
 </div>
 
-<!-- Live All-Spots Map Modal -->
 <div id="mapModal" class="modal-overlay">
   <div class="modal-content" style="max-width: 620px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
@@ -547,74 +867,87 @@
   </div>
 </div>
 
-<!-- Leaflet Map JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  const CURRENT_APP_VERSION = "2.7.0";
+  const CURRENT_APP_VERSION = "3.9.0";
 
   (function checkAppVersion() {
-    const savedVersion = localStorage.getItem('lobsterLog_appVersion');
+    const savedVersion = localStorage.getItem('hookHoop_appVersion');
     if (savedVersion !== CURRENT_APP_VERSION) {
-      localStorage.setItem('lobsterLog_appVersion', CURRENT_APP_VERSION);
+      localStorage.setItem('hookHoop_appVersion', CURRENT_APP_VERSION);
       if (savedVersion) {
         window.location.reload(true);
       }
     }
   })();
 
-  const DEFAULT_SPOTS = [
-    "Harbor Scenic B-wall N", "Harbor Scenic B-wall S", "Cosco Wall",
-    "Park Point", "Nimitz Wall", "Tree B-Wall", "Navy Bridge",
-    "Lobster Wall", "Rock Crab Point", "Navy Wall S", "Navy Wall W",
-    "Breakwall SP", "Breakwall Mid", "Breakwall Nacho", "Chaffe"
-  ];
+  let activeTargetMode = 'lobster'; // 'lobster' or 'crab'
+  let activeLobsterState = 'CA';    // 'CA' or 'FL'
+  let activeCrabState = 'CA';       // 'CA', 'OR', 'WA'
+  let previousTripStatus = '';
+  let leafletMapInstance = null;
 
-  const DEFAULT_BAITS = ["Mackerel", "Sardines", "Salmon Heads"];
+  // Theme Management (Light vs Dark)
+  function initTheme() {
+    const savedTheme = localStorage.getItem('hookHoop_theme') || 'dark';
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+      updateThemeButton(true);
+    } else {
+      document.body.classList.remove('light-theme');
+      updateThemeButton(false);
+    }
+  }
+
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light-theme');
+    localStorage.setItem('hookHoop_theme', isLight ? 'light' : 'dark');
+    updateThemeButton(isLight);
+  }
+
+  function updateThemeButton(isLight) {
+    document.getElementById('themeIcon').innerText = isLight ? '🌙' : '☀️';
+    document.getElementById('themeText').innerText = isLight ? 'Night Mode' : 'Day Mode';
+  }
+
+  const LOBSTER_BAITS = ["Mackerel", "Sardines", "Salmon Heads", "Bonito", "Bully Net (No Bait)"];
+  const CRAB_BAITS = ["Squid & Fish Carcasses", "Mackerel", "Chicken / Turkey", "Salmon Heads", "Clams"];
 
   // Default to 4 sets
   let activeSetList = ["Set 1", "Set 2", "Set 3", "Set 4"];
   let activeNightSets = {};
   activeSetList.forEach(setName => {
-    activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+    activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', count1: 0, count2: 0, count3: 0, count4: 0, other: '', diveMethod: '', diveEntry: '', diveTime: '', diveMaxDepth: '', divePSI: '', diveViz: '', diveNotes: '' };
   });
 
   let anglerOptions = [1, 2, 3, 4];
-  let leafletMapInstance = null;
-  let previousTripStatus = '';
 
   function getCustomSpots() {
-    return JSON.parse(localStorage.getItem('lobsterLog_customSpots') || '[]');
-  }
-
-  function getDeletedDefaultSpots() {
-    return JSON.parse(localStorage.getItem('lobsterLog_deletedDefaults') || '[]');
+    return JSON.parse(localStorage.getItem('hookHoop_customSpots') || '[]');
   }
 
   function getSpotGPSMap() {
-    return JSON.parse(localStorage.getItem('lobsterLog_spotGPSMap') || '{}');
+    return JSON.parse(localStorage.getItem('hookHoop_spotGPSMap') || '{}');
   }
 
   function setSpotGPSMap(map) {
-    localStorage.setItem('lobsterLog_spotGPSMap', JSON.stringify(map));
+    localStorage.setItem('hookHoop_spotGPSMap', JSON.stringify(map));
   }
 
   function getAllActiveSpots() {
-    const customs = getCustomSpots();
-    const deleted = getDeletedDefaultSpots();
-    const activeDefaults = DEFAULT_SPOTS.filter(s => !deleted.includes(s));
-    return [...activeDefaults, ...customs];
+    return getCustomSpots();
   }
 
   function getCustomBaits() {
-    return JSON.parse(localStorage.getItem('lobsterLog_customBaits') || '[]');
+    return JSON.parse(localStorage.getItem('hookHoop_customBaits') || '[]');
   }
 
   function populateSpotDropdown(selectedVal = '') {
     const el = document.getElementById('setArea');
     const allSpots = getAllActiveSpots();
 
-    let html = '<option value="">-- Select Area --</option>';
+    let html = '<option value="">-- Select or Add Area --</option>';
     allSpots.forEach(spot => {
       html += `<option value="${spot}" ${spot === selectedVal ? 'selected' : ''}>${spot}</option>`;
     });
@@ -624,8 +957,9 @@
 
   function populateBaitDropdown(selectedVal = '') {
     const el = document.getElementById('bait');
+    const baseBaits = (activeTargetMode === 'lobster') ? LOBSTER_BAITS : CRAB_BAITS;
     const customs = getCustomBaits();
-    const allBaits = [...DEFAULT_BAITS, ...customs];
+    const allBaits = [...baseBaits, ...customs];
 
     let html = '<option value="">-- Select Bait --</option>';
     allBaits.forEach(bait => {
@@ -649,8 +983,9 @@
     const el = document.getElementById('anglerCount');
     let html = '';
     anglerOptions.forEach(num => {
-      const max = num * 7;
-      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''} (Max ${max} Lobsters)</option>`;
+      const max = num * ((activeTargetMode === 'lobster' && activeLobsterState === 'FL') ? 6 : 7);
+      const limitText = (activeTargetMode === 'lobster') ? ` (Max ${max} Lobsters)` : '';
+      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''}${limitText}</option>`;
     });
     html += '<option value="__ADD_ANGLERS__" style="color:var(--gold); font-weight:bold;">➕ Add More Anglers...</option>';
     el.innerHTML = html;
@@ -658,7 +993,7 @@
 
   function handleAnglerChange(val) {
     if (val === '__ADD_ANGLERS__') {
-      const countStr = prompt("Enter total number of anglers on board:");
+      const countStr = prompt("Enter total number of anglers/divers on board:");
       const num = parseInt(countStr, 10);
       if (num && num > 0) {
         if (!anglerOptions.includes(num)) {
@@ -677,14 +1012,14 @@
 
   function handleSpotChange(val) {
     if (val === '__ADD_NEW_SPOT__') {
-      const newSpot = prompt("Enter the name of the new fishing spot:");
+      const newSpot = prompt("Enter new fishing/crabbing area name:");
       if (newSpot && newSpot.trim()) {
         const cleanSpot = newSpot.trim();
         if (confirm(`Add "${cleanSpot}" to your permanent spots list?`)) {
           const customs = getCustomSpots();
           if (!customs.includes(cleanSpot)) {
             customs.push(cleanSpot);
-            localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
+            localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
           }
           populateSpotDropdown(cleanSpot);
           saveCurrentSetToBuffer();
@@ -710,9 +1045,9 @@
         const cleanBait = newBait.trim();
         if (confirm(`Add "${cleanBait}" to your permanent bait list?`)) {
           const customs = getCustomBaits();
-          if (!customs.includes(cleanBait) && !DEFAULT_BAITS.includes(cleanBait)) {
+          if (!customs.includes(cleanBait)) {
             customs.push(cleanBait);
-            localStorage.setItem('lobsterLog_customBaits', JSON.stringify(customs));
+            localStorage.setItem('hookHoop_customBaits', JSON.stringify(customs));
           }
           populateBaitDropdown(cleanBait);
           saveCurrentSetToBuffer();
@@ -750,6 +1085,143 @@
     }
   }
 
+  function switchTargetMode(mode) {
+    activeTargetMode = mode;
+    const lobBtn = document.getElementById('btnLobsterMode');
+    const crabBtn = document.getElementById('btnCrabMode');
+    const lobStateBar = document.getElementById('lobsterStateSelector');
+    const crabStateBar = document.getElementById('crabStateSelector');
+
+    if (mode === 'lobster') {
+      lobBtn.className = 'mode-btn active lob-active';
+      crabBtn.className = 'mode-btn';
+      lobStateBar.style.display = 'grid';
+      crabStateBar.style.display = 'none';
+
+      document.getElementById('mainTitle').innerHTML = `
+        <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
+        <span>Hoop & Hook Log: Spiny Lobster Edition</span>
+      `;
+      setLobsterState(activeLobsterState);
+    } else {
+      crabBtn.className = 'mode-btn active crab-active';
+      lobBtn.className = 'mode-btn';
+      lobStateBar.style.display = 'none';
+      crabStateBar.style.display = 'grid';
+
+      document.getElementById('mainTitle').innerHTML = `<span>🦀 Hoop & Hook Log: Crab Edition</span>`;
+      document.getElementById('anglerTitleLabel').innerText = "Anglers / Crabbers on Boat";
+      setCrabState(activeCrabState);
+    }
+    populateSpotDropdown();
+    populateBaitDropdown();
+    populateAnglerDropdown(document.getElementById('anglerCount').value || 1);
+    updateRunningTotals(getStoredLogs());
+  }
+
+  function setLobsterState(state) {
+    activeLobsterState = state;
+    document.getElementById('btnLobCA').className = 'state-btn lob-state' + (state === 'CA' ? ' active' : '');
+    document.getElementById('btnLobFL').className = 'state-btn lob-state' + (state === 'FL' ? ' active' : '');
+
+    const cdfwFields = document.getElementById('lobsterCDFWFields');
+    const regContent = document.getElementById('regCardContent');
+    const regTitle = document.getElementById('regCardTitle');
+
+    document.getElementById('box1Title').style.color = "var(--green)";
+    document.getElementById('box2Title').style.color = "var(--green)";
+    document.getElementById('box3Title').style.color = "var(--blue)";
+    document.getElementById('box4Title').style.color = "var(--blue)";
+
+    if (state === 'CA') {
+      cdfwFields.style.display = 'block';
+      regContent.style.display = 'none';
+      regTitle.innerText = "📋 CDFW Report Card Reference (California)";
+      document.getElementById('anglerTitleLabel').innerText = "Anglers on Boat (CDFW Cardholders)";
+
+      document.getElementById('box1Title').innerHTML = `<span>Lobster Keepers</span><span class="sub-measure">(3 1/4" min)</span>`;
+      document.getElementById('box2Title').innerHTML = `<span>Rock Crabs Kept</span><span class="sub-measure">(4 1/4" min)</span>`;
+      document.getElementById('box3Title').innerHTML = `<span>Lobster Shorts</span><span class="sub-measure">Released</span>`;
+      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+    } else {
+      cdfwFields.style.display = 'none';
+      regContent.style.display = 'block';
+      regTitle.innerText = "📋 Florida Spiny Lobster Regulations (FWC)";
+      document.getElementById('anglerTitleLabel').innerText = "Anglers / Divers on Boat";
+
+      document.getElementById('box1Title').innerHTML = `<span>Florida Spiny Lobster</span><span class="sub-measure">(> 3" Carapace)</span>`;
+      document.getElementById('box2Title').innerHTML = `<span>Stone Crab Claws</span><span class="sub-measure">(2 7/8" min claw)</span>`;
+      document.getElementById('box3Title').innerHTML = `<span>Short Lobsters</span><span class="sub-measure">Released in Water</span>`;
+      document.getElementById('box4Title').innerHTML = `<span>Egg-Bearing / Shorts</span><span class="sub-measure">Released</span>`;
+
+      regContent.innerHTML = `
+        • <strong>Size Requirement:</strong> Carapace MUST be larger than 3" (measured in the water with gauge before landing).<br/>
+        • <strong>Daily Bag Limit:</strong> 6 per harvester per day (Monroe County / Florida Keys & statewide regular season).<br/>
+        • <strong>Sport Mini-Season:</strong> 6 per person/day in Monroe Co./Biscayne; 12 per person/day statewide.<br/>
+        • <strong>Gear / Rules:</strong> Bully net, hand net, tickle stick. Spearing, crushing, or puncturing lobster is strictly prohibited. Releasing egg-bearing females is mandatory.
+      `;
+    }
+    populateAnglerDropdown(document.getElementById('anglerCount').value || 1);
+    syncRetainedFromSets();
+  }
+
+  function setCrabState(state) {
+    activeCrabState = state;
+    document.getElementById('btnCA').className = 'state-btn crab-state' + (state === 'CA' ? ' active' : '');
+    document.getElementById('btnOR').className = 'state-btn crab-state' + (state === 'OR' ? ' active' : '');
+    document.getElementById('btnWA').className = 'state-btn crab-state' + (state === 'WA' ? ' active' : '');
+
+    const cdfwFields = document.getElementById('lobsterCDFWFields');
+    const regContent = document.getElementById('regCardContent');
+    const regTitle = document.getElementById('regCardTitle');
+
+    cdfwFields.style.display = 'none';
+    regContent.style.display = 'block';
+
+    document.getElementById('box1Title').style.color = "var(--green)";
+    document.getElementById('box2Title').style.color = "var(--green)";
+    document.getElementById('box3Title').style.color = "var(--blue)";
+    document.getElementById('box4Title').style.color = "var(--blue)";
+
+    if (state === 'CA') {
+      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" min)</span>`;
+      document.getElementById('box2Title').innerHTML = `<span>Rock Crabs</span><span class="sub-measure">(4 1/4" min)</span>`;
+      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+      regTitle.innerText = "📋 California Crab Regulations (CDFW)";
+      regContent.innerHTML = `
+        • <strong>Dungeness Limit:</strong> 10 per day | <strong>Min Size:</strong> 5 3/4" carapace.<br/>
+        • <strong>Rock Crab Limit:</strong> 35 per day | <strong>Min Size:</strong> 4 1/4" carapace.<br/>
+        • <strong>Sex:</strong> Both sexes legal (egg-bearing females strictly prohibited).
+      `;
+    } else if (state === 'OR') {
+      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" Males Only)</span>`;
+      document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(Any Size)</span>`;
+      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+      regTitle.innerText = "📋 Oregon Crab Regulations (ODFW)";
+      regContent.innerHTML = `
+        • <strong>Dungeness Limit:</strong> 12 per day | <strong>Males Only</strong> (5 3/4" min).<br/>
+        • <strong>Red Rock Crab Limit:</strong> 24 per day | Either sex | No minimum size.<br/>
+        • <strong>Gear Limit:</strong> Max 3 rings/pots/lines per licensed crabber.
+      `;
+    } else if (state === 'WA') {
+      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" or 6 1/4" Males)</span>`;
+      document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(5" min caliper)</span>`;
+      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+      regTitle.innerText = "📋 Washington Crab Regulations (WDFW)";
+      regContent.innerHTML = `
+        • <strong>Dungeness Limit:</strong> 5 per day | <strong>Males Only</strong> (5 3/4" Puget Sound / 6 1/4" Coast).<br/>
+        • <strong>Red Rock Crab Limit:</strong> 6 per day | 5" minimum caliper measure (either sex).<br/>
+        • <strong>CRC Required:</strong> Catch Record Card required for Puget Sound.
+      `;
+    }
+  }
+
   // Spot Management Modal
   function openSpotManager() {
     const listEl = document.getElementById('spotModalList');
@@ -782,16 +1254,9 @@
   function deleteSpecificSpot(spotName) {
     if (confirm(`Delete "${spotName}" from your spots list?`)) {
       let customs = getCustomSpots();
-      if (customs.includes(spotName)) {
-        customs = customs.filter(s => s !== spotName);
-        localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
-      } else if (DEFAULT_SPOTS.includes(spotName)) {
-        let deleted = getDeletedDefaultSpots();
-        if (!deleted.includes(spotName)) {
-          deleted.push(spotName);
-          localStorage.setItem('lobsterLog_deletedDefaults', JSON.stringify(deleted));
-        }
-      }
+      customs = customs.filter(s => s !== spotName);
+      localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
+
       let gpsMap = getSpotGPSMap();
       delete gpsMap[spotName];
       setSpotGPSMap(gpsMap);
@@ -800,18 +1265,17 @@
   }
 
   function clearCustomSpots() {
-    if (confirm("Reset all spots and saved coordinates back to factory defaults?")) {
-      localStorage.removeItem('lobsterLog_customSpots');
-      localStorage.removeItem('lobsterLog_deletedDefaults');
-      localStorage.removeItem('lobsterLog_spotGPSMap');
+    if (confirm("Reset all spots and saved coordinates back to empty?")) {
+      localStorage.removeItem('hookHoop_customSpots');
+      localStorage.removeItem('hookHoop_spotGPSMap');
       populateSpotDropdown();
-      alert("Spots reset to defaults.");
+      alert("Spots reset.");
     }
   }
 
   function clearCustomBaits() {
     if (confirm("Reset custom baits back to defaults?")) {
-      localStorage.removeItem('lobsterLog_customBaits');
+      localStorage.removeItem('hookHoop_customBaits');
       populateBaitDropdown();
       alert("Custom baits reset.");
     }
@@ -855,7 +1319,7 @@
           if (s.gps && s.gps.includes(',')) {
             const spotName = s.area || log.areasSummary || 'Logged Spot';
             if (!unifiedPoints[spotName]) {
-              unifiedPoints[spotName] = { coords: s.gps, label: spotName, source: `${log.date} (${s.legalsKept} Legals)` };
+              unifiedPoints[spotName] = { coords: s.gps, label: spotName, source: `${log.date} (${s.count1} Legals)` };
             }
           }
         });
@@ -923,7 +1387,7 @@
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Lobster_Waypoints_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `Hook_Hoop_Waypoints_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -952,7 +1416,7 @@
         const coords = clean[1] || (clean[2] && clean[3] ? `${clean[2]}, ${clean[3]}` : '');
 
         if (spotName) {
-          if (!customs.includes(spotName) && !DEFAULT_SPOTS.includes(spotName)) {
+          if (!customs.includes(spotName)) {
             customs.push(spotName);
           }
           if (coords && coords.includes(',')) {
@@ -962,7 +1426,7 @@
         }
       }
 
-      localStorage.setItem('lobsterLog_customSpots', JSON.stringify(customs));
+      localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
       setSpotGPSMap(gpsMap);
       populateSpotDropdown();
       alert(`Imported & updated ${importedCount} waypoint spots successfully!`);
@@ -986,13 +1450,7 @@
     document.getElementById('logTime').value = getCurrentFormattedTime();
   }
 
-  populateSpotDropdown();
-  populateBaitDropdown();
-  populateSetDropdown();
-  populateAnglerDropdown();
-  setLiveDateTime();
-
-  const savedUserEmail = localStorage.getItem('lobsterLog_userEmail') || '';
+  const savedUserEmail = localStorage.getItem('hookHoop_userEmail') || '';
   const emailInput = document.getElementById('userEmail');
   const emailEditBtn = document.getElementById('emailEditBtn');
   emailInput.value = savedUserEmail;
@@ -1008,7 +1466,7 @@
       emailEditBtn.innerText = "💾 Save";
     } else {
       const email = emailInput.value.trim();
-      localStorage.setItem('lobsterLog_userEmail', email);
+      localStorage.setItem('hookHoop_userEmail', email);
       emailInput.disabled = true;
       emailEditBtn.innerText = "✏️ Edit";
       alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
@@ -1017,24 +1475,26 @@
 
   function getMaxBoatLimit() {
     const anglers = parseInt(document.getElementById('anglerCount').value || 1, 10);
-    return anglers * 7;
+    const perAngler = (activeTargetMode === 'lobster' && activeLobsterState === 'FL') ? 6 : 7;
+    return anglers * perAngler;
   }
 
   function syncRetainedFromSets() {
     let sumLegals = 0;
     Object.keys(activeNightSets).forEach(k => {
-      sumLegals += (activeNightSets[k].legalsKept || 0);
+      sumLegals += (activeNightSets[k].count1 || 0);
     });
     
     const maxLimit = getMaxBoatLimit();
     const limitLbl = document.getElementById('limitLabel');
-    if (sumLegals >= maxLimit && maxLimit > 0) {
-      limitLbl.innerHTML = `<span style="color:#34d399; font-weight:bold;">(🎉 LIMIT REACHED: ${maxLimit})</span>`;
-    } else {
-      limitLbl.innerText = `(Boat Limit: ${maxLimit})`;
+    if (activeTargetMode === 'lobster' && activeLobsterState === 'CA') {
+      if (sumLegals >= maxLimit && maxLimit > 0) {
+        limitLbl.innerHTML = `<span style="color:#34d399; font-weight:bold;">(🎉 LIMIT REACHED: ${maxLimit})</span>`;
+      } else {
+        limitLbl.innerText = `(Boat Limit: ${maxLimit})`;
+      }
+      document.getElementById('dfwRetained').value = sumLegals;
     }
-
-    document.getElementById('dfwRetained').value = sumLegals;
   }
 
   function adjustCount(id, delta) {
@@ -1053,7 +1513,7 @@
       const nextNum = activeSetList.length + 1;
       const nextSetName = `Set ${nextNum}`;
       activeSetList.push(nextSetName);
-      activeNightSets[nextSetName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+      activeNightSets[nextSetName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', count1: 0, count2: 0, count3: 0, count4: 0, other: '', diveMethod: '', diveEntry: '', diveTime: '', diveMaxDepth: '', divePSI: '', diveViz: '', diveNotes: '' };
       populateSetDropdown(nextSetName);
       switchSet(nextSetName);
       return;
@@ -1066,10 +1526,17 @@
       document.getElementById('soakTime').value = '';
       document.getElementById('netsCount').value = '';
       document.getElementById('bait').value = '';
-      document.getElementById('shorts').value = 0;
-      document.getElementById('legalsKept').value = 0;
-      document.getElementById('rockCrab').value = 0;
-      document.getElementById('spiderCrab').value = 0;
+      document.getElementById('count1').value = 0;
+      document.getElementById('count2').value = 0;
+      document.getElementById('count3').value = 0;
+      document.getElementById('count4').value = 0;
+      document.getElementById('diveMethod').value = '';
+      document.getElementById('diveEntry').value = 'Boat Dive';
+      document.getElementById('diveTime').value = '';
+      document.getElementById('diveMaxDepth').value = '';
+      document.getElementById('divePSI').value = '';
+      document.getElementById('diveViz').value = '';
+      document.getElementById('diveNotes').value = '';
       document.getElementById('otherSpecies').value = '';
       return;
     }
@@ -1088,10 +1555,17 @@
     document.getElementById('soakTime').value = data.soak || '';
     document.getElementById('netsCount').value = data.nets || '';
     document.getElementById('setQuickNotes').value = data.setNotes || '';
-    document.getElementById('shorts').value = data.shorts || 0;
-    document.getElementById('legalsKept').value = data.legalsKept || 0;
-    document.getElementById('rockCrab').value = data.rockCrab || 0;
-    document.getElementById('spiderCrab').value = data.spiderCrab || 0;
+    document.getElementById('count1').value = data.count1 || 0;
+    document.getElementById('count2').value = data.count2 || 0;
+    document.getElementById('count3').value = data.count3 || 0;
+    document.getElementById('count4').value = data.count4 || 0;
+    document.getElementById('diveMethod').value = data.diveMethod || '';
+    document.getElementById('diveEntry').value = data.diveEntry || 'Boat Dive';
+    document.getElementById('diveTime').value = data.diveTime || '';
+    document.getElementById('diveMaxDepth').value = data.diveMaxDepth || '';
+    document.getElementById('divePSI').value = data.divePSI || '';
+    document.getElementById('diveViz').value = data.diveViz || '';
+    document.getElementById('diveNotes').value = data.diveNotes || '';
     document.getElementById('otherSpecies').value = data.other || '';
   }
 
@@ -1107,10 +1581,17 @@
       soak: document.getElementById('soakTime').value,
       nets: document.getElementById('netsCount').value,
       setNotes: document.getElementById('setQuickNotes').value,
-      shorts: parseInt(document.getElementById('shorts').value || 0, 10),
-      legalsKept: parseInt(document.getElementById('legalsKept').value || 0, 10),
-      rockCrab: parseInt(document.getElementById('rockCrab').value || 0, 10),
-      spiderCrab: parseInt(document.getElementById('spiderCrab').value || 0, 10),
+      count1: parseInt(document.getElementById('count1').value || 0, 10),
+      count2: parseInt(document.getElementById('count2').value || 0, 10),
+      count3: parseInt(document.getElementById('count3').value || 0, 10),
+      count4: parseInt(document.getElementById('count4').value || 0, 10),
+      diveMethod: document.getElementById('diveMethod').value,
+      diveEntry: document.getElementById('diveEntry').value,
+      diveTime: document.getElementById('diveTime').value,
+      diveMaxDepth: document.getElementById('diveMaxDepth').value,
+      divePSI: document.getElementById('divePSI').value,
+      diveViz: document.getElementById('diveViz').value,
+      diveNotes: document.getElementById('diveNotes').value,
       other: document.getElementById('otherSpecies').value
     };
   }
@@ -1120,7 +1601,7 @@
     const finalizeBtn = document.getElementById('finalizeBtn');
 
     if (status === 'Start Night') {
-      const confirmed = confirm("Are you sure you want to START the night's fishing log?");
+      const confirmed = confirm("Are you sure you want to START the session log?");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
@@ -1129,7 +1610,7 @@
       finalizeBtn.style.display = "none";
       setLiveDateTime();
     } else if (status === 'End Night') {
-      const confirmed = confirm("Are you sure you want to END the night's trip and prepare close-out?");
+      const confirmed = confirm("Are you sure you want to END the trip and prepare close-out report?");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
@@ -1146,11 +1627,11 @@
   }
 
   function getStoredLogs() {
-    return JSON.parse(localStorage.getItem('lobsterNightLogs') || '[]');
+    return JSON.parse(localStorage.getItem('hookHoop_nightLogs') || '[]');
   }
 
   function saveLogs(logs) {
-    localStorage.setItem('lobsterNightLogs', JSON.stringify(logs));
+    localStorage.setItem('hookHoop_nightLogs', JSON.stringify(logs));
     renderLogs();
   }
 
@@ -1182,10 +1663,17 @@
     document.getElementById('soakTime').value = '';
     document.getElementById('netsCount').value = '';
     document.getElementById('setQuickNotes').value = '';
-    document.getElementById('shorts').value = 0;
-    document.getElementById('legalsKept').value = 0;
-    document.getElementById('rockCrab').value = 0;
-    document.getElementById('spiderCrab').value = 0;
+    document.getElementById('count1').value = 0;
+    document.getElementById('count2').value = 0;
+    document.getElementById('count3').value = 0;
+    document.getElementById('count4').value = 0;
+    document.getElementById('diveMethod').value = '';
+    document.getElementById('diveEntry').value = 'Boat Dive';
+    document.getElementById('diveTime').value = '';
+    document.getElementById('diveMaxDepth').value = '';
+    document.getElementById('divePSI').value = '';
+    document.getElementById('diveViz').value = '';
+    document.getElementById('diveNotes').value = '';
     document.getElementById('otherSpecies').value = '';
     document.getElementById('airTemp').value = '';
     document.getElementById('waterTemp').value = '';
@@ -1200,7 +1688,7 @@
     activeSetList = ["Set 1", "Set 2", "Set 3", "Set 4"];
     activeNightSets = {};
     activeSetList.forEach(setName => {
-      activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', shorts: 0, legalsKept: 0, rockCrab: 0, spiderCrab: 0, other: '' };
+      activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', count1: 0, count2: 0, count3: 0, count4: 0, other: '', diveMethod: '', diveEntry: '', diveTime: '', diveMaxDepth: '', divePSI: '', diveViz: '', diveNotes: '' };
     });
     populateSetDropdown();
     setLiveDateTime();
@@ -1210,11 +1698,10 @@
   function nukeEntireLog() {
     const confirmation = prompt("WARNING: This will permanently delete ALL catch history and reset the entire app. Type 'NUKE' to confirm:");
     if (confirmation === 'NUKE') {
-      localStorage.removeItem('lobsterNightLogs');
-      localStorage.removeItem('lobsterLog_customSpots');
-      localStorage.removeItem('lobsterLog_deletedDefaults');
-      localStorage.removeItem('lobsterLog_spotGPSMap');
-      localStorage.removeItem('lobsterLog_customBaits');
+      localStorage.removeItem('hookHoop_nightLogs');
+      localStorage.removeItem('hookHoop_customSpots');
+      localStorage.removeItem('hookHoop_spotGPSMap');
+      localStorage.removeItem('hookHoop_customBaits');
       executeFormReset();
       renderLogs();
       alert('App has been completely wiped and factory reset.');
@@ -1222,17 +1709,29 @@
   }
 
   function updateRunningTotals(logs) {
-    let totalLegals = 0;
-    let totalShorts = 0;
+    let totalStat1 = 0;
+    let totalStat2 = 0;
 
     logs.forEach(l => {
-      totalLegals += parseInt(l.totalLegals || 0, 10);
-      totalShorts += parseInt(l.totalShorts || 0, 10);
+      totalStat1 += parseInt(l.totalLegals || 0, 10);
+      totalStat2 += parseInt(l.totalShorts || 0, 10);
     });
 
-    document.getElementById('totalSeasonKept').innerText = totalLegals;
-    document.getElementById('totalShortsReleased').innerText = totalShorts;
-    document.getElementById('totalTripsLogged').innerText = logs.length;
+    if (activeTargetMode === 'lobster') {
+      document.getElementById('bannerStat1Lbl').innerText = "Season Retained";
+      document.getElementById('bannerStat2Lbl').innerText = "Shorts Released";
+      document.getElementById('bannerStat3Lbl').innerText = "Nights Fished";
+      document.getElementById('bannerStat1').innerText = totalStat1;
+      document.getElementById('bannerStat2').innerText = totalStat2;
+      document.getElementById('bannerStat3').innerText = logs.length;
+    } else {
+      document.getElementById('bannerStat1Lbl').innerText = "Dungeness Kept";
+      document.getElementById('bannerStat2Lbl').innerText = "Shorts Released";
+      document.getElementById('bannerStat3Lbl').innerText = "Total Trips";
+      document.getElementById('bannerStat1').innerText = totalStat1;
+      document.getElementById('bannerStat2').innerText = totalStat2;
+      document.getElementById('bannerStat3').innerText = logs.length;
+    }
   }
 
   function renderLogs() {
@@ -1283,20 +1782,21 @@
       if (log.setDetails) {
         Object.keys(log.setDetails).forEach(setName => {
           const s = log.setDetails[setName];
-          if (s.shorts > 0 || s.legalsKept > 0 || s.rockCrab > 0 || s.spiderCrab > 0 || s.other || s.bait || s.setNotes || s.area || s.depth) {
-            const gpsLink = s.gps ? `<a class="gps-link" href="https://www.google.com/maps?q=${encodeURIComponent(s.gps)}" target="_blank">📍 Pin</a>` : '';
+          if (s.count1 > 0 || s.count2 > 0 || s.count3 > 0 || s.count4 > 0 || s.other || s.bait || s.setNotes || s.area || s.depth || s.diveMethod) {
+            const gpsLink = s.gps ? `<a class="gps-link" href="https://maps.apple.com/?q=${encodeURIComponent(s.gps)}" target="_blank">📍 Pin</a>` : '';
+            const diveInfo = s.diveMethod ? ` [🤿 ${s.diveMethod}${s.diveTime ? `, ${s.diveTime}m` : ''}${s.diveMaxDepth ? `, ${s.diveMaxDepth}ft` : ''}]` : '';
             setRows += `
               <tr>
                 <td><strong>${setName}</strong> ${s.time ? `(${s.time})` : ''}</td>
-                <td style="color:#60a5fa; font-weight:bold;">${s.area || '--'} ${gpsLink}</td>
-                <td style="color:#4ade80;">${s.legalsKept}</td>
-                <td style="color:var(--green);">${s.shorts}</td>
-                <td>${s.rockCrab}</td>
-                <td>${s.spiderCrab}</td>
+                <td style="color:#0284c7; font-weight:bold;">${s.area || '--'} ${gpsLink}</td>
+                <td style="color:var(--green);">${s.count1}</td>
+                <td style="color:var(--green);">${s.count2}</td>
+                <td style="color:var(--blue);">${s.count3}</td>
+                <td style="color:var(--blue);">${s.count4}</td>
                 <td>${s.depth ? s.depth + 'ft' : '--'}</td>
                 <td>${s.soak ? s.soak + 'm' : '--'}</td>
                 <td>${s.bait || '--'}</td>
-                <td style="text-align:left;">${s.setNotes ? `<em>${s.setNotes}</em> ` : ''}${s.other || ''}</td>
+                <td style="text-align:left;">${s.setNotes ? `<em>${s.setNotes}</em> ` : ''}${diveInfo}${s.other || ''}</td>
               </tr>
             `;
           }
@@ -1309,32 +1809,31 @@
         <div class="log-header">
           <span>${log.date} ${log.time} - <strong>${log.areasSummary || 'General Area'}</strong></span>
           <div>
-            <span style="color:#4ade80; margin-right:8px; font-weight:bold;">${log.totalLegals} Legals Kept</span>
+            <span style="color:var(--green); margin-right:8px; font-weight:bold;">${log.totalLegals} Kept</span>
             <button class="btn-del" onclick="deleteLog(${log.id})" title="Delete entry">✕</button>
           </div>
         </div>
         <div class="log-stats">
-          <span class="badge badge-green">Shorts: ${log.totalShorts}</span>
-          <span class="badge">Rock Crab: ${log.totalRockCrab}</span>
-          <span class="badge">Spider Crab: ${log.totalSpiderCrab}</span>
-          ${log.anglers ? `<span class="badge">👥 ${log.anglers} Angler(s)</span>` : ''}
+          <span class="badge badge-blue">Shorts: ${log.totalShorts}</span>
+          <span class="badge badge-green">Secondary Kept: ${log.totalRockCrab}</span>
+          ${log.anglers ? `<span class="badge">👥 ${log.anglers} Angler/Diver(s)</span>` : ''}
           ${log.sky ? `<span class="badge badge-blue">☁️ ${log.sky}</span>` : ''}
           ${log.waterTemp ? `<span class="badge">🌊 ${log.waterTemp}°F</span>` : ''}
           ${log.dfwCode ? `<span class="badge badge-gold">DFW: ${log.dfwCode} (${log.dfwRetained || log.totalLegals} Retained)</span>` : ''}
         </div>
-        ${log.condNotes ? `<div style="font-size:0.75rem; color:#93c5fd; margin-top:2px;">Conditions: ${log.condNotes}</div>` : ''}
+        ${log.condNotes ? `<div style="font-size:0.75rem; color:var(--blue); margin-top:2px;">Conditions: ${log.condNotes}</div>` : ''}
         ${setRows ? `
           <details class="set-breakdown">
-            <summary>📊 View Tonight's Catch by Sets</summary>
+            <summary>📊 View Tonight's Pulls / Dives by Sets</summary>
             <table class="set-table">
               <thead>
                 <tr>
                   <th>Set</th>
                   <th>Area</th>
-                  <th>Legals</th>
-                  <th>Shorts</th>
-                  <th>R-Crab</th>
-                  <th>S-Crab</th>
+                  <th>Target 1</th>
+                  <th>Target 2</th>
+                  <th>Shorts 1</th>
+                  <th>Shorts 2</th>
                   <th>Depth</th>
                   <th>Soak</th>
                   <th>Bait</th>
@@ -1353,42 +1852,42 @@
   }
 
   function sendNightEmailReport(tripRecord) {
-    const userEmail = localStorage.getItem('lobsterLog_userEmail') || '';
-    const subject = `🦞 Lobster Trip Report - ${tripRecord.date} (${tripRecord.areasSummary || 'SoCal'})`;
+    const userEmail = localStorage.getItem('hookHoop_userEmail') || '';
+    const subject = `🦞 Hook & Hoop Report - ${tripRecord.date} (${tripRecord.areasSummary || 'Marine Catch'})`;
     
     let setBreakdownText = '';
     if (tripRecord.setDetails) {
       Object.keys(tripRecord.setDetails).forEach(setName => {
         const s = tripRecord.setDetails[setName];
-        setBreakdownText += `${setName} (${s.time || '--'} @ ${s.area || 'N/A'}, Depth: ${s.depth || '--'}ft, Soak: ${s.soak || '--'}m, Hoops: ${s.nets || '--'}): Legals: ${s.legalsKept} | Shorts: ${s.shorts} | Rock Crab: ${s.rockCrab} | Spider Crab: ${s.spiderCrab} | Bait: ${s.bait || 'N/A'} | GPS: ${s.gps || 'N/A'} | Notes: ${s.setNotes || ''} ${s.other || ''}\n`;
+        const divePart = s.diveMethod ? ` | Dive: ${s.diveMethod}, ${s.diveTime || '--'}min, Max ${s.diveMaxDepth || '--'}ft, PSI: ${s.divePSI || '--'}, Viz: ${s.diveViz || '--'}ft, Dive Notes: ${s.diveNotes || 'None'}` : '';
+        setBreakdownText += `${setName} (${s.time || '--'} @ ${s.area || 'N/A'}, Depth: ${s.depth || '--'}ft, Soak: ${s.soak || '--'}m, Hoops: ${s.nets || '--'}): Target 1 Kept: ${s.count1} | Target 2 Kept: ${s.count2} | Shorts 1: ${s.count3} | Shorts 2: ${s.count4} | Bait: ${s.bait || 'N/A'} | GPS: ${s.gps || 'N/A'}${divePart} | Notes: ${s.setNotes || ''} ${s.other || ''}\n`;
       });
     }
 
     const csvData = [
-      "Date,Time,Areas Visited,Anglers,DFW Code,DFW Gear,Lobsters Retained,Shorts Released,Rock Crab,Spider Crab,Air Temp,Water Temp,Tide,Moon,Sky,Conditions Notes,Set Details",
-      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.areasSummary}",${tripRecord.anglers},"${tripRecord.dfwCode}","${tripRecord.dfwGear}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},${tripRecord.totalSpiderCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.otherSpeciesSummary}"`
+      "Date,Time,Mode,Areas Visited,Anglers,DFW Code,DFW Gear,Primary Retained,Total Shorts Released,Secondary Kept,Air Temp,Water Temp,Tide,Moon,Sky,Conditions Notes,Set Details",
+      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.mode}","${tripRecord.areasSummary}",${tripRecord.anglers},"${tripRecord.dfwCode || ''}","${tripRecord.dfwGear || ''}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.otherSpeciesSummary}"`
     ].join("\n");
 
-    const body = `CA SPINY LOBSTER TRIP REPORT
+    const body = `HOOK & HOOP LOG TRIP REPORT
 ----------------------------------
+Target Mode: ${tripRecord.mode.toUpperCase()}
 Date: ${tripRecord.date}
 Close-Out Time: ${tripRecord.time}
 Areas Visited: ${tripRecord.areasSummary || 'N/A'}
-Anglers on Board: ${tripRecord.anglers}
-DFW Code: ${tripRecord.dfwCode} (${tripRecord.dfwGear})
-
-TOTAL NIGHT CATCH:
-- Legal Lobsters Retained: ${tripRecord.totalLegals}
+Anglers / Divers on Board: ${tripRecord.anglers}
+${tripRecord.dfwCode ? `DFW Code: ${tripRecord.dfwCode} (${tripRecord.dfwGear})\n` : ''}
+TOTAL CATCH:
+- Legal Retained: ${tripRecord.totalLegals}
 - Shorts Released: ${tripRecord.totalShorts}
-- Rock Crabs: ${tripRecord.totalRockCrab}
-- Spider Crabs: ${tripRecord.totalSpiderCrab}
+- Secondary Species Kept: ${tripRecord.totalRockCrab}
 
 CONDITIONS:
 - Sky: ${tripRecord.sky || 'N/A'} | Conditions Notes: ${tripRecord.condNotes || 'N/A'}
 - Water Temp: ${tripRecord.waterTemp ? tripRecord.waterTemp + '°F' : 'N/A'} | Air Temp: ${tripRecord.airTemp ? tripRecord.airTemp + '°F' : 'N/A'}
 - Tide: ${tripRecord.tide || 'N/A'} | Moon: ${tripRecord.moon || 'N/A'}
 
-PULL-BY-PULL BREAKDOWN:
+PULL-BY-PULL & DIVE BREAKDOWN:
 ${setBreakdownText}
 ----------------------------------
 RAW CSV DATA:
@@ -1402,42 +1901,44 @@ ${csvData}
   function triggerCloseOut() {
     saveCurrentSetToBuffer();
 
-    if (!confirm("Are you ready to close out tonight's trip and draft your email report?")) {
+    if (!confirm("Are you ready to close out tonight's session and draft your email report?")) {
       return;
     }
 
-    let nightLegals = 0;
-    let nightShorts = 0;
-    let nightRockCrab = 0;
-    let nightSpiderCrab = 0;
+    let nightCount1 = 0;
+    let nightCount2 = 0;
+    let nightCount3 = 0;
+    let nightCount4 = 0;
     let otherList = [];
     let areasVisited = new Set();
 
     Object.keys(activeNightSets).forEach(k => {
       const s = activeNightSets[k];
-      nightLegals += s.legalsKept;
-      nightShorts += s.shorts;
-      nightRockCrab += s.rockCrab;
-      nightSpiderCrab += s.spiderCrab;
+      nightCount1 += s.count1;
+      nightCount2 += s.count2;
+      nightCount3 += s.count3;
+      nightCount4 += s.count4;
       if (s.area) areasVisited.add(s.area);
-      if (s.other || s.setNotes || s.area || s.depth) {
-        otherList.push(`${k} (${s.area || 'N/A'}, Depth: ${s.depth || '--'}ft): ${s.setNotes || ''} ${s.other || ''}`);
+      if (s.other || s.setNotes || s.area || s.depth || s.diveMethod) {
+        otherList.push(`${k} (${s.area || 'N/A'}, Depth: ${s.depth || '--'}ft): ${s.diveMethod ? `[🤿 ${s.diveMethod}] ` : ''}${s.setNotes || ''} ${s.other || ''}`);
       }
     });
 
-    const finalRetained = parseInt(document.getElementById('dfwRetained').value || nightLegals, 10);
-    const areasString = Array.from(areasVisited).join(' ➔ ') || 'General Harbor';
+    const finalRetained = (activeTargetMode === 'lobster' && activeLobsterState === 'CA') 
+      ? parseInt(document.getElementById('dfwRetained').value || nightCount1, 10)
+      : nightCount1;
+    const areasString = Array.from(areasVisited).join(' ➔ ') || 'General Area';
 
     const tripRecord = {
       id: Date.now(),
+      mode: activeTargetMode,
       date: document.getElementById('logDate').value,
       time: document.getElementById('logTime').value,
       anglers: document.getElementById('anglerCount').value,
       areasSummary: areasString,
       totalLegals: finalRetained,
-      totalShorts: nightShorts,
-      totalRockCrab: nightRockCrab,
-      totalSpiderCrab: nightSpiderCrab,
+      totalShorts: nightCount3 + nightCount4,
+      totalRockCrab: nightCount2,
       otherSpeciesSummary: otherList.join(' | '),
       airTemp: document.getElementById('airTemp').value,
       waterTemp: document.getElementById('waterTemp').value,
@@ -1491,7 +1992,7 @@ ${csvData}
       switchSet('Set 1');
     }
     syncRetainedFromSets();
-    alert('Set saved! Switched to next set with previous spot/depth/bait carried forward.');
+    alert('Set / Dive saved! Switched to next set with previous parameters carried forward.');
   });
 
   function exportToCSV() {
@@ -1502,15 +2003,15 @@ ${csvData}
     if (confirmation !== 'CSV') return;
 
     const headers = [
-      "Date", "Time", "Areas Visited", "Anglers", "DFW Code", "DFW Gear",
-      "Lobsters Retained", "Total Shorts Released", "Total Rock Crab", "Total Spider Crab",
+      "Date", "Time", "Mode", "Areas Visited", "Anglers", "DFW Code", "DFW Gear",
+      "Retained Keepers", "Total Shorts Released", "Secondary Species Kept",
       "Sky", "Conditions Notes", "Air Temp", "Water Temp", "Tide", "Moon", 
-      "Set Breakdown / Other Notes"
+      "Set & Dive Breakdown / Other Notes"
     ];
 
     const rows = logs.map(l => [
-      `"${l.date}"`, `"${l.time}"`, `"${l.areasSummary}"`, l.anglers || 1, `"${l.dfwCode}"`, `"${l.dfwGear}"`,
-      l.totalLegals, l.totalShorts, l.totalRockCrab, l.totalSpiderCrab,
+      `"${l.date}"`, `"${l.time}"`, `"${l.mode || 'lobster'}"`, `"${l.areasSummary}"`, l.anglers || 1, `"${l.dfwCode || ''}"`, `"${l.dfwGear || ''}"`,
+      l.totalLegals, l.totalShorts, l.totalRockCrab,
       `"${l.sky || ''}"`, `"${(l.condNotes || '').replace(/"/g, '""')}"`,
       l.airTemp, l.waterTemp, `"${l.tide}"`, `"${l.moon}"`,
       `"${(l.otherSpeciesSummary || '').replace(/"/g, '""')}"`
@@ -1520,7 +2021,7 @@ ${csvData}
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `Lobster_Season_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `Hook_Hoop_Catch_Report_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1547,14 +2048,14 @@ ${csvData}
 
         const date = clean[0] || '';
         const time = clean[1] || '';
-        const areasSummary = clean[2] || '';
-        const anglers = clean[3] || '1';
-        const dfwCode = clean[4] || '';
-        const dfwGear = clean[5] || '';
-        const totalLegals = parseInt(clean[6] || 0, 10);
-        const totalShorts = parseInt(clean[7] || 0, 10);
-        const totalRockCrab = parseInt(clean[8] || 0, 10);
-        const totalSpiderCrab = parseInt(clean[9] || 0, 10);
+        const mode = clean[2] || 'lobster';
+        const areasSummary = clean[3] || '';
+        const anglers = clean[4] || '1';
+        const dfwCode = clean[5] || '';
+        const dfwGear = clean[6] || '';
+        const totalLegals = parseInt(clean[7] || 0, 10);
+        const totalShorts = parseInt(clean[8] || 0, 10);
+        const totalRockCrab = parseInt(clean[9] || 0, 10);
         const sky = clean[10] || '';
         const condNotes = clean[11] || '';
         const airTemp = clean[12] || '';
@@ -1567,8 +2068,8 @@ ${csvData}
         if (!exists) {
           existingLogs.push({
             id: Date.now() + i,
-            date, time, areasSummary, anglers, dfwCode, dfwGear,
-            totalLegals, totalShorts, totalRockCrab, totalSpiderCrab,
+            mode, date, time, areasSummary, anglers, dfwCode, dfwGear,
+            totalLegals, totalShorts, totalRockCrab,
             sky, condNotes, airTemp, waterTemp, tide, moon,
             otherSpeciesSummary,
             setDetails: null
@@ -1584,6 +2085,14 @@ ${csvData}
     reader.readAsText(file);
   }
 
+  // Initialize
+  initTheme();
+  populateSpotDropdown();
+  populateBaitDropdown();
+  populateSetDropdown();
+  populateAnglerDropdown();
+  setLiveDateTime();
+  switchTargetMode('lobster');
   renderLogs();
 </script>
 </body>
