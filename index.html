@@ -631,12 +631,12 @@
 
       <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
         <label style="font-weight: bold; color: var(--gold);">🗺️ Spot Map & Waypoint Tools:</label>
-        <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map</button>
+        <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map (🔒 PRO)</button>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="exportWaypointsCSV()">📥 Export GPS (CSV)</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="exportWaypointsCSV()">📥 Export GPS (🔒 PRO)</button>
           <input type="file" id="gpsCsvFileInput" accept=".csv" style="display: none;" onchange="importWaypointsCSV(event)" />
-          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="document.getElementById('gpsCsvFileInput').click()">📂 Import GPS (CSV)</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="handleImportGPSClick()">📂 Import GPS (🔒 PRO)</button>
         </div>
       </div>
 
@@ -644,7 +644,7 @@
         <label style="font-weight: bold; color: var(--blue);">📁 Catch Log History Backup:</label>
         <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
           <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSVFile(event)" />
-          <button type="button" class="btn btn-secondary" style="margin-top:0; font-size: 0.85rem;" onclick="document.getElementById('csvFileInput').click()">📂 Import Past Logs (CSV)</button>
+          <button type="button" class="btn btn-secondary" style="margin-top:0; font-size: 0.85rem;" onclick="handleImportLogsClick()">📂 Import Past Logs (🔒 PRO)</button>
         </div>
       </div>
 
@@ -1189,11 +1189,19 @@
 
   function handleSpotChange(val) {
     if (val === '__ADD_NEW_SPOT__') {
+      const customs = getCustomSpots();
+      
+      // Free Tier Cap: Maximum 2 Saved Custom Spots
+      if (!isPro() && customs.length >= 2) {
+        showPaywall();
+        document.getElementById('setArea').value = '';
+        return;
+      }
+
       const newSpot = prompt("Enter new fishing/crabbing area name:");
       if (newSpot && newSpot.trim()) {
         const cleanSpot = newSpot.trim();
         if (confirm(`Add "${cleanSpot}" to your permanent spots list?`)) {
-          const customs = getCustomSpots();
           if (!customs.includes(cleanSpot)) {
             customs.push(cleanSpot);
             localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
@@ -1633,6 +1641,22 @@
     document.getElementById('mapModal').style.display = 'none';
   }
 
+  function handleImportGPSClick() {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
+    document.getElementById('gpsCsvFileInput').click();
+  }
+
+  function handleImportLogsClick() {
+    if (!isPro()) {
+      showPaywall();
+      return;
+    }
+    document.getElementById('csvFileInput').click();
+  }
+
   function exportWaypointsCSV() {
     if (!isPro()) {
       showPaywall();
@@ -1829,7 +1853,7 @@
       document.getElementById('count4').value = 0;
       document.getElementById('diveMethod').value = '';
       document.getElementById('diveEntry').value = 'Boat Dive';
-      document.getElementById('diveTime').value = '';
+      document.getElementById('diveTime').value = data.diveTime || '';
       document.getElementById('diveMaxDepth').value = '';
       document.getElementById('divePSI').value = '';
       document.getElementById('diveViz').value = '';
