@@ -340,7 +340,7 @@
       margin-bottom: 12px;
       border: 1px solid var(--border);
     }
-    .reg-box { background: var(--reg-box-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 6px; font-size: 0.8rem; line-height: 1.4; }
+    .reg-box { background: var(--reg-box-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.8rem; line-height: 1.45; }
   </style>
 </head>
 <body>
@@ -756,7 +756,7 @@
     </div>
 
     <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
-      <div class="section-title cdfw-title" id="regCardTitle">📋 CDFW Report Card Reference (California)</div>
+      <div class="section-title cdfw-title" id="regCardTitle">📋 CDFW Report Card Reference & Regulations (California)</div>
       
       <div id="lobsterCDFWFields">
         <div class="grid">
@@ -800,7 +800,7 @@
         </div>
       </div>
 
-      <div class="reg-box" id="regCardContent" style="display: none;"></div>
+      <div class="reg-box" id="regCardContent"></div>
     </div>
 
     <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
@@ -870,7 +870,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  const CURRENT_APP_VERSION = "3.9.0";
+  const CURRENT_APP_VERSION = "3.9.1";
 
   (function checkAppVersion() {
     const savedVersion = localStorage.getItem('hookHoop_appVersion');
@@ -1132,20 +1132,27 @@
     document.getElementById('box2Title').style.color = "var(--green)";
     document.getElementById('box3Title').style.color = "var(--blue)";
     document.getElementById('box4Title').style.color = "var(--blue)";
+    regContent.style.display = 'block';
 
     if (state === 'CA') {
       cdfwFields.style.display = 'block';
-      regContent.style.display = 'none';
-      regTitle.innerText = "📋 CDFW Report Card Reference (California)";
+      regTitle.innerText = "📋 CDFW Report Card Reference & Regulations (California)";
       document.getElementById('anglerTitleLabel').innerText = "Anglers on Boat (CDFW Cardholders)";
 
       document.getElementById('box1Title').innerHTML = `<span>Lobster Keepers</span><span class="sub-measure">(3 1/4" min)</span>`;
       document.getElementById('box2Title').innerHTML = `<span>Rock Crabs Kept</span><span class="sub-measure">(4 1/4" min)</span>`;
       document.getElementById('box3Title').innerHTML = `<span>Lobster Shorts</span><span class="sub-measure">Released</span>`;
       document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+      regContent.innerHTML = `
+        • <strong>Bag & Possession Limit:</strong> 7 lobsters per cardholder.<br/>
+        • <strong>Minimum Size:</strong> 3 ¼" carapace length (measured along midline of back from rear edge of eye socket to rear edge of body shell). Gauge required on person/diver.<br/>
+        • <strong>Hoop Net Limits:</strong> Max 5 hoop nets per person; max 10 hoop nets per vessel (even with > 2 people). Max 2 hoop nets on public piers.<br/>
+        • <strong>Diving Rules:</strong> Divers may take lobsters by <strong>hand only</strong>. Spearing, snares, or hooking devices are strictly prohibited.<br/>
+        • <strong>Mandatory Cards:</strong> CDFW Spiny Lobster Report Card required for all persons (including youth). Must record location code & gear before dropping nets or diving. Berried (egg-bearing) females strictly protected.
+      `;
     } else {
       cdfwFields.style.display = 'none';
-      regContent.style.display = 'block';
       regTitle.innerText = "📋 Florida Spiny Lobster Regulations (FWC)";
       document.getElementById('anglerTitleLabel').innerText = "Anglers / Divers on Boat";
 
@@ -1155,10 +1162,10 @@
       document.getElementById('box4Title').innerHTML = `<span>Egg-Bearing / Shorts</span><span class="sub-measure">Released</span>`;
 
       regContent.innerHTML = `
-        • <strong>Size Requirement:</strong> Carapace MUST be larger than 3" (measured in the water with gauge before landing).<br/>
+        • <strong>Size Requirement:</strong> Carapace MUST be larger than 3" (measured in the water with gauge before landing). Whole condition required.<br/>
         • <strong>Daily Bag Limit:</strong> 6 per harvester per day (Monroe County / Florida Keys & statewide regular season).<br/>
         • <strong>Sport Mini-Season:</strong> 6 per person/day in Monroe Co./Biscayne; 12 per person/day statewide.<br/>
-        • <strong>Gear / Rules:</strong> Bully net, hand net, tickle stick. Spearing, crushing, or puncturing lobster is strictly prohibited. Releasing egg-bearing females is mandatory.
+        • <strong>Gear / Rules:</strong> Bully net, hand net, tickle stick, snare. Spearing, crushing, or puncturing lobster is strictly prohibited. Releasing egg-bearing females is mandatory.
       `;
     }
     populateAnglerDropdown(document.getElementById('anglerCount').value || 1);
