@@ -15,6 +15,7 @@
   <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
 
+  <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
   <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png" />
 
@@ -109,7 +110,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 6px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background: var(--input-bg);
       padding: 6px;
       border-radius: 8px;
@@ -156,31 +157,48 @@
       font-weight: normal;
     }
 
-    /* State Switchers */
-    .state-selector {
-      display: grid;
-      gap: 6px;
+    /* Styled State & Region Pill Dropdown */
+    .state-picker-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       margin-bottom: 14px;
       background: var(--input-bg);
-      padding: 6px;
+      padding: 6px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
     }
-    .state-selector.two-col { grid-template-columns: 1fr 1fr; }
-    .state-selector.three-col { grid-template-columns: repeat(3, 1fr); }
-    .state-btn {
-      padding: 8px 4px;
+    .state-picker-bar label {
+      margin-bottom: 0;
       font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+      color: var(--gold);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
       font-size: 0.8rem;
-      background: transparent;
-      color: var(--muted);
-      transition: all 0.2s ease;
     }
-    .state-btn.active.lob-state { background: #0284c7; color: white; }
-    .state-btn.active.crab-state { background: var(--crab-orange); color: white; }
+    .state-select-pill {
+      flex: 1;
+      padding: 8px 12px;
+      font-weight: bold;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .state-select-pill:focus {
+      border-color: #0284c7;
+    }
+    .state-select-pill:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      background: var(--stepper-btn-bg);
+    }
 
     .season-banner {
       display: grid;
@@ -220,7 +238,7 @@
       width: 100%; padding: 8px; background-color: var(--input-bg); border: 1px solid var(--border);
       border-radius: 4px; color: var(--text); font-size: 0.9rem;
     }
-    input:disabled {
+    input:disabled, select:disabled {
       background-color: var(--stepper-btn-bg);
       color: var(--muted);
       cursor: not-allowed;
@@ -448,7 +466,7 @@
   </div>
   <p class="subtitle">Field Entry, Set Tracker & Multi-Species Logbook</p>
 
-  <div class="mode-selector">
+  <div class="mode-selector" id="speciesModeContainer">
     <button type="button" id="btnLobsterMode" class="mode-btn active lob-active" onclick="switchTargetMode('lobster')">
       <div style="display:flex; align-items:center; gap:4px;">
         <svg class="spiny-icon-inline"><use href="#icon-spiny-lobster"/></svg>
@@ -464,15 +482,10 @@
     </button>
   </div>
 
-  <div class="state-selector two-col" id="lobsterStateSelector">
-    <button type="button" id="btnLobCA" class="state-btn active lob-state" onclick="setLobsterState('CA')">California (CDFW)</button>
-    <button type="button" id="btnLobFL" class="state-btn" onclick="setLobsterState('FL')">Florida (FWC)</button>
-  </div>
-
-  <div class="state-selector three-col" id="crabStateSelector" style="display:none;">
-    <button type="button" id="btnCA" class="state-btn active crab-state" onclick="setCrabState('CA')">California (CDFW)</button>
-    <button type="button" id="btnOR" class="state-btn" onclick="setCrabState('OR')">Oregon (ODFW)</button>
-    <button type="button" id="btnWA" class="state-btn" onclick="setCrabState('WA')">Washington (WDFW)</button>
+  <div class="state-picker-bar">
+    <label id="stateSelectLabel" for="stateRegionSelect">📍 Region:</label>
+    <select id="stateRegionSelect" class="state-select-pill" onchange="handleStateSelection(this.value)">
+      </select>
   </div>
 
   <div class="season-banner">
@@ -870,7 +883,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  const CURRENT_APP_VERSION = "3.9.1";
+  const CURRENT_APP_VERSION = "3.10.0";
 
   (function checkAppVersion() {
     const savedVersion = localStorage.getItem('hookHoop_appVersion');
@@ -882,9 +895,16 @@
     }
   })();
 
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
   let activeTargetMode = 'lobster'; // 'lobster' or 'crab'
   let activeLobsterState = 'CA';    // 'CA' or 'FL'
   let activeCrabState = 'CA';       // 'CA', 'OR', 'WA'
+  let isSessionLocked = false;
   let previousTripStatus = '';
   let leafletMapInstance = null;
 
@@ -1085,32 +1105,86 @@
     }
   }
 
+  // Populate State Select Dropdown based on Species Mode
+  function populateStateDropdown() {
+    const select = document.getElementById('stateRegionSelect');
+    select.innerHTML = '';
+
+    if (activeTargetMode === 'lobster') {
+      const optCA = document.createElement('option');
+      optCA.value = 'CA';
+      optCA.text = 'California (CDFW)';
+      optCA.selected = (activeLobsterState === 'CA');
+
+      const optFL = document.createElement('option');
+      optFL.value = 'FL';
+      optFL.text = 'Florida (FWC)';
+      optFL.selected = (activeLobsterState === 'FL');
+
+      select.appendChild(optCA);
+      select.appendChild(optFL);
+    } else {
+      const optCA = document.createElement('option');
+      optCA.value = 'CA';
+      optCA.text = 'California (CDFW)';
+      optCA.selected = (activeCrabState === 'CA');
+
+      const optOR = document.createElement('option');
+      optOR.value = 'OR';
+      optOR.text = 'Oregon (ODFW)';
+      optOR.selected = (activeCrabState === 'OR');
+
+      const optWA = document.createElement('option');
+      optWA.value = 'WA';
+      optWA.text = 'Washington (WDFW)';
+      optWA.selected = (activeCrabState === 'WA');
+
+      select.appendChild(optCA);
+      select.appendChild(optOR);
+      select.appendChild(optWA);
+    }
+  }
+
+  function handleStateSelection(state) {
+    if (isSessionLocked) {
+      alert('Jurisdiction is locked during an active session. End the session to switch states.');
+      return;
+    }
+
+    if (activeTargetMode === 'lobster') {
+      setLobsterState(state);
+    } else {
+      setCrabState(state);
+    }
+  }
+
   function switchTargetMode(mode) {
+    if (isSessionLocked) {
+      alert('Target species is locked during an active session. End the session to switch modes.');
+      return;
+    }
+
     activeTargetMode = mode;
     const lobBtn = document.getElementById('btnLobsterMode');
     const crabBtn = document.getElementById('btnCrabMode');
-    const lobStateBar = document.getElementById('lobsterStateSelector');
-    const crabStateBar = document.getElementById('crabStateSelector');
 
     if (mode === 'lobster') {
       lobBtn.className = 'mode-btn active lob-active';
       crabBtn.className = 'mode-btn';
-      lobStateBar.style.display = 'grid';
-      crabStateBar.style.display = 'none';
 
       document.getElementById('mainTitle').innerHTML = `
         <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
         <span>Hoop & Hook Log: Spiny Lobster Edition</span>
       `;
+      populateStateDropdown();
       setLobsterState(activeLobsterState);
     } else {
       crabBtn.className = 'mode-btn active crab-active';
       lobBtn.className = 'mode-btn';
-      lobStateBar.style.display = 'none';
-      crabStateBar.style.display = 'grid';
 
       document.getElementById('mainTitle').innerHTML = `<span>🦀 Hoop & Hook Log: Crab Edition</span>`;
       document.getElementById('anglerTitleLabel').innerText = "Anglers / Crabbers on Boat";
+      populateStateDropdown();
       setCrabState(activeCrabState);
     }
     populateSpotDropdown();
@@ -1121,8 +1195,7 @@
 
   function setLobsterState(state) {
     activeLobsterState = state;
-    document.getElementById('btnLobCA').className = 'state-btn lob-state' + (state === 'CA' ? ' active' : '');
-    document.getElementById('btnLobFL').className = 'state-btn lob-state' + (state === 'FL' ? ' active' : '');
+    populateStateDropdown();
 
     const cdfwFields = document.getElementById('lobsterCDFWFields');
     const regContent = document.getElementById('regCardContent');
@@ -1146,7 +1219,7 @@
 
       regContent.innerHTML = `
         • <strong>Bag & Possession Limit:</strong> 7 lobsters per cardholder.<br/>
-        • <strong>Minimum Size:</strong> 3 ¼" carapace length (measured along midline of back from rear edge of eye socket to rear edge of body shell). Gauge required on person/diver.<br/>
+        • <strong>Minimum Size:</strong> 3 ¼" carapace length (measured along midline of back from rear edge of eye socket to rear edge of body shell). Rigid gauge required on person/diver.<br/>
         • <strong>Hoop Net Limits:</strong> Max 5 hoop nets per person; max 10 hoop nets per vessel (even with > 2 people). Max 2 hoop nets on public piers.<br/>
         • <strong>Diving Rules:</strong> Divers may take lobsters by <strong>hand only</strong>. Spearing, snares, or hooking devices are strictly prohibited.<br/>
         • <strong>Mandatory Cards:</strong> CDFW Spiny Lobster Report Card required for all persons (including youth). Must record location code & gear before dropping nets or diving. Berried (egg-bearing) females strictly protected.
@@ -1174,9 +1247,7 @@
 
   function setCrabState(state) {
     activeCrabState = state;
-    document.getElementById('btnCA').className = 'state-btn crab-state' + (state === 'CA' ? ' active' : '');
-    document.getElementById('btnOR').className = 'state-btn crab-state' + (state === 'OR' ? ' active' : '');
-    document.getElementById('btnWA').className = 'state-btn crab-state' + (state === 'WA' ? ' active' : '');
+    populateStateDropdown();
 
     const cdfwFields = document.getElementById('lobsterCDFWFields');
     const regContent = document.getElementById('regCardContent');
@@ -1226,6 +1297,31 @@
         • <strong>Red Rock Crab Limit:</strong> 6 per day | 5" minimum caliper measure (either sex).<br/>
         • <strong>CRC Required:</strong> Catch Record Card required for Puget Sound.
       `;
+    }
+  }
+
+  // Active Session Lock Controller
+  function setSessionLock(locked) {
+    isSessionLocked = locked;
+    const stateSelect = document.getElementById('stateRegionSelect');
+    const stateLabel = document.getElementById('stateSelectLabel');
+    const lobBtn = document.getElementById('btnLobsterMode');
+    const crabBtn = document.getElementById('btnCrabMode');
+
+    if (locked) {
+      stateSelect.disabled = true;
+      stateLabel.innerHTML = '🔒 Region:';
+      lobBtn.style.pointerEvents = 'none';
+      crabBtn.style.pointerEvents = 'none';
+      lobBtn.style.opacity = activeTargetMode === 'lobster' ? '1' : '0.4';
+      crabBtn.style.opacity = activeTargetMode === 'crab' ? '1' : '0.4';
+    } else {
+      stateSelect.disabled = false;
+      stateLabel.innerHTML = '📍 Region:';
+      lobBtn.style.pointerEvents = 'auto';
+      crabBtn.style.pointerEvents = 'auto';
+      lobBtn.style.opacity = '1';
+      crabBtn.style.opacity = '1';
     }
   }
 
@@ -1608,13 +1704,14 @@
     const finalizeBtn = document.getElementById('finalizeBtn');
 
     if (status === 'Start Night') {
-      const confirmed = confirm("Are you sure you want to START the session log?");
+      const confirmed = confirm("Are you sure you want to START the session log? Species mode & Region will be locked for this trip.");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
       }
       previousTripStatus = 'Start Night';
       finalizeBtn.style.display = "none";
+      setSessionLock(true);
       setLiveDateTime();
     } else if (status === 'End Night') {
       const confirmed = confirm("Are you sure you want to END the trip and prepare close-out report?");
@@ -1629,6 +1726,7 @@
     } else {
       previousTripStatus = '';
       finalizeBtn.style.display = "none";
+      setSessionLock(false);
       setLiveDateTime();
     }
   }
@@ -1654,7 +1752,7 @@
     const confirmation = prompt("To clear active form entries, type 'CLEAR':");
     if (confirmation === 'CLEAR') {
       executeFormReset();
-      alert("Form cleared.");
+      alert("Form cleared and session unlocked.");
     }
   }
 
@@ -1662,6 +1760,8 @@
     document.getElementById('tripStatus').value = '';
     previousTripStatus = '';
     document.getElementById('finalizeBtn').style.display = "none";
+    setSessionLock(false);
+
     document.getElementById('setNumber').value = '';
     document.getElementById('setArea').value = '';
     document.getElementById('gps').value = '';
@@ -2094,6 +2194,7 @@ ${csvData}
 
   // Initialize
   initTheme();
+  populateStateDropdown();
   populateSpotDropdown();
   populateBaitDropdown();
   populateSetDropdown();
