@@ -1,9 +1,9 @@
-const CACHE_NAME = 'hoop-hook-v3-10';
+const CACHE_NAME = 'hoop-hook-v3-11';
 const STATIC_ASSETS = [
   '/lobster-log/',
   '/lobster-log/index.html',
   '/lobster-log/manifest.json',
-  '/lobster-log/thumbnail.png',
+  '/lobster-log/thumbnail.png?v=2',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
