@@ -1,1 +1,25 @@
-
+{
+  "name": "Hoop & Hook Log: Spiny Lobster Edition",
+  "short_name": "Hoop & Hook",
+  "description": "Multi-species marine catch tracker, diver log & CDFW/FWC report assistant.",
+  "start_url": "/lobster-log/",
+  "scope": "/lobster-log/",
+  "display": "standalone",
+  "background_color": "#0d1520",
+  "theme_color": "#0d1520",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "thumbnail.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "thumbnail.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
