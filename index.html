@@ -1004,7 +1004,7 @@
     <p style="color: #94a3b8; font-size: 0.88rem;">Unlock full marine logbook capabilities on the water.</p>
     
     <ul class="paywall-features">
-      <li><strong>Full Bag Catch Logs:</strong> Log beyond the 5-catch free limit & multi-trip history</li>
+      <li><strong>Full Bag Catch Logs:</strong> Log beyond the 3-catch free limit & multi-trip history</li>
       <li><strong>Unblurred GPS Spot Mapping:</strong> Full waypoint & drift tracking view</li>
       <li><strong>Boat Crews & Strings:</strong> 3+ Anglers & 5–10 active net deployments</li>
       <li><strong>Custom Baits:</strong> Bonito, Squid, Sardines, Salmon heads & custom bait recipes</li>
@@ -1798,12 +1798,12 @@
     }
   }
 
-  function adjustCount(id, delta) {
+ function adjustCount(id, delta) {
     const el = document.getElementById(id);
     let val = parseInt(el.value || 0, 10);
 
-    // Free Tier Guard: Catch Counts capped at 5
-    if (!isPro() && delta > 0 && (id === 'count1' || id === 'dfwRetained') && val >= 5) {
+    // Free Tier Guard: All counters (Keepers, Crabs, Shorts) capped at 3
+    if (!isPro() && delta > 0 && val >= 3) {
       showPaywall();
       return;
     }
@@ -1853,7 +1853,7 @@
       document.getElementById('count4').value = 0;
       document.getElementById('diveMethod').value = '';
       document.getElementById('diveEntry').value = 'Boat Dive';
-      document.getElementById('diveTime').value = data.diveTime || '';
+      document.getElementById('diveTime').value = '';
       document.getElementById('diveMaxDepth').value = '';
       document.getElementById('divePSI').value = '';
       document.getElementById('diveViz').value = '';
