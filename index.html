@@ -771,7 +771,7 @@
         </div>
 
         <div class="full-width">
-          <label style="color: var(--gold); font-weight: bold;">Fishing / Crabbing Area for this Set</label>
+          <label id="areaLabel" style="color: var(--gold); font-weight: bold;">Fishing / Lobster Area for this Set</label>
           <select id="setArea" onchange="handleSpotChange(this.value)">
             </select>
         </div>
@@ -1023,7 +1023,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  const CURRENT_APP_VERSION = "3.11.0";
+  const CURRENT_APP_VERSION = "3.12.0";
 
   (function checkAppVersion() {
     const savedVersion = localStorage.getItem('hookHoop_appVersion');
@@ -1333,7 +1333,7 @@
     }
   }
 
-  function switchTargetMode(mode) {
+function switchTargetMode(mode) {
     if (isSessionLocked) {
       alert('Target species is locked during an active session. End the session to switch modes.');
       return;
@@ -1351,6 +1351,7 @@
         <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
         <span>Hoop & Hook Log: Spiny Lobster Edition</span>
       `;
+      document.getElementById('areaLabel').textContent = 'Fishing / Lobster Area for this Set';
       populateStateDropdown();
       setLobsterState(activeLobsterState);
     } else {
@@ -1359,6 +1360,7 @@
 
       document.getElementById('mainTitle').innerHTML = `<span>🦀 Hoop & Hook Log: Crab Edition</span>`;
       document.getElementById('anglerTitleLabel').innerText = "Anglers / Crabbers on Boat";
+      document.getElementById('areaLabel').textContent = 'Fishing / Crabbing Area for this Set';
       populateStateDropdown();
       setCrabState(activeCrabState);
     }
