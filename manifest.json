@@ -1,10 +1,10 @@
 {
-  "id": "/lobster-log/",
+  "id": "https://ajf2122.github.io/lobster-log/",
   "name": "Hoop & Hook Log: Spiny Lobster Edition",
   "short_name": "Hoop & Hook",
   "description": "Multi-species marine catch tracker, diver log & CDFW/FWC report assistant.",
-  "start_url": "/lobster-log/",
-  "scope": "/lobster-log/",
+  "start_url": "https://ajf2122.github.io/lobster-log/index.html",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d1520",
