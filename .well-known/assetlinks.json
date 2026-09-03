@@ -1,8 +1,10 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.ajf2122.hoophooklog",
-        "sha256_cert_fingerprints": ["67:6C:E3:8A:1F:D1:DC:ED:1D:4B:14:7E:06:AD:F2:0C:05:B8:66:D1:51:6E:BD:D6:73:70:4D:2A:B7:49:F7:8F"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.ajf2122.lobsterlog",
+    "sha256_cert_fingerprints": [
+      "A8:14:1C:07:D0:9C:A9:DA:68:5E:C0:5D:81:59:34:4D:0B:91:E6:87:CD:AA:73:F7:DA:26:85:55:AB:D8:B9:0C"
+    ]
+  }
+}]
