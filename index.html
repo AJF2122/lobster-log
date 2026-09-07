@@ -3,27 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hoop & Hook Log: Spiny Lobster Edition</title>
+  <title>Hoop & Hook Log: Unlocked Prototype</title>
 
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
 
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Hoop & Hook Log: Spiny Lobster Edition" />
-  <meta property="og:description" content="Multi-species marine catch tracker, diver log & CDFW/FWC report assistant." />
-  <meta property="og:image" content="https://ajf2122.github.io/lobster-log/thumbnail.png?v=2" />
-  <meta property="og:url" content="https://ajf2122.github.io/lobster-log/" />
-
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="https://ajf2122.github.io/lobster-log/thumbnail.png?v=2" />
-  <link rel="icon" type="image/png" href="https://ajf2122.github.io/lobster-log/thumbnail.png?v=2" />
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <style>
     :root {
-      /* Dark Theme (Night Mode) */
+      /* Default Light Theme (Day Mode) Variables */
+      --bg: #f4f7f4;
+      --card-bg: #ffffff;
+      --border: #ccd6ce;
+      --text: #1c2822;
+      --muted: #5a6b60;
+      --input-bg: #fafafa;
+      --banner-bg: linear-gradient(135deg, #ffffff, #e2e8f0);
+      --stepper-btn-bg: #e2e8f0;
+      --stepper-btn-hover: #cbd5e1;
+      --reg-box-bg: #f8fafc;
+
+      /* Brand Accents */
+      --accent: #2E5A36;
+      --accent-hover: #438A5E;
+      --gold: #d97706; 
+      --green: #059669;
+      --blue: #0284c7;
+      --crab-orange: #ea580c;
+    }
+
+    /* Dark Theme (Night Mode) */
+    body.dark-theme {
       --bg: #0d1520;
       --card-bg: #16222f;
       --border: #26384a;
@@ -34,28 +46,8 @@
       --stepper-btn-bg: #334155;
       --stepper-btn-hover: #475569;
       --reg-box-bg: #0f172a;
-
-      /* Brand Accents */
-      --accent: #e63946;
-      --accent-hover: #d62839;
       --gold: #f59e0b;
       --green: #10b981;
-      --blue: #0284c7;
-      --crab-orange: #ea580c;
-    }
-
-    /* Light Theme (Day Mode) */
-    body.light-theme {
-      --bg: #f1f5f9;
-      --card-bg: #ffffff;
-      --border: #cbd5e1;
-      --text: #0f172a;
-      --muted: #64748b;
-      --input-bg: #f8fafc;
-      --banner-bg: linear-gradient(135deg, #ffffff, #e2e8f0);
-      --stepper-btn-bg: #e2e8f0;
-      --stepper-btn-hover: #cbd5e1;
-      --reg-box-bg: #f8fafc;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -69,14 +61,13 @@
       margin-bottom: 4px;
     }
     h1 { 
-      color: var(--accent); 
+      color: var(--gold); 
       font-size: 1.45rem; 
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    /* Spiny Lobster Custom SVG Icon Sizes */
     .spiny-icon-inline {
       width: 1.25em;
       height: 1.25em;
@@ -105,101 +96,70 @@
 
     p.subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
     
-    /* Target Mode Switcher */
-    .mode-selector {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-      margin-bottom: 10px;
-      background: var(--input-bg);
-      padding: 6px;
+    /* --- UNIQUE SELECTORS HEADER STYLING --- */
+    .selectors-header {
+      background: linear-gradient(135deg, #0284c7, #0369a1); /* Distinct Marine Blue */
+      color: white;
+      padding: 16px;
       border-radius: 8px;
-      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
-    .mode-btn {
-      padding: 10px 4px;
+    .selectors-title {
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      color: #f0f9ff;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 6px;
+    }
+    .selectors-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .selector-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .selector-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #bae6fd;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .selector-dropdown {
+      width: 100%;
+      padding: 10px;
       font-weight: bold;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      background: transparent;
-      color: var(--muted);
-      transition: all 0.2s ease;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      line-height: 1.2;
-      gap: 2px;
-    }
-    .mode-btn.active.lob-active {
-      background: #0284c7;
-      color: white;
-      box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
-    }
-    .mode-btn.active.crab-active {
-      background: var(--crab-orange);
-      color: white;
-      box-shadow: 0 0 10px rgba(234, 88, 12, 0.4);
-    }
-    .mode-btn.disabled-btn {
-      opacity: 0.45;
-      cursor: not-allowed;
-      border: 1px dashed var(--border);
-    }
-    .mode-btn .badge-soon {
-      font-size: 0.6rem;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-top: 2px;
-      font-weight: normal;
-    }
-
-    /* Styled State & Region Pill Dropdown */
-    .state-picker-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      background: var(--input-bg);
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .state-picker-bar label {
-      margin-bottom: 0;
-      font-weight: bold;
-      color: var(--gold);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.8rem;
-    }
-    .state-select-pill {
-      flex: 1;
-      padding: 8px 12px;
-      font-weight: bold;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--card-bg);
-      color: var(--text);
-      font-size: 0.85rem;
+      background: #ffffff;
+      color: #1c2822;
+      font-size: 0.9rem;
       cursor: pointer;
       outline: none;
-      transition: border-color 0.2s ease;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
-    .state-select-pill:focus {
-      border-color: #0284c7;
-    }
-    .state-select-pill:disabled {
-      opacity: 0.65;
+    .selector-dropdown:disabled {
+      opacity: 0.8;
+      background: #e2e8f0;
+      color: #64748b;
       cursor: not-allowed;
-      background: var(--stepper-btn-bg);
     }
 
+    /* Blur lock class for the main app before selection */
+    .app-locked {
+      filter: blur(4px);
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.6;
+      transition: all 0.3s ease;
+    }
+
+    /* Standard Cards */
     .season-banner {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -265,13 +225,9 @@
       padding: 14px;
       margin-top: 10px;
       display: none;
-      box-shadow: 0 0 12px rgba(230, 57, 70, 0.4);
     }
-    .btn-finalize:hover { background-color: var(--accent-hover); }
     .btn-secondary { background-color: var(--stepper-btn-bg); color: var(--text); margin-top: 8px; border: 1px solid var(--border); }
-    .btn-secondary:hover { background-color: var(--stepper-btn-hover); }
-    .btn-nuke { background-color: #7f1d1d; margin-top: 8px; }
-    .btn-nuke:hover { background-color: #991b1b; }
+    .btn-nuke { background-color: #7f1d1d; color: white; margin-top: 8px; }
     .btn-gps { background-color: #0284c7; padding: 6px 10px; font-size: 0.75rem; margin-top: 4px; }
     .btn-del { background: transparent; border: none; color: #ef4444; font-size: 1rem; cursor: pointer; padding: 2px 6px; }
     
@@ -294,188 +250,41 @@
     .badge-green { border-color: var(--green); color: var(--green); }
     .badge-blue { border-color: var(--blue); color: var(--blue); }
     
-    details.set-breakdown {
-      margin-top: 8px;
-      background: var(--card-bg);
-      padding: 6px 10px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
-    details.set-breakdown summary {
-      cursor: pointer;
-      font-weight: bold;
-      color: var(--blue);
-      font-size: 0.8rem;
-    }
-    .set-table {
-      width: 100%;
-      margin-top: 6px;
-      font-size: 0.75rem;
-      border-collapse: collapse;
-    }
-    .set-table th, .set-table td {
-      border: 1px solid var(--border);
-      padding: 4px 6px;
-      text-align: center;
-    }
+    details.set-breakdown { margin-top: 8px; background: var(--card-bg); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border); }
+    details.set-breakdown summary { cursor: pointer; font-weight: bold; color: var(--blue); font-size: 0.8rem; }
+    .set-table { width: 100%; margin-top: 6px; font-size: 0.75rem; border-collapse: collapse; }
+    .set-table th, .set-table td { border: 1px solid var(--border); padding: 4px 6px; text-align: center; }
     .set-table th { background: var(--input-bg); color: var(--muted); }
     .gps-link { color: var(--blue); text-decoration: none; }
-    .gps-link:hover { text-decoration: underline; }
 
-    /* Modals Styling */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 16px;
     }
     .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      width: 100%;
-      max-width: 520px;
-      max-height: 85vh;
-      overflow-y: auto;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px; width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto;
     }
-    .spot-list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 6px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.85rem;
-    }
-    #mapContainer {
-      width: 100%;
-      height: 380px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-    }
+    .spot-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    #mapContainer { width: 100%; height: 380px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border); }
     .reg-box { background: var(--reg-box-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 0.8rem; line-height: 1.45; }
 
-    /* --- PRO & PAYWALL OVERLAY STYLES --- */
-    .pro-badge {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #000;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-      text-transform: uppercase;
+    /* Map Tile Adjustments */
+    .leaflet-tile { filter: saturate(0.85) contrast(1.1) brightness(0.95); }
+    
+    /* Loading Spinner for Weather */
+    .loader {
+      border: 3px solid var(--border);
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 1s linear infinite;
       display: inline-block;
+      vertical-align: middle;
+      margin-left: 8px;
     }
-
-    #mapContainer.map-blur-locked {
-      position: relative;
-    }
-
-    #mapContainer.map-blur-locked > div:not(.map-locked-overlay) {
-      filter: blur(8px);
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .map-locked-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(13, 21, 32, 0.78);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .paywall-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 999999;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-      box-sizing: border-box;
-    }
-
-    .paywall-modal.active {
-      display: flex;
-    }
-
-    .paywall-card {
-      background: #16222f;
-      border: 1px solid #26384a;
-      border-radius: 16px;
-      max-width: 440px;
-      width: 100%;
-      padding: 24px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-      color: #fff;
-      font-family: inherit;
-    }
-
-    .paywall-card h2 {
-      font-size: 1.3rem;
-      margin-bottom: 8px;
-      color: #f59e0b;
-    }
-
-    .paywall-features {
-      text-align: left;
-      background: #0d1520;
-      border-radius: 8px;
-      padding: 14px;
-      margin: 16px 0;
-      font-size: 0.85rem;
-      line-height: 1.6;
-    }
-
-    .paywall-features li {
-      margin-bottom: 6px;
-      list-style: none;
-      display: flex;
-      align-items: flex-start;
-    }
-
-    .paywall-features li::before {
-      content: "✔";
-      color: #10b981;
-      font-weight: bold;
-      margin-right: 8px;
-    }
-
-    .btn-unlock-pro {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #000;
-      font-weight: 800;
-      font-size: 1.05rem;
-      border: none;
-      width: 100%;
-      padding: 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    .btn-close-paywall {
-      background: transparent;
-      color: #94a3b8;
-      border: none;
-      margin-top: 12px;
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -484,15 +293,12 @@
   <symbol id="icon-spiny-lobster" viewBox="0 0 550 650">
     <path d="M225,140 Q130,95 48,220 Q30,340 58,580" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round"/>
     <path d="M225,140 Q130,95 48,220 Q30,340 58,580" fill="none" stroke="#f97316" stroke-width="9" stroke-linecap="round"/>
-    
     <path d="M325,140 Q420,95 502,220 Q520,340 492,580" fill="none" stroke="#220606" stroke-width="15" stroke-linecap="round"/>
     <path d="M325,140 Q420,95 502,220 Q520,340 492,580" fill="none" stroke="#f97316" stroke-width="9" stroke-linecap="round"/>
-
     <path d="M250,120 L160,12" fill="none" stroke="#220606" stroke-width="9" stroke-linecap="round"/>
     <path d="M250,120 L160,12" fill="none" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
     <path d="M300,120 L390,12" fill="none" stroke="#220606" stroke-width="9" stroke-linecap="round"/>
     <path d="M300,120 L390,12" fill="none" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
-
     <polyline points="220,185 160,165 75,180 50,215" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
     <polyline points="220,185 160,165 75,180 50,215" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
     <line x1="70" y1="180" x2="56" y2="200" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
@@ -508,7 +314,6 @@
     <polyline points="220,345 155,410 112,500 98,540" fill="none" stroke="#220606" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
     <polyline points="220,345 155,410 112,500 98,540" fill="none" stroke="#681313" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
     <line x1="108" y1="510" x2="101" y2="532" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
-
     <polyline points="330,185 390,165 475,180 500,215" fill="none" stroke="#220606" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
     <polyline points="330,185 390,165 475,180 500,215" fill="none" stroke="#681313" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
     <line x1="480" y1="180" x2="494" y2="200" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
@@ -524,48 +329,37 @@
     <polyline points="330,345 395,410 438,500 452,540" fill="none" stroke="#220606" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
     <polyline points="330,345 395,410 438,500 452,540" fill="none" stroke="#681313" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
     <line x1="442" y1="510" x2="449" y2="532" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
-
     <path d="M225,145 Q175,125 155,165 Q185,195 220,175 Z" fill="#881337" stroke="#220606" stroke-width="4"/>
     <circle cx="180" cy="155" r="4.5" fill="#f59e0b"/>
     <path d="M325,145 Q375,125 395,165 Q365,195 330,175 Z" fill="#881337" stroke="#220606" stroke-width="4"/>
     <circle cx="370" cy="155" r="4.5" fill="#f59e0b"/>
-
     <path d="M185,580 Q155,645 230,655 Q250,600 225,580 Z" fill="#881337" stroke="#220606" stroke-width="4.5"/>
     <path d="M365,580 Q395,645 320,655 Q300,600 325,580 Z" fill="#881337" stroke="#220606" stroke-width="4.5"/>
     <path d="M195,600 Q275,675 355,600 Q345,665 275,670 Q205,665 195,600 Z" fill="#f97316" stroke="#220606" stroke-width="4.5"/>
-
     <path d="M248,555 L302,555 L298,605 L252,605 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
-
     <path d="M238,505 Q275,515 312,505 L308,550 Q275,560 242,550 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
     <path d="M243,535 Q275,545 307,535" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
     <polygon points="233,528 240,518 241,538" fill="#f59e0b"/>
     <polygon points="317,528 310,518 309,538" fill="#f59e0b"/>
-
     <path d="M233,455 Q275,465 317,455 L312,505 Q275,515 238,505 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
     <path d="M238,485 Q275,495 312,485" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
     <polygon points="228,478 235,468 236,488" fill="#f59e0b"/>
     <polygon points="322,478 315,468 314,488" fill="#f59e0b"/>
-
     <path d="M228,405 Q275,415 322,405 L317,455 Q275,465 233,455 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
     <path d="M233,435 Q275,445 317,435" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
     <polygon points="223,428 230,418 231,438" fill="#f59e0b"/>
     <polygon points="327,428 320,418 319,438" fill="#f59e0b"/>
-
     <path d="M224,355 Q275,365 326,355 L322,405 Q275,415 228,405 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
     <path d="M228,385 Q275,395 322,385" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
     <polygon points="219,378 226,368 227,388" fill="#f59e0b"/>
     <polygon points="331,378 324,368 323,388" fill="#f59e0b"/>
-
     <path d="M220,310 Q275,320 330,310 L326,355 Q275,365 224,355 Z" fill="#681313" stroke="#220606" stroke-width="4.5"/>
     <path d="M224,335 Q275,345 326,335" fill="none" stroke="#f59e0b" stroke-width="4.5" stroke-linecap="round"/>
     <polygon points="215,328 222,318 223,338" fill="#f59e0b"/>
     <polygon points="335,328 328,318 327,338" fill="#f59e0b"/>
-
     <path d="M225,180 Q275,160 325,180 Q350,230 335,360 Q275,370 215,360 Q200,230 225,180 Z" fill="#7a1a1a" stroke="#220606" stroke-width="5"/>
     <path d="M245,210 Q275,195 305,210 Q320,250 310,335 Q275,345 240,335 Q230,250 245,210 Z" fill="#5c1212"/>
-
     <path d="M250,135 Q275,125 300,135 L310,180 L240,180 Z" fill="#681313" stroke="#220606" stroke-width="3"/>
-
     <path d="M228,180 L238,95 Q262,115 252,180 Z" fill="#f97316" stroke="#220606" stroke-width="4"/>
     <path d="M322,180 L312,95 Q288,115 298,180 Z" fill="#f97316" stroke="#220606" stroke-width="4"/>
   </symbol>
@@ -575,402 +369,416 @@
   <div class="header-row">
     <h1 id="mainTitle">
       <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
-      <span>Hoop & Hook Log: Spiny Lobster Edition</span>
+      <span>Hoop & Hook Log</span>
     </h1>
     <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
-      <span id="themeIcon">☀️</span> <span id="themeText">Day Mode</span>
+      <span id="themeIcon">🌙</span> <span id="themeText">Night Mode</span>
     </button>
   </div>
-  <p class="subtitle">Field Entry, Set Tracker & Multi-Species Logbook</p>
+  <p class="subtitle">Fully Unlocked Forum Preview & Field Logger</p>
 
-  <div class="mode-selector" id="speciesModeContainer">
-    <button type="button" id="btnLobsterMode" class="mode-btn active lob-active" onclick="switchTargetMode('lobster')">
-      <div style="display:flex; align-items:center; gap:4px;">
-        <svg class="spiny-icon-inline"><use href="#icon-spiny-lobster"/></svg>
-        <span>Lobster</span>
+  <!-- UNIQUE SELECTION HEADER: Select Catch & Select Region -->
+  <div class="selectors-header">
+    <div class="selectors-title">🎣 Target Species & Location</div>
+    <div class="selectors-bar">
+      <div class="selector-group">
+        <label for="catchDropdown">Select Catch</label>
+        <select id="catchDropdown" class="selector-dropdown" onchange="handleCatchDropdownChange(this.value)">
+          <option value="" disabled selected>Select Catch</option>
+          <option value="lobster">Lobster</option>
+          <option value="crab">Crab</option>
+          <option value="prawns">Prawns</option>
+          <option value="sportfish" disabled>Sport Fish (Coming Soon)</option>
+        </select>
       </div>
-    </button>
-    <button type="button" class="mode-btn disabled-btn" onclick="return false;" title="Fish Mode coming in future update">
-      <span>🎣 Fish Mode</span>
-      <span class="badge-soon">Coming Soon</span>
-    </button>
-    <button type="button" id="btnCrabMode" class="mode-btn" onclick="switchTargetMode('crab')">
-      <span>🦀 Crab</span>
-    </button>
-  </div>
-
-  <div class="state-picker-bar">
-    <label id="stateSelectLabel" for="stateRegionSelect">📍 Region:</label>
-    <select id="stateRegionSelect" class="state-select-pill" onchange="handleStateSelection(this.value)">
-      </select>
-  </div>
-
-  <div class="season-banner">
-    <div>
-      <div class="stat-val" id="bannerStat1">0</div>
-      <div class="stat-lbl" id="bannerStat1Lbl">Season Retained</div>
-    </div>
-    <div>
-      <div class="stat-val" style="color: var(--blue);" id="bannerStat2">0</div>
-      <div class="stat-lbl" id="bannerStat2Lbl">Shorts Released</div>
-    </div>
-    <div>
-      <div class="stat-val" style="color: var(--green);" id="bannerStat3">0</div>
-      <div class="stat-lbl" id="bannerStat3Lbl">Nights Fished</div>
+      <div class="selector-group">
+        <label for="regionDropdown" id="regionLabel">Select Region</label>
+        <select id="regionDropdown" class="selector-dropdown" onchange="handleRegionDropdownChange(this.value)" disabled>
+          <option value="" disabled selected>Select Region</option>
+          <!-- Dynamically populated -->
+        </select>
+      </div>
     </div>
   </div>
 
-  <details class="card" style="margin-bottom: 16px;">
-    <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings & Waypoints</summary>
-    <div style="margin-top: 10px;">
-      <label>Email for Nightly Reports (Stored privately on this device):</label>
-      <div style="display: flex; gap: 6px; margin-bottom: 12px;">
-        <input type="email" id="userEmail" placeholder="yourname@gmail.com" disabled />
-        <button type="button" id="emailEditBtn" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="toggleEmailEdit()">✏️ Edit</button>
+  <!-- Main Application Content (Blurred until Catch & Region are selected) -->
+  <div id="mainAppContent" class="app-locked">
+    
+    <div class="season-banner">
+      <div>
+        <div class="stat-val" id="bannerStat1">0</div>
+        <div class="stat-lbl" id="bannerStat1Lbl">Season Retained</div>
       </div>
-
-      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
-        <label style="font-weight: bold; color: var(--gold);">🗺️ Spot Map & Waypoint Tools:</label>
-        <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map (🔒 PRO)</button>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
-          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="exportWaypointsCSV()">📥 Export GPS (🔒 PRO)</button>
-          <input type="file" id="gpsCsvFileInput" accept=".csv" style="display: none;" onchange="importWaypointsCSV(event)" />
-          <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="handleImportGPSClick()">📂 Import GPS (🔒 PRO)</button>
-        </div>
+      <div>
+        <div class="stat-val" style="color: var(--blue);" id="bannerStat2">0</div>
+        <div class="stat-lbl" id="bannerStat2Lbl">Shorts Released</div>
       </div>
-
-      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px;">
-        <label style="font-weight: bold; color: var(--blue);">📁 Catch Log History Backup:</label>
-        <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
-          <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSVFile(event)" />
-          <button type="button" class="btn btn-secondary" style="margin-top:0; font-size: 0.85rem;" onclick="handleImportLogsClick()">📂 Import Past Logs (🔒 PRO)</button>
-        </div>
-      </div>
-
-      <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
-        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; background-color: #0369a1; color:white;" onclick="openSpotManager()">📍 Manage Spots</button>
-        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomSpots()">Reset Default Spots</button>
-        <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomBaits()">Reset Custom Baits</button>
-      </div>
-    </div>
-  </details>
-
-  <form id="logForm">
-    <div class="card">
-      <div class="section-title">⏱️ Trip & Timing</div>
-      <div class="grid">
-        <div class="full-width">
-          <label style="color: var(--gold); font-weight: bold;">Trip Status</label>
-          <select id="tripStatus" onchange="handleTripStatusChange(this.value)">
-            <option value="">-- Select Status --</option>
-            <option value="Start Night">🟢 Start Session (Active Fishing/Pulling)</option>
-            <option value="End Night">🔴 End Session (Close Out & Email Report)</option>
-          </select>
-        </div>
-        <div>
-          <label>Date</label>
-          <input type="date" id="logDate" required />
-        </div>
-        <div>
-          <label>Time</label>
-          <input type="time" id="logTime" required />
-        </div>
-        <div class="full-width">
-          <label id="anglerTitleLabel" style="color: var(--blue); font-weight: bold;">Anglers on Boat (CDFW Cardholders)</label>
-          <select id="anglerCount" onchange="handleAnglerChange(this.value)">
-            </select>
-        </div>
-      </div>
-
-      <button type="button" id="finalizeBtn" class="btn btn-finalize" onclick="triggerCloseOut()">🛑 Finalize & Close Out Night</button>
-    </div>
-
-    <div class="card">
-      <div class="section-title">🌊 Conditions</div>
-      <div class="grid">
-        <div>
-          <label>Air Temp</label>
-          <input type="number" id="airTemp" placeholder="68" max="999" oninput="if(this.value.length>3) this.value=this.value.slice(0,3)" />
-        </div>
-        <div>
-          <label>Water Temp</label>
-          <input type="number" id="waterTemp" placeholder="62" max="99" oninput="if(this.value.length>2) this.value=this.value.slice(0,2)" />
-        </div>
-        <div>
-          <label>Tide State</label>
-          <select id="tide">
-            <option value="">-- Select Tide --</option>
-            <option value="Incoming">Incoming (Flood)</option>
-            <option value="Outgoing">Outgoing (Ebb)</option>
-            <option value="High Slack">High Slack</option>
-            <option value="Low Slack">Low Slack</option>
-          </select>
-        </div>
-        <div>
-          <label>Moon Phase</label>
-          <select id="moon">
-            <option value="">-- Select Moon --</option>
-            <option value="New Moon">New Moon (Dark)</option>
-            <option value="Waxing Crescent">Waxing Crescent</option>
-            <option value="First Quarter">First Quarter</option>
-            <option value="Waxing Gibbous">Waxing Gibbous</option>
-            <option value="Full Moon">Full Moon (Bright)</option>
-            <option value="Waning Gibbous">Waning Gibbous</option>
-            <option value="Last Quarter">Last Quarter</option>
-            <option value="Waning Crescent">Waning Crescent</option>
-          </select>
-        </div>
-        <div>
-          <label>Sky</label>
-          <select id="sky">
-            <option value="">-- Select Sky --</option>
-            <option value="Clear">Clear</option>
-            <option value="Partly Cloudy">Partly Cloudy</option>
-            <option value="Cloudy">Cloudy</option>
-            <option value="Rain">Rain</option>
-            <option value="Fog">Fog</option>
-          </select>
-        </div>
-        <div class="full-width">
-          <label>Conditions Notes (Wind, Swell, Chop...)</label>
-          <input type="text" id="condNotes" placeholder="e.g., 10-15kt NW wind, 3ft chop, heavy current..." />
-        </div>
+      <div>
+        <div class="stat-val" style="color: var(--green);" id="bannerStat3">0</div>
+        <div class="stat-lbl" id="bannerStat3Lbl">Nights Fished</div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-title">🎯 Sets & Catch Tracking</div>
-      <div class="grid">
-        <div>
-          <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
-          <select id="bait" onchange="handleBaitChange(this.value)">
-            </select>
-        </div>
-        <div>
-          <label style="color: var(--blue); font-weight: bold;">Depth (ft)</label>
-          <input type="number" id="depth" placeholder="35" max="999" oninput="if(this.value.length>3) this.value=this.value.slice(0,3)" />
-        </div>
-        <div>
-          <label style="color: var(--blue); font-weight: bold;">Soak (min)</label>
-          <input type="number" id="soakTime" placeholder="45" />
-        </div>
-        <div>
-          <label style="color: var(--blue); font-weight: bold;">Hoops / Pots Pulled</label>
-          <input type="number" id="netsCount" placeholder="10" />
-        </div>
-        <div class="full-width">
-          <label style="color: var(--blue); font-weight: bold;">Set Notes</label>
-          <input type="text" id="setQuickNotes" placeholder="e.g., inside wall, heavy current, seal bite" />
+    <details class="card" style="margin-bottom: 16px;">
+      <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--gold);">⚙️ User Settings & Waypoints (Fully Unlocked)</summary>
+      <div style="margin-top: 10px;">
+        <label>Email for Nightly Reports (Stored privately on this device):</label>
+        <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+          <input type="email" id="userEmail" placeholder="yourname@gmail.com" />
+          <button type="button" id="emailEditBtn" class="btn" style="width: auto; padding: 8px 14px; font-size: 0.85rem;" onclick="toggleEmailEdit()">💾 Save</button>
         </div>
 
-        <div class="full-width">
-          <label style="font-weight: bold; color: var(--green);">Select Active Set</label>
-          <select id="setNumber" onchange="switchSet(this.value)">
-            </select>
-        </div>
-
-        <div class="full-width">
-          <label id="areaLabel" style="color: var(--gold); font-weight: bold;">Fishing / Lobster Area for this Set</label>
-          <select id="setArea" onchange="handleSpotChange(this.value)">
-            </select>
-        </div>
-        <div class="full-width">
-          <label>Set GPS Coordinates (Lat, Long)</label>
-          <div style="display:flex; gap:6px;">
-            <input type="text" id="gps" placeholder="33.7250, -118.2700" onchange="handleGPSInput(this.value)" />
-            <button type="button" class="btn btn-gps" style="width: auto; white-space: nowrap;" onclick="getGPS()">📍 Get GPS</button>
+        <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
+          <label style="font-weight: bold; color: var(--gold);">🗺️ Spot Map & Waypoint Tools:</label>
+          <button type="button" class="btn" style="background-color: #0284c7; margin-top: 6px; font-size: 0.9rem;" onclick="openSpotMapModal()">🗺️ View All Spots on Live Map</button>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+            <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="exportWaypointsCSV()">📥 Export GPS</button>
+            <input type="file" id="gpsCsvFileInput" accept=".csv" style="display: none;" onchange="importWaypointsCSV(event)" />
+            <button type="button" class="btn btn-secondary" style="font-size: 0.8rem; margin:0;" onclick="document.getElementById('gpsCsvFileInput').click()">📂 Import GPS</button>
           </div>
         </div>
 
-        <div>
-          <div class="counter-label" id="box1Title" style="color: var(--green);">
-            <span>Lobster Keepers</span>
-            <span class="sub-measure" id="box1Sub">(3 1/4" min)</span>
-          </div>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('count1', -1)">-</button>
-            <input type="number" id="count1" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('count1', 1)">+</button>
+        <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px;">
+          <label style="font-weight: bold; color: var(--blue);">📁 Catch Log History Backup:</label>
+          <div style="display: flex; gap: 6px; align-items: center; margin-top: 4px;">
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSVFile(event)" />
+            <button type="button" class="btn btn-secondary" style="margin-top:0; font-size: 0.85rem;" onclick="document.getElementById('csvFileInput').click()">📂 Import Past Logs</button>
           </div>
         </div>
 
-        <div>
-          <div class="counter-label" id="box2Title" style="color: var(--green);">
-            <span>Rock Crabs Kept</span>
-            <span class="sub-measure" id="box2Sub">(4 1/4" min)</span>
-          </div>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('count2', -1)">-</button>
-            <input type="number" id="count2" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('count2', 1)">+</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="counter-label" id="box3Title" style="color: var(--blue);">
-            <span id="box3Main">Lobster Shorts</span>
-            <span class="sub-measure">Released</span>
-          </div>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('count3', -1)">-</button>
-            <input type="number" id="count3" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('count3', 1)">+</button>
-          </div>
-        </div>
-
-        <div>
-          <div class="counter-label" id="box4Title" style="color: var(--blue);">
-            <span id="box4Main">Rock Crab Shorts</span>
-            <span class="sub-measure">Released</span>
-          </div>
-          <div class="stepper">
-            <button type="button" class="step-btn" onclick="adjustCount('count4', -1)">-</button>
-            <input type="number" id="count4" min="0" value="0" />
-            <button type="button" class="step-btn" onclick="adjustCount('count4', 1)">+</button>
-          </div>
-        </div>
-
-        <div class="full-width">
-          <details style="background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 4px;">
-            <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--blue);">
-              🤿 Diver Logs & Dive Profile (Optional)
-            </summary>
-            <div class="grid" style="margin-top: 10px;">
-              <div>
-                <label>Dive Method</label>
-                <select id="diveMethod">
-                  <option value="">-- Select Method --</option>
-                  <option value="Freedive / Snorkel">Freedive / Snorkel</option>
-                  <option value="SCUBA">SCUBA</option>
-                  <option value="Hookah / Surface">Hookah / Surface Line</option>
-                </select>
-              </div>
-              <div>
-                <label>Entry Type</label>
-                <select id="diveEntry">
-                  <option value="Boat Dive">Boat Dive</option>
-                  <option value="Shore / Beach">Shore / Beach Entry</option>
-                  <option value="Kayak / Skiff">Kayak / Skiff Dive</option>
-                </select>
-              </div>
-              <div>
-                <label>Bottom Time (min)</label>
-                <input type="number" id="diveTime" placeholder="45" />
-              </div>
-              <div>
-                <label>Max Dive Depth (ft)</label>
-                <input type="number" id="diveMaxDepth" placeholder="30" />
-              </div>
-              <div>
-                <label>Start / End Tank PSI</label>
-                <input type="text" id="divePSI" placeholder="3000 / 700" />
-              </div>
-              <div>
-                <label>Water Visibility (ft)</label>
-                <input type="number" id="diveViz" placeholder="15" />
-              </div>
-              <div class="full-width">
-                <label>Dive Buddy & Route Notes</label>
-                <input type="text" id="diveNotes" placeholder="e.g., Buddy: Mike, checked south ledges, high surge on bottom..." />
-              </div>
-            </div>
-          </details>
-        </div>
-
-        <div class="full-width">
-          <label>Other Species & Incidental Notes</label>
-          <input type="text" id="otherSpecies" placeholder="e.g., Spider Crab, Octopus, Horn Shark, Calico Bass..." />
+        <div style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+          <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px; background-color: #0369a1; color:white;" onclick="openSpotManager()">📍 Manage Spots</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomSpots()">Reset Default Spots</button>
+          <button type="button" class="btn btn-secondary" style="font-size: 0.75rem; padding: 6px 10px;" onclick="clearCustomBaits()">Reset Custom Baits</button>
         </div>
       </div>
-    </div>
+    </details>
 
-    <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
-      <div class="section-title cdfw-title" id="regCardTitle">📋 CDFW Report Card Reference & Regulations (California)</div>
-      
-      <div id="lobsterCDFWFields">
+    <form id="logForm">
+      <div class="card">
+        <div class="section-title">⏱️ Trip & Timing</div>
         <div class="grid">
           <div class="full-width">
-            <label>DFW Location Code</label>
-            <select id="dfwCode">
-              <option value="">-- Select DFW Code --</option>
-              <option value="203">203 - Los Angeles / Long Beach Harbor & Breakwater</option>
-              <option value="202">202 - Palos Verdes Point to Point Vicente</option>
-              <option value="201">201 - Santa Monica Bay / Malibu</option>
-              <option value="204">204 - Sunset Beach to Newport Beach</option>
-              <option value="205">205 - Dana Point to San Mateo Point</option>
-              <option value="206">206 - Oceanside to Encinitas</option>
-              <option value="207">207 - Point La Jolla to Point Loma</option>
-              <option value="208">208 - San Diego Bay & Zuniga Jetty</option>
-              <option value="301">301 - Santa Catalina Island (East/Harbors)</option>
-              <option value="302">302 - Santa Catalina Island (West/Backside)</option>
-              <option value="101">101 - Ventura / Channel Islands Harbor</option>
+            <label style="color: var(--gold); font-weight: bold;">Trip Status</label>
+            <select id="tripStatus" onchange="handleTripStatusChange(this.value)">
+              <option value="">-- Select Status --</option>
+              <option value="Start Night">🟢 Start Session (Active Fishing/Pulling)</option>
+              <option value="End Night">🔴 End Session (Close Out & Email Report)</option>
             </select>
           </div>
           <div>
-            <label>Gear Type</label>
-            <select id="dfwGear">
-              <option value="">-- Select Gear --</option>
-              <option value="H-B">Hoop Net (Boat)</option>
-              <option value="H-S">Hoop Net (Shore/Pier)</option>
-              <option value="D-F">Diving (Freedive)</option>
-              <option value="D-S">Diving (SCUBA)</option>
+            <label>Date</label>
+            <input type="date" id="logDate" required />
+          </div>
+          <div>
+            <label>Time</label>
+            <input type="time" id="logTime" required />
+          </div>
+          <div class="full-width">
+            <label id="anglerTitleLabel" style="color: var(--blue); font-weight: bold;">Anglers on Boat (CDFW Cardholders)</label>
+            <select id="anglerCount" onchange="handleAnglerChange(this.value)">
+            </select>
+          </div>
+        </div>
+
+        <button type="button" id="finalizeBtn" class="btn btn-finalize" onclick="triggerCloseOut()">🛑 Finalize & Close Out Night</button>
+      </div>
+
+      <!-- Enhanced Conditions Section -->
+      <div class="card">
+        <div class="section-title">🌊 Conditions & Weather</div>
+        
+        <!-- Live Weather Button -->
+        <button type="button" id="fetchWeatherBtn" class="btn btn-secondary" onclick="fetchLiveWeather()" style="margin-top: 0; margin-bottom: 14px; background-color: #0ea5e9; color: white; border: none; font-weight: bold; width: 100%;">
+          <span id="weatherBtnText">🌦️ Auto-Fill Live Weather Data</span>
+        </button>
+
+        <div class="grid">
+          <div>
+            <label>Air Temp</label>
+            <input type="number" id="airTemp" placeholder="68" max="999" oninput="if(this.value.length>3) this.value=this.value.slice(0,3)" />
+          </div>
+          <div>
+            <label>Water Temp</label>
+            <input type="number" id="waterTemp" placeholder="62" max="99" oninput="if(this.value.length>2) this.value=this.value.slice(0,2)" />
+          </div>
+          <div>
+            <label>Tide State</label>
+            <select id="tide">
+              <option value="">-- Select Tide --</option>
+              <option value="Incoming">Incoming (Flood)</option>
+              <option value="Outgoing">Outgoing (Ebb)</option>
+              <option value="High Slack">High Slack</option>
+              <option value="Low Slack">Low Slack</option>
             </select>
           </div>
           <div>
-            <label style="color: var(--gold); font-weight: bold;">
-              Total Boat Keepers <span id="limitLabel" style="font-size:0.7rem; color:var(--muted);">(Boat Limit: 7)</span>
-            </label>
+            <label>Moon Phase</label>
+            <select id="moon">
+              <option value="">-- Select Moon --</option>
+              <option value="New Moon">New Moon (Dark)</option>
+              <option value="Waxing Crescent">Waxing Crescent</option>
+              <option value="First Quarter">First Quarter</option>
+              <option value="Waxing Gibbous">Waxing Gibbous</option>
+              <option value="Full Moon">Full Moon (Bright)</option>
+              <option value="Waning Gibbous">Waning Gibbous</option>
+              <option value="Last Quarter">Last Quarter</option>
+              <option value="Waning Crescent">Waning Crescent</option>
+            </select>
+          </div>
+          <div>
+            <label>Sky</label>
+            <select id="sky">
+              <option value="">-- Select Sky --</option>
+              <option value="Clear">Clear</option>
+              <option value="Partly Cloudy">Partly Cloudy</option>
+              <option value="Cloudy">Cloudy</option>
+              <option value="Rain">Rain</option>
+              <option value="Fog">Fog</option>
+            </select>
+          </div>
+          <div class="full-width">
+            <label>Conditions Notes (Wind, Swell, Chop...)</label>
+            <input type="text" id="condNotes" placeholder="e.g., 10-15kt NW wind, 3ft chop, heavy current..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">🎯 Sets & Catch Tracking</div>
+        <div class="grid">
+          <div>
+            <label style="color: var(--blue); font-weight: bold;">Bait Used</label>
+            <select id="bait" onchange="handleBaitChange(this.value)">
+            </select>
+          </div>
+          <div>
+            <label style="color: var(--blue); font-weight: bold;">Depth (ft)</label>
+            <input type="number" id="depth" placeholder="35" max="999" oninput="if(this.value.length>3) this.value=this.value.slice(0,3)" />
+          </div>
+          <div>
+            <label style="color: var(--blue); font-weight: bold;">Soak (min)</label>
+            <input type="number" id="soakTime" placeholder="45" />
+          </div>
+          <div>
+            <label style="color: var(--blue); font-weight: bold;">Hoops / Pots Pulled</label>
+            <input type="number" id="netsCount" placeholder="10" />
+          </div>
+          <div class="full-width">
+            <label style="color: var(--blue); font-weight: bold;">Set Notes</label>
+            <input type="text" id="setQuickNotes" placeholder="e.g., inside wall, heavy current, seal bite" />
+          </div>
+
+          <div class="full-width">
+            <label style="font-weight: bold; color: var(--green);">Select Active Set</label>
+            <select id="setNumber" onchange="switchSet(this.value)">
+            </select>
+          </div>
+
+          <div class="full-width">
+            <label id="areaLabel" style="color: var(--gold); font-weight: bold;">Fishing / Catch Area for this Set</label>
+            <select id="setArea" onchange="handleSpotChange(this.value)">
+            </select>
+          </div>
+          <div class="full-width">
+            <label>Set GPS Coordinates (Lat, Long)</label>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="gps" placeholder="33.7250, -118.2700" onchange="handleGPSInput(this.value)" />
+              <button type="button" class="btn btn-gps" style="width: auto; white-space: nowrap;" onclick="getGPS()">📍 Get GPS</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="counter-label" id="box1Title" style="color: var(--green);">
+              <span>Keepers</span>
+              <span class="sub-measure" id="box1Sub">(3 1/4" min)</span>
+            </div>
             <div class="stepper">
-              <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', -1)">-</button>
-              <input type="number" id="dfwRetained" min="0" value="0" />
-              <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', 1)">+</button>
+              <button type="button" class="step-btn" onclick="adjustCount('count1', -1)">-</button>
+              <input type="number" id="count1" min="0" value="0" />
+              <button type="button" class="step-btn" onclick="adjustCount('count1', 1)">+</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="counter-label" id="box2Title" style="color: var(--green);">
+              <span>Secondary Kept</span>
+              <span class="sub-measure" id="box2Sub">(4 1/4" min)</span>
+            </div>
+            <div class="stepper">
+              <button type="button" class="step-btn" onclick="adjustCount('count2', -1)">-</button>
+              <input type="number" id="count2" min="0" value="0" />
+              <button type="button" class="step-btn" onclick="adjustCount('count2', 1)">+</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="counter-label" id="box3Title" style="color: var(--blue);">
+              <span id="box3Main">Primary Shorts</span>
+              <span class="sub-measure">Released</span>
+            </div>
+            <div class="stepper">
+              <button type="button" class="step-btn" onclick="adjustCount('count3', -1)">-</button>
+              <input type="number" id="count3" min="0" value="0" />
+              <button type="button" class="step-btn" onclick="adjustCount('count3', 1)">+</button>
+            </div>
+          </div>
+
+          <div>
+            <div class="counter-label" id="box4Title" style="color: var(--blue);">
+              <span id="box4Main">Secondary Shorts</span>
+              <span class="sub-measure">Released</span>
+            </div>
+            <div class="stepper">
+              <button type="button" class="step-btn" onclick="adjustCount('count4', -1)">-</button>
+              <input type="number" id="count4" min="0" value="0" />
+              <button type="button" class="step-btn" onclick="adjustCount('count4', 1)">+</button>
+            </div>
+          </div>
+
+          <div class="full-width">
+            <details style="background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-top: 4px;">
+              <summary style="cursor: pointer; font-size: 0.85rem; font-weight: bold; color: var(--blue);">
+                🤿 Diver Logs & Dive Profile (Optional)
+              </summary>
+              <div class="grid" style="margin-top: 10px;">
+                <div>
+                  <label>Dive Method</label>
+                  <select id="diveMethod">
+                    <option value="">-- Select Method --</option>
+                    <option value="Freedive / Snorkel">Freedive / Snorkel</option>
+                    <option value="SCUBA">SCUBA</option>
+                    <option value="Hookah / Surface">Hookah / Surface Line</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Entry Type</label>
+                  <select id="diveEntry">
+                    <option value="Boat Dive">Boat Dive</option>
+                    <option value="Shore / Beach">Shore / Beach Entry</option>
+                    <option value="Kayak / Skiff">Kayak / Skiff Dive</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Bottom Time (min)</label>
+                  <input type="number" id="diveTime" placeholder="45" />
+                </div>
+                <div>
+                  <label>Max Dive Depth (ft)</label>
+                  <input type="number" id="diveMaxDepth" placeholder="30" />
+                </div>
+                <div>
+                  <label>Start / End Tank PSI</label>
+                  <input type="text" id="divePSI" placeholder="3000 / 700" />
+                </div>
+                <div>
+                  <label>Water Visibility (ft)</label>
+                  <input type="number" id="diveViz" placeholder="15" />
+                </div>
+                <div class="full-width">
+                  <label>Dive Buddy & Route Notes</label>
+                  <input type="text" id="diveNotes" placeholder="e.g., Buddy: Mike, checked south ledges, high surge on bottom..." />
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="full-width">
+            <label>Other Species & Incidental Notes</label>
+            <input type="text" id="otherSpecies" placeholder="e.g., Spider Crab, Octopus, Horn Shark, Calico Bass..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color: rgba(245, 158, 11, 0.4);">
+        <div class="section-title cdfw-title" id="regCardTitle">📋 Regulatory & Agency Reference</div>
+        
+        <div id="lobsterCDFWFields">
+          <div class="grid">
+            <div class="full-width">
+              <label>DFW Location Code</label>
+              <select id="dfwCode">
+                <option value="">-- Select DFW Code --</option>
+                <option value="203">203 - Los Angeles / Long Beach Harbor & Breakwater</option>
+                <option value="202">202 - Palos Verdes Point to Point Vicente</option>
+                <option value="201">201 - Santa Monica Bay / Malibu</option>
+                <option value="204">204 - Sunset Beach to Newport Beach</option>
+                <option value="205">205 - Dana Point to San Mateo Point</option>
+                <option value="206">206 - Oceanside to Encinitas</option>
+                <option value="207">207 - Point La Jolla to Point Loma</option>
+                <option value="208">208 - San Diego Bay & Zuniga Jetty</option>
+                <option value="301">301 - Santa Catalina Island (East/Harbors)</option>
+                <option value="302">302 - Santa Catalina Island (West/Backside)</option>
+                <option value="101">101 - Ventura / Channel Islands Harbor</option>
+              </select>
+            </div>
+            <div>
+              <label>Gear Type</label>
+              <select id="dfwGear">
+                <option value="">-- Select Gear --</option>
+                <option value="H-B">Hoop Net (Boat)</option>
+                <option value="H-S">Hoop Net (Shore/Pier)</option>
+                <option value="D-F">Diving (Freedive)</option>
+                <option value="D-S">Diving (SCUBA)</option>
+              </select>
+            </div>
+            <div>
+              <label style="color: var(--gold); font-weight: bold;">
+                Total Boat Keepers <span id="limitLabel" style="font-size:0.7rem; color:var(--muted);">(Boat Limit: 7)</span>
+              </label>
+              <div class="stepper">
+                <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', -1)">-</button>
+                <input type="number" id="dfwRetained" min="0" value="0" />
+                <button type="button" class="step-btn" onclick="adjustCount('dfwRetained', 1)">+</button>
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="reg-box" id="regCardContent"></div>
       </div>
 
-      <div class="reg-box" id="regCardContent"></div>
-    </div>
+      <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
+    </form>
 
-    <button type="submit" class="btn" id="actionBtn">➕ Update Active Set</button>
-  </form>
+    <details class="card" style="margin-top: 24px;">
+      <summary style="cursor: pointer; font-size: 0.95rem; font-weight: bold; color: var(--gold);">
+        📖 Catch History (<span id="logCount">0</span> Nights)
+      </summary>
 
-  <details class="card" style="margin-top: 24px;">
-    <summary style="cursor: pointer; font-size: 0.95rem; font-weight: bold; color: var(--gold);">
-      📖 Catch History (<span id="logCount">0</span> Nights)
-    </summary>
-
-    <div style="margin-top: 14px;">
-      <div class="history-controls">
-        <div>
-          <label>Sort By</label>
-          <select id="sortField" onchange="renderLogs()">
-            <option value="">-- Select Sort --</option>
-            <option value="date-desc">Date (Newest First)</option>
-            <option value="date-asc">Date (Oldest First)</option>
-            <option value="legals-desc">Legals Kept (High → Low)</option>
-            <option value="shorts-desc">Shorts (High → Low)</option>
-            <option value="area-asc">Area (A → Z)</option>
-            <option value="waterTemp-desc">Water Temp (Warm → Cold)</option>
-          </select>
+      <div style="margin-top: 14px;">
+        <div class="history-controls">
+          <div>
+            <label>Sort By</label>
+            <select id="sortField" onchange="renderLogs()">
+              <option value="">-- Select Sort --</option>
+              <option value="date-desc">Date (Newest First)</option>
+              <option value="date-asc">Date (Oldest First)</option>
+              <option value="legals-desc">Legals Kept (High → Low)</option>
+              <option value="shorts-desc">Shorts (High → Low)</option>
+              <option value="area-asc">Area (A → Z)</option>
+              <option value="waterTemp-desc">Water Temp (Warm → Cold)</option>
+            </select>
+          </div>
+          <div>
+            <label>Search / Filter</label>
+            <input type="text" id="searchFilter" placeholder="Search area, bait, notes..." oninput="renderLogs()" />
+          </div>
         </div>
-        <div>
-          <label>Search / Filter</label>
-          <input type="text" id="searchFilter" placeholder="Search area, bait, notes..." oninput="renderLogs()" />
-        </div>
+
+        <div id="logList"></div>
       </div>
+    </details>
 
-      <div id="logList"></div>
+    <div style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
+      <button class="btn btn-secondary" style="background-color: #0369a1; color:white;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
+      <button class="btn btn-nuke full-width" onclick="nukeEntireLog()">🧨 Nuke Entire Log (Factory Reset)</button>
     </div>
-  </details>
+  </div> <!-- End of Main App Content -->
 
-  <div style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-    <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export CSV</button>
-    <button class="btn btn-secondary" style="background-color: #0369a1; color:white;" onclick="resetFormOnly()">🔄 Clear Form Only</button>
-    <button class="btn btn-nuke full-width" onclick="nukeEntireLog()">🧨 Nuke Entire Log (Factory Reset)</button>
-  </div>
-</div>
+</div> <!-- End of Container -->
 
 <div id="spotModal" class="modal-overlay">
   <div class="modal-content">
@@ -986,9 +794,15 @@
 <div id="mapModal" class="modal-overlay">
   <div class="modal-content" style="max-width: 620px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
-      <span style="font-weight: bold; color: var(--gold); font-size: 1.1rem;">🗺️ All Saved Spots Map</span>
+      <span style="font-weight: bold; color: var(--gold); font-size: 1.1rem;">🗺️ Spot Map & Waypoints</span>
       <button type="button" class="btn-del" onclick="closeSpotMapModal()" style="font-size: 1.2rem;">✕</button>
     </div>
+    
+    <!-- Marine Contour Toggle -->
+    <button type="button" id="contourToggleBtn" class="btn btn-secondary" style="margin-top: 0; margin-bottom: 12px; background-color: #0284c7; color: white; border: none; font-weight: bold;" onclick="toggleContourMap()">
+      🌊 Switch to Marine Depth Contours
+    </button>
+
     <div id="mapContainer"></div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <span id="mapPinCount" style="font-size: 0.75rem; color: var(--muted);">0 spot pins plotted</span>
@@ -997,82 +811,56 @@
   </div>
 </div>
 
-<!-- Freemium Paywall Modal -->
-<div id="paywallModal" class="paywall-modal">
-  <div class="paywall-card">
-    <h2>⚓ Upgrade to Hoop & Hook PRO</h2>
-    <p style="color: #94a3b8; font-size: 0.88rem;">Unlock full marine logbook capabilities on the water.</p>
-    
-    <ul class="paywall-features">
-      <li><strong>Full Bag Catch Logs:</strong> Log beyond the 3-catch free limit & multi-trip history</li>
-      <li><strong>Unblurred GPS Spot Mapping:</strong> Full waypoint & drift tracking view</li>
-      <li><strong>Boat Crews & Strings:</strong> 3+ Anglers & 5–10 active net deployments</li>
-      <li><strong>Custom Baits:</strong> Bonito, Squid, Sardines, Salmon heads & custom bait recipes</li>
-      <li><strong>Diver Suite:</strong> Multi-drop dives, Start/End PSI tracking & underwater visibility</li>
-      <li><strong>Compliance Export:</strong> Automated CDFW & FWC CSV report generation</li>
-    </ul>
-
-    <button id="btnBuyPro" class="btn-unlock-pro" onclick="processProUpgrade()">
-      Unlock Pro Lifetime • $4.99
-    </button>
-    <br>
-    <button class="btn-close-paywall" onclick="closePaywallModal()">Maybe Later</button>
+<!-- Regulatory Disclaimer Modal triggered when sensitive regions like BC are selected -->
+<div id="regDisclaimerModal" class="modal-overlay" style="z-index: 20000;">
+  <div class="modal-content" style="max-width: 420px; text-align: center;">
+    <div style="font-size: 1.2rem; font-weight: bold; color: var(--gold); margin-bottom: 10px;">⚠️ Regulatory Reminder</div>
+    <p id="regDisclaimerText" style="font-size: 0.88rem; color: var(--text); line-height: 1.5; margin-bottom: 20px;">
+      Shellfish limits, closures, and regional regulations shift frequently. Always verify current local agency guidelines before heading out.
+    </p>
+    <button type="button" class="btn" style="background-color: var(--accent);" onclick="closeRegDisclaimerModal()">I Understand</button>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  const CURRENT_APP_VERSION = "3.12.0";
-
-  (function checkAppVersion() {
-    const savedVersion = localStorage.getItem('hookHoop_appVersion');
-    if (savedVersion !== CURRENT_APP_VERSION) {
-      localStorage.setItem('hookHoop_appVersion', CURRENT_APP_VERSION);
-      if (savedVersion) {
-        window.location.reload(true);
-      }
-    }
-  })();
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    });
-  }
-
-  let activeTargetMode = 'lobster'; // 'lobster' or 'crab'
-  let activeLobsterState = 'CA';    // 'CA' or 'FL'
-  let activeCrabState = 'CA';       // 'CA', 'OR', 'WA'
+  let activeCatch = '';     // 'lobster', 'crab', 'prawns', 'sportfish'
+  let activeRegion = '';         // Region code ('CA', 'FL', 'OR', 'WA', 'BC')
   let isSessionLocked = false;
   let previousTripStatus = '';
+  
+  // Map and weather globals
   let leafletMapInstance = null;
+  let baseTileLayer = null;
+  let isContourMap = false;
 
-  // Theme Management (Light vs Dark)
+  // Theme Management (Light mode default)
   function initTheme() {
-    const savedTheme = localStorage.getItem('hookHoop_theme') || 'dark';
-    if (savedTheme === 'light') {
-      document.body.classList.add('light-theme');
+    const savedTheme = localStorage.getItem('hookHoop_theme') || 'light';
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
       updateThemeButton(true);
     } else {
-      document.body.classList.remove('light-theme');
+      document.body.classList.remove('dark-theme');
       updateThemeButton(false);
     }
   }
 
   function toggleTheme() {
-    const isLight = document.body.classList.toggle('light-theme');
-    localStorage.setItem('hookHoop_theme', isLight ? 'light' : 'dark');
-    updateThemeButton(isLight);
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('hookHoop_theme', isDark ? 'dark' : 'light');
+    updateThemeButton(isDark);
   }
 
-  function updateThemeButton(isLight) {
-    document.getElementById('themeIcon').innerText = isLight ? '🌙' : '☀️';
-    document.getElementById('themeText').innerText = isLight ? 'Night Mode' : 'Day Mode';
+  function updateThemeButton(isDark) {
+    document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
+    document.getElementById('themeText').innerText = isDark ? 'Day Mode' : 'Night Mode';
   }
 
   const LOBSTER_BAITS = ["Mackerel", "Sardines", "Salmon Heads", "Bonito", "Bully Net (No Bait)"];
   const CRAB_BAITS = ["Squid & Fish Carcasses", "Mackerel", "Chicken / Turkey", "Salmon Heads", "Clams"];
+  const PRAWN_BAITS = ["Cat Food / Pellets", "Oily Fish (Herring/Mackerel)", "Salmon Heads", "Squid"];
 
   // Default to 4 sets
   let activeSetList = ["Set 1", "Set 2", "Set 3", "Set 4"];
@@ -1081,7 +869,7 @@
     activeNightSets[setName] = { time: '', area: '', gps: '', bait: '', depth: '', soak: '', nets: '', setNotes: '', count1: 0, count2: 0, count3: 0, count4: 0, other: '', diveMethod: '', diveEntry: '', diveTime: '', diveMaxDepth: '', divePSI: '', diveViz: '', diveNotes: '' };
   });
 
-  let anglerOptions = [1, 2, 3, 4];
+  let anglerOptions = [1, 2, 3, 4, 5, 6];
 
   function getCustomSpots() {
     return JSON.parse(localStorage.getItem('hookHoop_customSpots') || '[]');
@@ -1117,15 +905,16 @@
 
   function populateBaitDropdown(selectedVal = '') {
     const el = document.getElementById('bait');
-    const baseBaits = (activeTargetMode === 'lobster') ? LOBSTER_BAITS : CRAB_BAITS;
+    let baseBaits = LOBSTER_BAITS;
+    if (activeCatch === 'crab') baseBaits = CRAB_BAITS;
+    if (activeCatch === 'prawns') baseBaits = PRAWN_BAITS;
+
     const customs = getCustomBaits();
     const allBaits = [...baseBaits, ...customs];
 
     let html = '<option value="">-- Select Bait --</option>';
     allBaits.forEach(bait => {
-      const isMackerel = bait.toLowerCase().includes('mackerel');
-      const proTag = (!isPro() && !isMackerel) ? ' (🔒 PRO)' : '';
-      html += `<option value="${bait}" ${bait === selectedVal ? 'selected' : ''}>${bait}${proTag}</option>`;
+      html += `<option value="${bait}" ${bait === selectedVal ? 'selected' : ''}>${bait}</option>`;
     });
     html += '<option value="__ADD_NEW_BAIT__" style="color:var(--gold); font-weight:bold;">➕ Add New Bait...</option>';
     el.innerHTML = html;
@@ -1135,9 +924,7 @@
     const el = document.getElementById('setNumber');
     let html = '<option value="">-- Select Set --</option>';
     activeSetList.forEach(s => {
-      const setNum = parseInt(s.replace(/\D/g, '') || '0', 10);
-      const proTag = (!isPro() && setNum > 2) ? ' (🔒 PRO)' : '';
-      html += `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}${proTag}</option>`;
+      html += `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}</option>`;
     });
     html += '<option value="__ADD_NEW_SET__" style="color:var(--gold); font-weight:bold;">➕ Add Next Set...</option>';
     el.innerHTML = html;
@@ -1147,29 +934,16 @@
     const el = document.getElementById('anglerCount');
     let html = '';
     anglerOptions.forEach(num => {
-      const max = num * ((activeTargetMode === 'lobster' && activeLobsterState === 'FL') ? 6 : 7);
-      const limitText = (activeTargetMode === 'lobster') ? ` (Max ${max} Lobsters)` : '';
-      const proTag = (!isPro() && num > 2) ? ' (🔒 PRO)' : '';
-      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''}${limitText}${proTag}</option>`;
+      const max = num * ((activeCatch === 'lobster' && activeRegion === 'FL') ? 6 : 7);
+      const limitText = (activeCatch === 'lobster') ? ` (Max ${max} Lobsters)` : '';
+      html += `<option value="${num}" ${parseInt(selectedVal, 10) === num ? 'selected' : ''}>${num} Person${num > 1 ? 's' : ''}${limitText}</option>`;
     });
     html += '<option value="__ADD_ANGLERS__" style="color:var(--gold); font-weight:bold;">➕ Add More Anglers...</option>';
     el.innerHTML = html;
   }
 
   function handleAnglerChange(val) {
-    if (!isPro() && parseInt(val, 10) > 2) {
-      showPaywall();
-      populateAnglerDropdown(2);
-      syncRetainedFromSets();
-      return;
-    }
-
     if (val === '__ADD_ANGLERS__') {
-      if (!isPro()) {
-        showPaywall();
-        populateAnglerDropdown(2);
-        return;
-      }
       const countStr = prompt("Enter total number of anglers/divers on board:");
       const num = parseInt(countStr, 10);
       if (num && num > 0) {
@@ -1190,14 +964,6 @@
   function handleSpotChange(val) {
     if (val === '__ADD_NEW_SPOT__') {
       const customs = getCustomSpots();
-      
-      // Free Tier Cap: Maximum 2 Saved Custom Spots
-      if (!isPro() && customs.length >= 2) {
-        showPaywall();
-        document.getElementById('setArea').value = '';
-        return;
-      }
-
       const newSpot = prompt("Enter new fishing/crabbing area name:");
       if (newSpot && newSpot.trim()) {
         const cleanSpot = newSpot.trim();
@@ -1224,18 +990,7 @@
   }
 
   function handleBaitChange(val) {
-    if (!isPro() && val && !val.toLowerCase().includes('mackerel')) {
-      showPaywall();
-      populateBaitDropdown('Mackerel');
-      return;
-    }
-
     if (val === '__ADD_NEW_BAIT__') {
-      if (!isPro()) {
-        showPaywall();
-        populateBaitDropdown('Mackerel');
-        return;
-      }
       const newBait = prompt("Enter the name of the new bait:");
       if (newBait && newBait.trim()) {
         const cleanBait = newBait.trim();
@@ -1281,223 +1036,324 @@
     }
   }
 
-  function populateStateDropdown() {
-    const select = document.getElementById('stateRegionSelect');
-    select.innerHTML = '';
-
-    if (activeTargetMode === 'lobster') {
-      const optCA = document.createElement('option');
-      optCA.value = 'CA';
-      optCA.text = 'California (CDFW)';
-      optCA.selected = (activeLobsterState === 'CA');
-
-      const optFL = document.createElement('option');
-      optFL.value = 'FL';
-      optFL.text = 'Florida (FWC)';
-      optFL.selected = (activeLobsterState === 'FL');
-
-      select.appendChild(optCA);
-      select.appendChild(optFL);
+  // Live Auto-Fill Weather Functionality
+  function fetchLiveWeather() {
+    const btnText = document.getElementById('weatherBtnText');
+    btnText.innerHTML = "Fetching... <span class='loader'></span>";
+    
+    // Default fallback to Southern California Bight
+    let lat = 33.725;
+    let lng = -118.270;
+    
+    const gpsVal = document.getElementById('gps').value;
+    if (gpsVal && gpsVal.includes(',')) {
+      const parts = gpsVal.split(',');
+      lat = parseFloat(parts[0]);
+      lng = parseFloat(parts[1]);
+      executeWeatherAPI(lat, lng, btnText);
     } else {
-      const optCA = document.createElement('option');
-      optCA.value = 'CA';
-      optCA.text = 'California (CDFW)';
-      optCA.selected = (activeCrabState === 'CA');
-
-      const optOR = document.createElement('option');
-      optOR.value = 'OR';
-      optOR.text = 'Oregon (ODFW)';
-      optOR.selected = (activeCrabState === 'OR');
-
-      const optWA = document.createElement('option');
-      optWA.value = 'WA';
-      optWA.text = 'Washington (WDFW)';
-      optWA.selected = (activeCrabState === 'WA');
-
-      select.appendChild(optCA);
-      select.appendChild(optOR);
-      select.appendChild(optWA);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            executeWeatherAPI(pos.coords.latitude, pos.coords.longitude, btnText);
+          },
+          () => { 
+            alert('Location access denied. Using default/last known coordinates.'); 
+            executeWeatherAPI(lat, lng, btnText); 
+          }
+        );
+      } else {
+        executeWeatherAPI(lat, lng, btnText);
+      }
     }
   }
 
-  function handleStateSelection(state) {
-    if (isSessionLocked) {
-      alert('Jurisdiction is locked during an active session. End the session to switch states.');
+  function executeWeatherAPI(lat, lng, btnText) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+    
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if(data && data.current) {
+          document.getElementById('airTemp').value = Math.round(data.current.temperature_2m);
+          
+          let sky = "Clear";
+          const code = data.current.weather_code;
+          if(code === 0) sky = "Clear";
+          else if(code >= 1 && code <= 3) sky = "Partly Cloudy";
+          else if(code === 45 || code === 48) sky = "Fog";
+          else if(code >= 51 && code <= 67) sky = "Rain";
+          else if(code >= 71) sky = "Snow";
+          
+          document.getElementById('sky').value = sky;
+          
+          const wind = data.current.wind_speed_10m;
+          const dir = getWindDir(data.current.wind_direction_10m);
+          
+          const existingNotes = document.getElementById('condNotes').value;
+          const updatedWindStr = `Wind: ${wind}mph ${dir}`;
+          document.getElementById('condNotes').value = existingNotes ? `${existingNotes} | ${updatedWindStr}` : updatedWindStr;
+          
+          alert("✅ Live weather successfully loaded and filled!");
+        }
+      })
+      .catch(err => {
+        alert("Failed to fetch live weather data.");
+        console.error(err);
+      })
+      .finally(() => {
+        btnText.innerHTML = "🌦️ Auto-Fill Live Weather Data";
+      });
+  }
+
+  function getWindDir(degrees) {
+    const dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+    const val = Math.floor((degrees / 22.5) + 0.5);
+    return dirs[(val % 16)];
+  }
+
+  function populateRegionDropdown() {
+    const select = document.getElementById('regionDropdown');
+    select.innerHTML = '<option value="" disabled selected>Select Region</option>';
+
+    if (!activeCatch) {
+      select.disabled = true;
+      return;
+    }
+    select.disabled = false;
+
+    let regions = [];
+    if (activeCatch === 'lobster') {
+      regions = [
+        { val: 'CA', text: 'California (CDFW)' },
+        { val: 'FL', text: 'Florida (FWC)' }
+      ];
+    } else if (activeCatch === 'crab') {
+      regions = [
+        { val: 'CA', text: 'California (CDFW)' },
+        { val: 'OR', text: 'Oregon (ODFW)' },
+        { val: 'WA', text: 'Washington (WDFW)' }
+      ];
+    } else if (activeCatch === 'prawns') {
+      regions = [
+        { val: 'BC', text: 'British Columbia (BC / DFO)' },
+        { val: 'WA', text: 'Washington (WDFW)' },
+        { val: 'OR', text: 'Oregon (ODFW)' },
+        { val: 'CA', text: 'California (CDFW)' }
+      ];
+    }
+
+    regions.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.val;
+      opt.text = r.text;
+      select.appendChild(opt);
+    });
+
+    activeRegion = '';
+  }
+
+  function handleCatchDropdownChange(val) {
+    if (val === 'sportfish') {
+      document.getElementById('catchDropdown').value = activeCatch;
+      alert('Sport Fish mode is coming in a future update!');
       return;
     }
 
-    if (activeTargetMode === 'lobster') {
-      setLobsterState(state);
-    } else {
-      setCrabState(state);
+    if (isSessionLocked) {
+      alert('Catch type is locked during an active session. End the session to switch.');
+      document.getElementById('catchDropdown').value = activeCatch;
+      return;
+    }
+
+    activeCatch = val;
+    populateRegionDropdown();
+    
+    // Lock the form until the region is selected
+    document.getElementById('mainAppContent').classList.add('app-locked');
+  }
+
+  function handleRegionDropdownChange(val) {
+    if (isSessionLocked) {
+      alert('Region is locked during an active session. End the session to switch.');
+      document.getElementById('regionDropdown').value = activeRegion;
+      return;
+    }
+
+    activeRegion = val;
+    if (activeCatch && activeRegion) {
+      // Unlock and reveal the form
+      document.getElementById('mainAppContent').classList.remove('app-locked');
+      applyCatchAndRegionConfig();
+      triggerRegDisclaimer(val);
     }
   }
 
-function switchTargetMode(mode) {
-    if (isSessionLocked) {
-      alert('Target species is locked during an active session. End the session to switch modes.');
-      return;
+  function triggerRegDisclaimer(region) {
+    const modal = document.getElementById('regDisclaimerModal');
+    const textEl = document.getElementById('regDisclaimerText');
+
+    let msg = "Shellfish limits, closures, and regional regulations shift frequently. Always verify current local agency guidelines before heading out.";
+
+    if (region === 'BC') {
+      msg = "British Columbia DFO regulations, spot prawn limits, and emergency sub-area closures shift frequently. Always verify current DFO Fishery Notices before heading out.";
+    } else if (region === 'WA' || region === 'OR' || region === 'CA') {
+      msg = `State marine catch limits and emergency seasonal closures apply for ${region}. Double-check current department rules before harvesting.`;
+    } else if (region === 'FL') {
+      msg = "Florida FWC regulations and spiny lobster bag limits apply. Verify current local Monroe County or state rules before diving.";
     }
 
-    activeTargetMode = mode;
-    const lobBtn = document.getElementById('btnLobsterMode');
-    const crabBtn = document.getElementById('btnCrabMode');
+    textEl.innerText = msg;
+    modal.style.display = 'flex';
+  }
 
-    if (mode === 'lobster') {
-      lobBtn.className = 'mode-btn active lob-active';
-      crabBtn.className = 'mode-btn';
+  function closeRegDisclaimerModal() {
+    document.getElementById('regDisclaimerModal').style.display = 'none';
+  }
 
-      document.getElementById('mainTitle').innerHTML = `
-        <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
-        <span>Hoop & Hook Log: Spiny Lobster Edition</span>
-      `;
-      document.getElementById('areaLabel').textContent = 'Fishing / Lobster Area for this Set';
-      populateStateDropdown();
-      setLobsterState(activeLobsterState);
-    } else {
-      crabBtn.className = 'mode-btn active crab-active';
-      lobBtn.className = 'mode-btn';
+  function applyCatchAndRegionConfig() {
+    if (!activeCatch || !activeRegion) return;
 
+    const cdfwFields = document.getElementById('lobsterCDFWFields');
+    const regContent = document.getElementById('regCardContent');
+    const regTitle = document.getElementById('regCardTitle');
+
+    document.getElementById('box1Title').style.color = "var(--green)";
+    document.getElementById('box2Title').style.color = "var(--green)";
+    document.getElementById('box3Title').style.color = "var(--blue)";
+    document.getElementById('box4Title').style.color = "var(--blue)";
+    regContent.style.display = 'block';
+
+    if (activeCatch === 'lobster') {
+      if (activeRegion === 'CA') {
+        cdfwFields.style.display = 'block';
+        regTitle.innerText = "📋 CDFW Report Card Reference & Regulations (California)";
+        document.getElementById('anglerTitleLabel').innerText = "Anglers on Boat (CDFW Cardholders)";
+        document.getElementById('mainTitle').innerHTML = `
+          <svg class="spiny-icon-header"><use href="#icon-spiny-lobster"/></svg>
+          <span>Hoop & Hook Log: Spiny Lobster</span>
+        `;
+
+        document.getElementById('box1Title').innerHTML = `<span>Lobster Keepers</span><span class="sub-measure">(3 1/4" min)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Rock Crabs Kept</span><span class="sub-measure">(4 1/4" min)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Lobster Shorts</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+        regContent.innerHTML = `
+          • <strong>Bag & Possession Limit:</strong> 7 lobsters per cardholder.<br/>
+          • <strong>Minimum Size:</strong> 3 ¼" carapace length (measured along midline of back from rear edge of eye socket to rear edge of body shell). Rigid gauge required on person/diver.<br/>
+          • <strong>Hoop Net Limits:</strong> Max 5 hoop nets per person; max 10 hoop nets per vessel (even with > 2 people). Max 2 hoop nets on public piers.<br/>
+          • <strong>Diving Rules:</strong> Divers may take lobsters by <strong>hand only</strong>. Spearing, snares, or hooking devices are strictly prohibited.<br/>
+          • <strong>Mandatory Cards:</strong> CDFW Spiny Lobster Report Card required for all persons (including youth). Must record location code & gear before dropping nets or diving. Berried (egg-bearing) females strictly protected.
+        `;
+      } else {
+        cdfwFields.style.display = 'none';
+        regTitle.innerText = "📋 Florida Spiny Lobster Regulations (FWC)";
+        document.getElementById('anglerTitleLabel').innerText = "Anglers / Divers on Boat";
+        document.getElementById('mainTitle').innerHTML = `<span>Florida Spiny Lobster Log</span>`;
+
+        document.getElementById('box1Title').innerHTML = `<span>Florida Spiny Lobster</span><span class="sub-measure">(> 3" Carapace)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Stone Crab Claws</span><span class="sub-measure">(2 7/8" min claw)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Short Lobsters</span><span class="sub-measure">Released in Water</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Egg-Bearing / Shorts</span><span class="sub-measure">Released</span>`;
+
+        regContent.innerHTML = `
+          • <strong>Size Requirement:</strong> Carapace MUST be larger than 3" (measured in the water with gauge before landing). Whole condition required.<br/>
+          • <strong>Daily Bag Limit:</strong> 6 per harvester per day (Monroe County / Florida Keys & statewide regular season).<br/>
+          • <strong>Sport Mini-Season:</strong> 6 per person/day in Monroe Co./Biscayne; 12 per person/day statewide.<br/>
+          • <strong>Gear / Rules:</strong> Bully net, hand net, tickle stick, snare. Spearing, crushing, or puncturing lobster is strictly prohibited. Releasing egg-bearing females is mandatory.
+        `;
+      }
+    } else if (activeCatch === 'crab') {
+      cdfwFields.style.display = 'none';
       document.getElementById('mainTitle').innerHTML = `<span>🦀 Hoop & Hook Log: Crab Edition</span>`;
       document.getElementById('anglerTitleLabel').innerText = "Anglers / Crabbers on Boat";
-      document.getElementById('areaLabel').textContent = 'Fishing / Crabbing Area for this Set';
-      populateStateDropdown();
-      setCrabState(activeCrabState);
+
+      if (activeRegion === 'CA') {
+        document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" min)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Rock Crabs</span><span class="sub-measure">(4 1/4" min)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+        regTitle.innerText = "📋 California Crab Regulations (CDFW)";
+        regContent.innerHTML = `
+          • <strong>Dungeness Limit:</strong> 10 per day | <strong>Min Size:</strong> 5 3/4" carapace.<br/>
+          • <strong>Rock Crab Limit:</strong> 35 per day | <strong>Min Size:</strong> 4 1/4" carapace.<br/>
+          • <strong>Sex:</strong> Both sexes legal (egg-bearing females strictly prohibited).
+        `;
+      } else if (activeRegion === 'OR') {
+        document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" Males Only)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(Any Size)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+        regTitle.innerText = "📋 Oregon Crab Regulations (ODFW)";
+        regContent.innerHTML = `
+          • <strong>Dungeness Limit:</strong> 12 per day | <strong>Males Only</strong> (5 3/4" min).<br/>
+          • <strong>Red Rock Crab Limit:</strong> 24 per day | Either sex | No minimum size.<br/>
+          • <strong>Gear Limit:</strong> Max 3 rings/pots/lines per licensed crabber.
+        `;
+      } else if (activeRegion === 'WA') {
+        document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" or 6 1/4" Males)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(5" min caliper)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
+
+        regTitle.innerText = "📋 Washington Crab Regulations (WDFW)";
+        regContent.innerHTML = `
+          • <strong>Dungeness Limit:</strong> 5 per day | <strong>Males Only</strong> (5 3/4" Puget Sound / 6 1/4" Coast).<br/>
+          • <strong>Red Rock Crab Limit:</strong> 6 per day | 5" minimum caliper measure (either sex).<br/>
+          • <strong>CRC Required:</strong> Catch Record Card required for Puget Sound.
+        `;
+      }
+    } else if (activeCatch === 'prawns') {
+      cdfwFields.style.display = 'none';
+      document.getElementById('mainTitle').innerHTML = `<span>🦐 Hoop & Hook Log: Prawns & Shellfish</span>`;
+      document.getElementById('anglerTitleLabel').innerText = "Anglers on Boat";
+
+      if (activeRegion === 'BC') {
+        document.getElementById('box1Title').innerHTML = `<span>Spot Prawns Kept</span><span class="sub-measure">(Check DFO Limits)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Other Shellfish</span><span class="sub-measure">(Crab / Prawns)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Berried / Shorts</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Bycatch Released</span><span class="sub-measure">Released</span>`;
+
+        regTitle.innerText = "📋 British Columbia DFO Regulations (Prawns & Shellfish)";
+        regContent.innerHTML = `
+          • <strong>Spot Prawn Limit:</strong> Daily limit typically 120 spot prawns per person with valid licence when open.<br/>
+          • <strong>Berried Females:</strong> Females carrying eggs must be returned immediately to the water unharmed.<br/>
+          • <strong>Emergency Closures:</strong> DFO continuously monitors stock and implements in-season area closures on short notice. Always check local Fishery Notices before pulling traps.
+        `;
+      } else {
+        document.getElementById('box1Title').innerHTML = `<span>Prawns Kept</span><span class="sub-measure">(State Limit)</span>`;
+        document.getElementById('box2Title').innerHTML = `<span>Other Shellfish</span><span class="sub-measure">(Crabs / Shrimp)</span>`;
+        document.getElementById('box3Title').innerHTML = `<span>Shorts Released</span><span class="sub-measure">Released</span>`;
+        document.getElementById('box4Title').innerHTML = `<span>Bycatch Released</span><span class="sub-measure">Released</span>`;
+
+        regTitle.innerText = `📋 ${activeRegion} Shellfish Regulations`;
+        regContent.innerHTML = `
+          • <strong>General Rules:</strong> Verify regional bag limits, trap limits, and soak times with local fish and wildlife departments before harvesting prawns or shrimp.
+        `;
+      }
     }
+
+    document.getElementById('areaLabel').textContent = 'Fishing / Catch Area for this Set';
     populateSpotDropdown();
     populateBaitDropdown();
     populateAnglerDropdown(document.getElementById('anglerCount').value || 1);
     updateRunningTotals(getStoredLogs());
   }
 
-  function setLobsterState(state) {
-    activeLobsterState = state;
-    populateStateDropdown();
-
-    const cdfwFields = document.getElementById('lobsterCDFWFields');
-    const regContent = document.getElementById('regCardContent');
-    const regTitle = document.getElementById('regCardTitle');
-
-    document.getElementById('box1Title').style.color = "var(--green)";
-    document.getElementById('box2Title').style.color = "var(--green)";
-    document.getElementById('box3Title').style.color = "var(--blue)";
-    document.getElementById('box4Title').style.color = "var(--blue)";
-    regContent.style.display = 'block';
-
-    if (state === 'CA') {
-      cdfwFields.style.display = 'block';
-      regTitle.innerText = "📋 CDFW Report Card Reference & Regulations (California)";
-      document.getElementById('anglerTitleLabel').innerText = "Anglers on Boat (CDFW Cardholders)";
-
-      document.getElementById('box1Title').innerHTML = `<span>Lobster Keepers</span><span class="sub-measure">(3 1/4" min)</span>`;
-      document.getElementById('box2Title').innerHTML = `<span>Rock Crabs Kept</span><span class="sub-measure">(4 1/4" min)</span>`;
-      document.getElementById('box3Title').innerHTML = `<span>Lobster Shorts</span><span class="sub-measure">Released</span>`;
-      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
-
-      regContent.innerHTML = `
-        • <strong>Bag & Possession Limit:</strong> 7 lobsters per cardholder.<br/>
-        • <strong>Minimum Size:</strong> 3 ¼" carapace length (measured along midline of back from rear edge of eye socket to rear edge of body shell). Rigid gauge required on person/diver.<br/>
-        • <strong>Hoop Net Limits:</strong> Max 5 hoop nets per person; max 10 hoop nets per vessel (even with > 2 people). Max 2 hoop nets on public piers.<br/>
-        • <strong>Diving Rules:</strong> Divers may take lobsters by <strong>hand only</strong>. Spearing, snares, or hooking devices are strictly prohibited.<br/>
-        • <strong>Mandatory Cards:</strong> CDFW Spiny Lobster Report Card required for all persons (including youth). Must record location code & gear before dropping nets or diving. Berried (egg-bearing) females strictly protected.
-      `;
-    } else {
-      cdfwFields.style.display = 'none';
-      regTitle.innerText = "📋 Florida Spiny Lobster Regulations (FWC)";
-      document.getElementById('anglerTitleLabel').innerText = "Anglers / Divers on Boat";
-
-      document.getElementById('box1Title').innerHTML = `<span>Florida Spiny Lobster</span><span class="sub-measure">(> 3" Carapace)</span>`;
-      document.getElementById('box2Title').innerHTML = `<span>Stone Crab Claws</span><span class="sub-measure">(2 7/8" min claw)</span>`;
-      document.getElementById('box3Title').innerHTML = `<span>Short Lobsters</span><span class="sub-measure">Released in Water</span>`;
-      document.getElementById('box4Title').innerHTML = `<span>Egg-Bearing / Shorts</span><span class="sub-measure">Released</span>`;
-
-      regContent.innerHTML = `
-        • <strong>Size Requirement:</strong> Carapace MUST be larger than 3" (measured in the water with gauge before landing). Whole condition required.<br/>
-        • <strong>Daily Bag Limit:</strong> 6 per harvester per day (Monroe County / Florida Keys & statewide regular season).<br/>
-        • <strong>Sport Mini-Season:</strong> 6 per person/day in Monroe Co./Biscayne; 12 per person/day statewide.<br/>
-        • <strong>Gear / Rules:</strong> Bully net, hand net, tickle stick, snare. Spearing, crushing, or puncturing lobster is strictly prohibited. Releasing egg-bearing females is mandatory.
-      `;
-    }
-    populateAnglerDropdown(document.getElementById('anglerCount').value || 1);
-    syncRetainedFromSets();
-  }
-
-  function setCrabState(state) {
-    activeCrabState = state;
-    populateStateDropdown();
-
-    const cdfwFields = document.getElementById('lobsterCDFWFields');
-    const regContent = document.getElementById('regCardContent');
-    const regTitle = document.getElementById('regCardTitle');
-
-    cdfwFields.style.display = 'none';
-    regContent.style.display = 'block';
-
-    document.getElementById('box1Title').style.color = "var(--green)";
-    document.getElementById('box2Title').style.color = "var(--green)";
-    document.getElementById('box3Title').style.color = "var(--blue)";
-    document.getElementById('box4Title').style.color = "var(--blue)";
-
-    if (state === 'CA') {
-      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" min)</span>`;
-      document.getElementById('box2Title').innerHTML = `<span>Rock Crabs</span><span class="sub-measure">(4 1/4" min)</span>`;
-      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
-      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
-
-      regTitle.innerText = "📋 California Crab Regulations (CDFW)";
-      regContent.innerHTML = `
-        • <strong>Dungeness Limit:</strong> 10 per day | <strong>Min Size:</strong> 5 3/4" carapace.<br/>
-        • <strong>Rock Crab Limit:</strong> 35 per day | <strong>Min Size:</strong> 4 1/4" carapace.<br/>
-        • <strong>Sex:</strong> Both sexes legal (egg-bearing females strictly prohibited).
-      `;
-    } else if (state === 'OR') {
-      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" Males Only)</span>`;
-      document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(Any Size)</span>`;
-      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
-      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
-
-      regTitle.innerText = "📋 Oregon Crab Regulations (ODFW)";
-      regContent.innerHTML = `
-        • <strong>Dungeness Limit:</strong> 12 per day | <strong>Males Only</strong> (5 3/4" min).<br/>
-        • <strong>Red Rock Crab Limit:</strong> 24 per day | Either sex | No minimum size.<br/>
-        • <strong>Gear Limit:</strong> Max 3 rings/pots/lines per licensed crabber.
-      `;
-    } else if (state === 'WA') {
-      document.getElementById('box1Title').innerHTML = `<span>Dungeness Crab</span><span class="sub-measure">(5 3/4" or 6 1/4" Males)</span>`;
-      document.getElementById('box2Title').innerHTML = `<span>Red Rock Crab</span><span class="sub-measure">(5" min caliper)</span>`;
-      document.getElementById('box3Title').innerHTML = `<span>Dungeness Shorts</span><span class="sub-measure">Released</span>`;
-      document.getElementById('box4Title').innerHTML = `<span>Rock Crab Shorts</span><span class="sub-measure">Released</span>`;
-
-      regTitle.innerText = "📋 Washington Crab Regulations (WDFW)";
-      regContent.innerHTML = `
-        • <strong>Dungeness Limit:</strong> 5 per day | <strong>Males Only</strong> (5 3/4" Puget Sound / 6 1/4" Coast).<br/>
-        • <strong>Red Rock Crab Limit:</strong> 6 per day | 5" minimum caliper measure (either sex).<br/>
-        • <strong>CRC Required:</strong> Catch Record Card required for Puget Sound.
-      `;
-    }
-  }
-
   function setSessionLock(locked) {
     isSessionLocked = locked;
-    const stateSelect = document.getElementById('stateRegionSelect');
-    const stateLabel = document.getElementById('stateSelectLabel');
-    const lobBtn = document.getElementById('btnLobsterMode');
-    const crabBtn = document.getElementById('btnCrabMode');
+    const catchSelect = document.getElementById('catchDropdown');
+    const regionSelect = document.getElementById('regionDropdown');
 
     if (locked) {
-      stateSelect.disabled = true;
-      stateLabel.innerHTML = '🔒 Region:';
-      lobBtn.style.pointerEvents = 'none';
-      crabBtn.style.pointerEvents = 'none';
-      lobBtn.style.opacity = activeTargetMode === 'lobster' ? '1' : '0.4';
-      crabBtn.style.opacity = activeTargetMode === 'crab' ? '1' : '0.4';
+      catchSelect.disabled = true;
+      regionSelect.disabled = true;
     } else {
-      stateSelect.disabled = false;
-      stateLabel.innerHTML = '📍 Region:';
-      lobBtn.style.pointerEvents = 'auto';
-      crabBtn.style.pointerEvents = 'auto';
-      lobBtn.style.opacity = '1';
-      crabBtn.style.opacity = '1';
+      catchSelect.disabled = false;
+      regionSelect.disabled = false;
     }
   }
 
@@ -1559,15 +1415,20 @@ function switchTargetMode(mode) {
     }
   }
 
+  // Set up Map layers
   function openSpotMapModal() {
     document.getElementById('mapModal').style.display = 'flex';
 
     if (!leafletMapInstance) {
-      leafletMapInstance = L.map('mapContainer').setView([33.7400, -118.2300], 11);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
+      leafletMapInstance = L.map('mapContainer').setView([33.725, -118.270], 9);
+      
+      // Default OpenStreetMap Topographical Layer
+      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
       }).addTo(leafletMapInstance);
+      
+      isContourMap = false;
     }
 
     leafletMapInstance.eachLayer((layer) => {
@@ -1596,7 +1457,7 @@ function switchTargetMode(mode) {
           if (s.gps && s.gps.includes(',')) {
             const spotName = s.area || log.areasSummary || 'Logged Spot';
             if (!unifiedPoints[spotName]) {
-              unifiedPoints[spotName] = { coords: s.gps, label: spotName, source: `${log.date} (${s.count1} Legals)` };
+              unifiedPoints[spotName] = { coords: s.gps, label: spotName, source: `${log.date} (${s.count1} Kept)` };
             }
           }
         });
@@ -1632,38 +1493,41 @@ function switchTargetMode(mode) {
       if (markerBounds.length > 0) {
         leafletMapInstance.fitBounds(markerBounds, { padding: [30, 30] });
       } else {
-        leafletMapInstance.setView([33.7400, -118.2300], 11);
+        leafletMapInstance.setView([33.725, -118.270], 9);
       }
     }, 200);
+  }
 
-    enforceMapTier();
+  // Toggles the leafet tilelayer to ESRI Ocean Basemap for Marine Contours
+  function toggleContourMap() {
+    if (!leafletMapInstance) return;
+    
+    if (baseTileLayer) {
+      leafletMapInstance.removeLayer(baseTileLayer);
+    }
+    
+    isContourMap = !isContourMap;
+    
+    if (isContourMap) {
+      baseTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 13,
+        attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri'
+      }).addTo(leafletMapInstance);
+      document.getElementById('contourToggleBtn').innerText = "🗺️ Switch to Standard Map View";
+    } else {
+      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(leafletMapInstance);
+      document.getElementById('contourToggleBtn').innerText = "🌊 Switch to Marine Depth Contours";
+    }
   }
 
   function closeSpotMapModal() {
     document.getElementById('mapModal').style.display = 'none';
   }
 
-  function handleImportGPSClick() {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
-    document.getElementById('gpsCsvFileInput').click();
-  }
-
-  function handleImportLogsClick() {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
-    document.getElementById('csvFileInput').click();
-  }
-
   function exportWaypointsCSV() {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
     const confirmation = prompt("To export GPS Waypoints CSV, type 'GPS':");
     if (confirmation !== 'GPS') return;
 
@@ -1693,10 +1557,6 @@ function switchTargetMode(mode) {
   }
 
   function importWaypointsCSV(event) {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
     const file = event.target.files[0];
     if (!file) return;
 
@@ -1755,30 +1615,17 @@ function switchTargetMode(mode) {
 
   const savedUserEmail = localStorage.getItem('hookHoop_userEmail') || '';
   const emailInput = document.getElementById('userEmail');
-  const emailEditBtn = document.getElementById('emailEditBtn');
   emailInput.value = savedUserEmail;
-  if (!savedUserEmail) {
-    emailInput.disabled = false;
-    emailEditBtn.innerText = "💾 Save";
-  }
 
   function toggleEmailEdit() {
-    if (emailInput.disabled) {
-      emailInput.disabled = false;
-      emailInput.focus();
-      emailEditBtn.innerText = "💾 Save";
-    } else {
-      const email = emailInput.value.trim();
-      localStorage.setItem('hookHoop_userEmail', email);
-      emailInput.disabled = true;
-      emailEditBtn.innerText = "✏️ Edit";
-      alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
-    }
+    const email = emailInput.value.trim();
+    localStorage.setItem('hookHoop_userEmail', email);
+    alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
   }
 
   function getMaxBoatLimit() {
     const anglers = parseInt(document.getElementById('anglerCount').value || 1, 10);
-    const perAngler = (activeTargetMode === 'lobster' && activeLobsterState === 'FL') ? 6 : 7;
+    const perAngler = (activeCatch === 'lobster' && activeRegion === 'FL') ? 6 : 7;
     return anglers * perAngler;
   }
 
@@ -1790,7 +1637,7 @@ function switchTargetMode(mode) {
     
     const maxLimit = getMaxBoatLimit();
     const limitLbl = document.getElementById('limitLabel');
-    if (activeTargetMode === 'lobster' && activeLobsterState === 'CA') {
+    if (activeCatch === 'lobster' && activeRegion === 'CA') {
       if (sumLegals >= maxLimit && maxLimit > 0) {
         limitLbl.innerHTML = `<span style="color:#34d399; font-weight:bold;">(🎉 LIMIT REACHED: ${maxLimit})</span>`;
       } else {
@@ -1800,15 +1647,9 @@ function switchTargetMode(mode) {
     }
   }
 
- function adjustCount(id, delta) {
+  function adjustCount(id, delta) {
     const el = document.getElementById(id);
     let val = parseInt(el.value || 0, 10);
-
-    // Free Tier Guard: All counters (Keepers, Crabs, Shorts) capped at 3
-    if (!isPro() && delta > 0 && val >= 3) {
-      showPaywall();
-      return;
-    }
 
     val += delta;
     if (val < 0) val = 0;
@@ -1820,19 +1661,7 @@ function switchTargetMode(mode) {
   }
 
   function switchSet(setName) {
-    const setNum = parseInt(setName.replace(/\D/g, '') || '0', 10);
-    if (!isPro() && setNum > 2) {
-      showPaywall();
-      document.getElementById('setNumber').value = 'Set 2';
-      return;
-    }
-
     if (setName === '__ADD_NEW_SET__') {
-      if (!isPro()) {
-        showPaywall();
-        document.getElementById('setNumber').value = 'Set 2';
-        return;
-      }
       const nextNum = activeSetList.length + 1;
       const nextSetName = `Set ${nextNum}`;
       activeSetList.push(nextSetName);
@@ -1924,14 +1753,7 @@ function switchTargetMode(mode) {
     const finalizeBtn = document.getElementById('finalizeBtn');
 
     if (status === 'Start Night') {
-      const storedTrips = getStoredLogs();
-      if (!isPro() && storedTrips.length >= 1) {
-        showPaywall();
-        statusSelect.value = previousTripStatus;
-        return;
-      }
-
-      const confirmed = confirm("Are you sure you want to START the session log? Species mode & Region will be locked for this trip.");
+      const confirmed = confirm("Are you sure you want to START the session log? Catch & Region selections will be locked for this trip.");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
@@ -2051,21 +1873,22 @@ function switchTargetMode(mode) {
       totalStat2 += parseInt(l.totalShorts || 0, 10);
     });
 
-    if (activeTargetMode === 'lobster') {
+    if (activeCatch === 'lobster') {
       document.getElementById('bannerStat1Lbl').innerText = "Season Retained";
       document.getElementById('bannerStat2Lbl').innerText = "Shorts Released";
       document.getElementById('bannerStat3Lbl').innerText = "Nights Fished";
-      document.getElementById('bannerStat1').innerText = totalStat1;
-      document.getElementById('bannerStat2').innerText = totalStat2;
-      document.getElementById('bannerStat3').innerText = logs.length;
-    } else {
-      document.getElementById('bannerStat1Lbl').innerText = "Dungeness Kept";
+    } else if (activeCatch === 'crab') {
+      document.getElementById('bannerStat1Lbl').innerText = "Crab Kept";
       document.getElementById('bannerStat2Lbl').innerText = "Shorts Released";
       document.getElementById('bannerStat3Lbl').innerText = "Total Trips";
-      document.getElementById('bannerStat1').innerText = totalStat1;
-      document.getElementById('bannerStat2').innerText = totalStat2;
-      document.getElementById('bannerStat3').innerText = logs.length;
+    } else {
+      document.getElementById('bannerStat1Lbl').innerText = "Prawns Kept";
+      document.getElementById('bannerStat2Lbl').innerText = "Bycatch Released";
+      document.getElementById('bannerStat3Lbl').innerText = "Total Trips";
     }
+    document.getElementById('bannerStat1').innerText = totalStat1;
+    document.getElementById('bannerStat2').innerText = totalStat2;
+    document.getElementById('bannerStat3').innerText = logs.length;
   }
 
   function renderLogs() {
@@ -2187,7 +2010,7 @@ function switchTargetMode(mode) {
 
   function sendNightEmailReport(tripRecord) {
     const userEmail = localStorage.getItem('hookHoop_userEmail') || '';
-    const subject = `🦞 Hook & Hoop Report - ${tripRecord.date} (${tripRecord.areasSummary || 'Marine Catch'})`;
+    const subject = `🦞 Hook & Hook Report - ${tripRecord.date} (${tripRecord.areasSummary || 'Marine Catch'})`;
     
     let setBreakdownText = '';
     if (tripRecord.setDetails) {
@@ -2199,13 +2022,13 @@ function switchTargetMode(mode) {
     }
 
     const csvData = [
-      "Date,Time,Mode,Areas Visited,Anglers,DFW Code,DFW Gear,Primary Retained,Total Shorts Released,Secondary Kept,Air Temp,Water Temp,Tide,Moon,Sky,Conditions Notes,Set Details",
-      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.mode}","${tripRecord.areasSummary}",${tripRecord.anglers},"${tripRecord.dfwCode || ''}","${tripRecord.dfwGear || ''}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.otherSpeciesSummary}"`
+      "Date,Time,Catch,Region,Areas Visited,Anglers,DFW Code,DFW Gear,Primary Retained,Total Shorts Released,Secondary Kept,Air Temp,Water Temp,Tide,Moon,Sky,Conditions Notes,Set Details",
+      `"${tripRecord.date}","${tripRecord.time}","${tripRecord.catch}","${tripRecord.region}","${tripRecord.areasSummary}",${tripRecord.anglers},"${tripRecord.dfwCode || ''}","${tripRecord.dfwGear || ''}",${tripRecord.totalLegals},${tripRecord.totalShorts},${tripRecord.totalRockCrab},"${tripRecord.airTemp}","${tripRecord.waterTemp}","${tripRecord.tide}","${tripRecord.moon}","${tripRecord.sky}","${tripRecord.condNotes}","${tripRecord.otherSpeciesSummary}"`
     ].join("\n");
 
     const body = `HOOK & HOOP LOG TRIP REPORT
 ----------------------------------
-Target Mode: ${tripRecord.mode.toUpperCase()}
+Catch Focus: ${tripRecord.catch.toUpperCase()} (${tripRecord.region})
 Date: ${tripRecord.date}
 Close-Out Time: ${tripRecord.time}
 Areas Visited: ${tripRecord.areasSummary || 'N/A'}
@@ -2258,14 +2081,15 @@ ${csvData}
       }
     });
 
-    const finalRetained = (activeTargetMode === 'lobster' && activeLobsterState === 'CA') 
+    const finalRetained = (activeCatch === 'lobster' && activeRegion === 'CA') 
       ? parseInt(document.getElementById('dfwRetained').value || nightCount1, 10)
       : nightCount1;
     const areasString = Array.from(areasVisited).join(' ➔ ') || 'General Area';
 
     const tripRecord = {
       id: Date.now(),
-      mode: activeTargetMode,
+      catch: activeCatch,
+      region: activeRegion,
       date: document.getElementById('logDate').value,
       time: document.getElementById('logTime').value,
       anglers: document.getElementById('anglerCount').value,
@@ -2312,11 +2136,6 @@ ${csvData}
     const prevNets = document.getElementById('netsCount').value;
 
     if (setSelect.selectedIndex < activeSetList.length && setSelect.selectedIndex > 0) {
-      if (!isPro() && (setSelect.selectedIndex + 1) > 2) {
-        showPaywall();
-        return;
-      }
-
       setSelect.selectedIndex += 1;
       const nextSetKey = setSelect.value;
       switchSet(nextSetKey);
@@ -2335,11 +2154,6 @@ ${csvData}
   });
 
   function exportToCSV() {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
-
     const logs = getStoredLogs();
     if (logs.length === 0) return alert('No logs to export.');
 
@@ -2347,14 +2161,14 @@ ${csvData}
     if (confirmation !== 'CSV') return;
 
     const headers = [
-      "Date", "Time", "Mode", "Areas Visited", "Anglers", "DFW Code", "DFW Gear",
+      "Date", "Time", "Catch", "Region", "Areas Visited", "Anglers", "DFW Code", "DFW Gear",
       "Retained Keepers", "Total Shorts Released", "Secondary Species Kept",
       "Sky", "Conditions Notes", "Air Temp", "Water Temp", "Tide", "Moon", 
       "Set & Dive Breakdown / Other Notes"
     ];
 
     const rows = logs.map(l => [
-      `"${l.date}"`, `"${l.time}"`, `"${l.mode || 'lobster'}"`, `"${l.areasSummary}"`, l.anglers || 1, `"${l.dfwCode || ''}"`, `"${l.dfwGear || ''}"`,
+      `"${l.date}"`, `"${l.time}"`, `"${l.catch || 'lobster'}"`, `"${l.region || 'CA'}"`, `"${l.areasSummary}"`, l.anglers || 1, `"${l.dfwCode || ''}"`, `"${l.dfwGear || ''}"`,
       l.totalLegals, l.totalShorts, l.totalRockCrab,
       `"${l.sky || ''}"`, `"${(l.condNotes || '').replace(/"/g, '""')}"`,
       l.airTemp, l.waterTemp, `"${l.tide}"`, `"${l.moon}"`,
@@ -2372,11 +2186,6 @@ ${csvData}
   }
 
   function importCSVFile(event) {
-    if (!isPro()) {
-      showPaywall();
-      return;
-    }
-
     const file = event.target.files[0];
     if (!file) return;
 
@@ -2397,27 +2206,30 @@ ${csvData}
 
         const date = clean[0] || '';
         const time = clean[1] || '';
-        const mode = clean[2] || 'lobster';
-        const areasSummary = clean[3] || '';
-        const anglers = clean[4] || '1';
-        const dfwCode = clean[5] || '';
-        const dfwGear = clean[6] || '';
-        const totalLegals = parseInt(clean[7] || 0, 10);
-        const totalShorts = parseInt(clean[8] || 0, 10);
-        const totalRockCrab = parseInt(clean[9] || 0, 10);
-        const sky = clean[10] || '';
-        const condNotes = clean[11] || '';
-        const airTemp = clean[12] || '';
-        const waterTemp = clean[13] || '';
-        const tide = clean[14] || '';
-        const moon = clean[15] || '';
-        const otherSpeciesSummary = clean[16] || '';
+        const catchVal = clean[2] || 'lobster';
+        const region = clean[3] || 'CA';
+        const areasSummary = clean[4] || '';
+        const anglers = clean[5] || '1';
+        const dfwCode = clean[6] || '';
+        const dfwGear = clean[7] || '';
+        const totalLegals = parseInt(clean[8] || 0, 10);
+        const totalShorts = parseInt(clean[9] || 0, 10);
+        const totalRockCrab = parseInt(clean[10] || 0, 10);
+        const sky = clean[11] || '';
+        const condNotes = clean[12] || '';
+        const airTemp = clean[13] || '';
+        const waterTemp = clean[14] || '';
+        const tide = clean[15] || '';
+        const moon = clean[16] || '';
+        const otherSpeciesSummary = clean[17] || '';
 
         const exists = existingLogs.some(l => l.date === date && l.time === time);
         if (!exists) {
           existingLogs.push({
             id: Date.now() + i,
-            mode, date, time, areasSummary, anglers, dfwCode, dfwGear,
+            catch: catchVal,
+            region,
+            date, time, areasSummary, anglers, dfwCode, dfwGear,
             totalLegals, totalShorts, totalRockCrab,
             sky, condNotes, airTemp, waterTemp, tide, moon,
             otherSpeciesSummary,
@@ -2434,114 +2246,28 @@ ${csvData}
     reader.readAsText(file);
   }
 
-  // Freemium Helper Logic
-  function isPro() {
-    return localStorage.getItem('hoop_hook_pro_unlocked') === 'true';
-  }
-
-  function showPaywall() {
-    const modal = document.getElementById('paywallModal');
-    if (modal) modal.classList.add('active');
-  }
-
-  function closePaywallModal() {
-    const modal = document.getElementById('paywallModal');
-    if (modal) modal.classList.remove('active');
-  }
-
-  function enforceMapTier() {
-    const mapEl = document.getElementById('mapContainer');
-    if (!mapEl) return;
-
-    if (!isPro()) {
-      mapEl.classList.add('map-blur-locked');
-      if (!document.getElementById('mapLockOverlay')) {
-        const overlay = document.createElement('div');
-        overlay.id = 'mapLockOverlay';
-        overlay.className = 'map-locked-overlay';
-        overlay.innerHTML = `
-          <h3 style="color:#f59e0b; margin-bottom:6px; font-size:1.1rem;">🔒 Map Spots Locked</h3>
-          <p style="font-size:0.85rem; color:#cbd5e1; max-width:260px; margin-bottom:12px;">Waypoint and hot spot map viewing requires the PRO tier.</p>
-          <button class="btn-unlock-pro" style="width:auto; padding:8px 18px; font-size:0.85rem;" onclick="showPaywall()">Unlock Map ($4.99)</button>
-        `;
-        mapEl.appendChild(overlay);
-      }
-    } else {
-      mapEl.classList.remove('map-blur-locked');
-      const overlay = document.getElementById('mapLockOverlay');
-      if (overlay) overlay.remove();
-    }
-  }
-
-  function setupDiverInterception() {
-    const restrictedDiverIds = ['divePSI', 'diveViz'];
-    restrictedDiverIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && !isPro()) {
-        el.placeholder = "🔒 PRO Feature";
-        el.readOnly = true;
-        el.style.cursor = "pointer";
-        el.onclick = () => showPaywall();
-      }
-    });
-
-    const envFields = ['waterTemp', 'moon'];
-    envFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (el && !isPro()) {
-        if (el.tagName === 'INPUT') el.placeholder = "🔒 PRO";
-        el.onfocus = () => {
-          if (!isPro()) {
-            el.blur();
-            showPaywall();
-          }
-        };
-      }
-    });
-  }
-
-  async function processProUpgrade() {
-    if ('getDigitalGoodsService' in window) {
-      try {
-        const service = await window.getDigitalGoodsService('https://play.google.com/billing');
-        const paymentMethod = [{
-          supportedMethods: 'https://play.google.com/billing',
-          data: { sku: 'hoop_hook_pro_lifetime' }
-        }];
-        const paymentDetails = {
-          total: { label: 'Hoop & Hook Pro Lifetime', amount: { currency: 'USD', value: '4.99' } }
-        };
-
-        const request = new PaymentRequest(paymentMethod, paymentDetails);
-        const paymentResponse = await request.show();
-        await paymentResponse.complete('success');
-
-        localStorage.setItem('hoop_hook_pro_unlocked', 'true');
-        alert('⚓ Welcome to Hoop & Hook PRO! All features unlocked.');
-        location.reload();
-      } catch (err) {
-        console.error('Purchase flow error:', err);
-      }
-    } else {
-      if (confirm("Unlock PRO Lifetime for $4.99? (Local Test Mode)")) {
-        localStorage.setItem('hoop_hook_pro_unlocked', 'true');
-        alert("⚓ Hoop & Hook PRO Unlocked!");
-        location.reload();
-      }
-    }
-  }
-
-  // Initialize
+  // --- Initialize Core Logic with Blur ---
+  
   initTheme();
-  populateStateDropdown();
+  
+  // Temporarily set states to format the background UI correctly before blurring
+  activeCatch = 'lobster';
+  activeRegion = 'CA';
+  applyCatchAndRegionConfig();
+  
+  // Now reset to required empty state for the user
+  activeCatch = '';
+  activeRegion = '';
+  document.getElementById('catchDropdown').value = '';
+  document.getElementById('regionDropdown').innerHTML = '<option value="" disabled selected>Select Region</option>';
+  document.getElementById('regionDropdown').disabled = true;
+
   populateSpotDropdown();
   populateBaitDropdown();
   populateSetDropdown();
   populateAnglerDropdown();
   setLiveDateTime();
-  switchTargetMode('lobster');
   renderLogs();
-  setupDiverInterception();
 </script>
 </body>
 </html>
