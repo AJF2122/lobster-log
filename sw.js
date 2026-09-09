@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hoop-hook-v3-11';
+const CACHE_NAME = 'hoop-hook-v3-12';
 const STATIC_ASSETS = [
   '/lobster-log/',
   '/lobster-log/index.html',
@@ -32,15 +32,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/lobster-log/index.html');
-        }
-      });
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        const responseClone = networkResponse.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.mode === 'navigate') {
+            return caches.match('/lobster-log/index.html');
+          }
+        });
+      })
   );
 });
