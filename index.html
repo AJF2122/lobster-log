@@ -361,7 +361,21 @@
       .theme-toggle-btn { border-radius:50%; width:42px; padding:0; justify-content:center; }
     }
 
-  </style>
+  
+/* Hoop & Hook native-style dialogs */
+.hh-dialog-overlay{position:fixed;inset:0;z-index:100000;background:rgba(8,29,42,.65);display:none;align-items:center;justify-content:center;padding:20px}
+.hh-dialog-overlay.is-open{display:flex}
+.hh-dialog{width:min(100%,410px);border-radius:22px;background:var(--card-bg,#fff);color:var(--text,#182d39);padding:23px;box-shadow:0 22px 65px rgba(0,0,0,.28)}
+.hh-dialog h2{margin:0 0 12px;font-size:1.2rem}
+.hh-dialog p{white-space:pre-wrap;line-height:1.5;margin:0 0 18px}
+.hh-dialog input{width:100%;box-sizing:border-box;margin:0 0 16px;min-height:48px}
+.hh-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+.hh-dialog-actions button{min-height:48px;min-width:96px;border-radius:12px;padding:10px 16px;cursor:pointer}
+.hh-dialog-primary{background:#087e91;color:white;border:0;font-weight:700}
+.hh-dialog-cancel{background:transparent;border:1px solid #a4b4bc;color:inherit}
+body.hh-dialog-locked{overflow:hidden}
+
+</style>
 </head>
 <body>
 
@@ -927,7 +941,7 @@
 
   // CARTO Basemaps API key
   // Replace ONLY the text between the quotes with your CARTO key.
-  const CARTO_API_KEY = 'cb1_4dq5_1_56bb2ec22c702736c3eee935';
+  const CARTO_API_KEY = 'PASTE_YOUR_CARTO_API_KEY_HERE';
 
   // Theme Management (Light mode default)
   function initTheme() {
@@ -2384,6 +2398,71 @@ ${csvData}
   <button type="button" onclick="openSpotMapModal();"><span>🗺️</span>Map</button>
   <button type="button" onclick="document.getElementById('logList').scrollIntoView({behavior:'smooth'});"><span>📖</span>History</button>
 </nav>
+
+
+<div id="hhDialogOverlay" class="hh-dialog-overlay" aria-hidden="true">
+  <div class="hh-dialog" role="dialog" aria-modal="true" aria-labelledby="hhDialogTitle" aria-describedby="hhDialogMessage">
+    <h2 id="hhDialogTitle">⚓ Hoop &amp; Hook</h2>
+    <p id="hhDialogMessage"></p>
+    <input id="hhDialogInput" type="text" autocomplete="off" style="display:none">
+    <div class="hh-dialog-actions">
+      <button id="hhDialogCancel" type="button" class="hh-dialog-cancel">Cancel</button>
+      <button id="hhDialogAccept" type="button" class="hh-dialog-primary">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+/* Async replacements for native alert/confirm/prompt. Existing calls are not yet migrated. */
+const hhDialog = (() => {
+  const overlay = document.getElementById('hhDialogOverlay');
+  const message = document.getElementById('hhDialogMessage');
+  const input = document.getElementById('hhDialogInput');
+  const cancel = document.getElementById('hhDialogCancel');
+  const accept = document.getElementById('hhDialogAccept');
+  let resolveCurrent = null;
+  let previousFocus = null;
+  function close(value) {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('hh-dialog-locked');
+    document.removeEventListener('keydown', onKey);
+    if (previousFocus && previousFocus.isConnected) previousFocus.focus();
+    if (resolveCurrent) { const done = resolveCurrent; resolveCurrent = null; done(value); }
+  }
+  function onKey(event) {
+    if (event.key === 'Escape') { event.preventDefault(); close(null); }
+    if (event.key === 'Enter' && event.target === input) { event.preventDefault(); close(input.value); }
+    if (event.key === 'Tab') {
+      const focusables = [...overlay.querySelectorAll('input:not([style*="display:none"]),button:not([style*="display:none"])')];
+      const first = focusables[0], last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  }
+  function show(text, mode='alert', initial='') {
+    if (resolveCurrent) return Promise.reject(new Error('Dialog already open'));
+    previousFocus = document.activeElement;
+    message.textContent = String(text);
+    input.style.display = mode === 'prompt' ? '' : 'none';
+    input.value = initial;
+    cancel.style.display = mode === 'alert' ? 'none' : '';
+    accept.textContent = mode === 'confirm' ? 'Confirm' : 'OK';
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.classList.add('hh-dialog-locked');
+    document.addEventListener('keydown',onKey);
+    setTimeout(() => (mode === 'prompt' ? input : accept).focus(),0);
+    return new Promise(resolve => { resolveCurrent = resolve; });
+  }
+  cancel.addEventListener('click', () => close(null));
+  accept.addEventListener('click', () => close(input.style.display === 'none' ? true : input.value));
+  return {
+    alert: text => show(text,'alert'),
+    confirm: async text => (await show(text,'confirm')) === true,
+    prompt: (text, initial='') => show(text,'prompt',initial)
+  };
+})();
+</script>
 
 </body>
 </html>
