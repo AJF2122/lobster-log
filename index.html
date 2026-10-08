@@ -285,6 +285,82 @@
       margin-left: 8px;
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  
+
+    /* ===== Hoop & Hook Mobile Redesign Override ===== */
+    body { padding: 0; background: #eef5f7; }
+    .container { max-width: 520px; padding: 14px 14px 104px; }
+    .header-row { position: sticky; top: 0; z-index: 50; background: rgba(238,245,247,.96); backdrop-filter: blur(12px); padding: 10px 0 8px; margin-bottom: 6px; }
+    h1 { font-size: 1.32rem; color: #123b49; }
+    p.subtitle { margin-bottom: 10px; }
+    .theme-toggle-btn { padding: 8px 10px; min-height: 40px; }
+    .selectors-header { border-radius: 18px; padding: 14px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(2,132,199,.14); background: linear-gradient(135deg,#0e7490,#0284c7); }
+    .selectors-title { font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; }
+    .selectors-bar { grid-template-columns: 1fr 1fr; gap:8px; }
+    .selector-dropdown { min-height: 46px; border-radius: 12px; font-size:.85rem; }
+    .season-banner { border-radius: 16px; padding: 12px 8px; margin-bottom: 12px; box-shadow: 0 5px 18px rgba(15,23,42,.06); }
+    .stat-val { font-size:1.45rem; }
+    .card { border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: 0 5px 18px rgba(15,23,42,.05); }
+    .section-title { font-size:1rem; padding-bottom:8px; margin-bottom:12px; }
+    input, select { min-height: 44px; border-radius: 10px; padding: 10px; }
+    .btn { min-height: 46px; border-radius: 12px; }
+    .step-btn { width: 48px; height: 48px; border-radius: 12px; font-size:1.35rem; }
+    .stepper input { height:48px; font-size:1.1rem; }
+    .counter-label { min-height: 40px; }
+    #mapContainer { height: 68vh; min-height: 410px; border-radius: 20px; border: 0; margin: 0; box-shadow: inset 0 0 0 1px rgba(15,23,42,.08); }
+    .modal-content { border-radius: 18px; max-height: 92vh; }
+
+    /* Modern map experience */
+    #mapModal { padding: 10px; background: rgba(8,23,32,.55); backdrop-filter: blur(8px); }
+    #mapModal .map-shell { width:100%; max-width:620px; padding:10px; border-radius:24px; background:rgba(255,255,255,.97); box-shadow:0 22px 70px rgba(2,8,23,.28); overflow:hidden; }
+    .map-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 4px 10px; }
+    .map-title-wrap { min-width:0; }
+    .map-kicker { font-size:.66rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0e7490; }
+    .map-title { font-size:1.05rem; font-weight:800; color:#123b49; line-height:1.2; }
+    .map-close { width:38px; height:38px; border:0; border-radius:50%; background:#eef5f7; color:#334155; font-size:1.1rem; cursor:pointer; flex:0 0 auto; }
+    .map-mode-bar { display:flex; gap:6px; margin:0 2px 9px; padding:4px; border-radius:14px; background:#eef4f6; }
+    .map-mode-btn { flex:1; min-height:40px; border:0; border-radius:11px; background:transparent; color:#52636b; font-size:.78rem; font-weight:800; cursor:pointer; }
+    .map-mode-btn.active { background:#fff; color:#0369a1; box-shadow:0 2px 10px rgba(15,23,42,.10); }
+    .map-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 4px 2px; }
+    .map-count-pill { display:inline-flex; align-items:center; gap:6px; padding:7px 10px; border-radius:999px; background:#ecfeff; color:#155e75; font-size:.73rem; font-weight:800; }
+    .map-count-dot { width:7px; height:7px; border-radius:50%; background:#0ea5e9; box-shadow:0 0 0 4px rgba(14,165,233,.12); }
+    .hh-map-pin { position:relative; width:30px; height:30px; border-radius:50% 50% 50% 12px; transform:rotate(-45deg); background:linear-gradient(135deg,#0e7490,#0284c7); border:3px solid #fff; box-shadow:0 5px 16px rgba(2,132,199,.35); }
+    .hh-map-pin::after { content:''; position:absolute; width:8px; height:8px; border-radius:50%; background:#fff; left:8px; top:8px; }
+    .leaflet-div-icon.hh-pin-wrap { background:transparent; border:0; }
+    .leaflet-control-zoom { border:0 !important; box-shadow:0 6px 20px rgba(15,23,42,.16) !important; border-radius:14px !important; overflow:hidden; }
+    .leaflet-control-zoom a { width:38px !important; height:38px !important; line-height:38px !important; color:#0f4c5c !important; border:0 !important; font-weight:800; }
+    .leaflet-control-attribution { background:rgba(255,255,255,.82) !important; border-radius:8px 0 0 0; font-size:9px !important; }
+    .leaflet-popup-content-wrapper { border-radius:16px; box-shadow:0 12px 34px rgba(15,23,42,.20); }
+    .leaflet-popup-content { margin:12px 14px; }
+    @media (max-width: 520px) {
+      #mapModal { padding:0; align-items:stretch; }
+      #mapModal .map-shell { max-width:none; height:100%; border-radius:0; padding:10px 10px calc(10px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; }
+      #mapContainer { flex:1; height:auto; min-height:0; border-radius:18px; }
+      .map-topbar { padding-top:max(4px, env(safe-area-inset-top)); }
+    }
+    details.card > summary { min-height: 44px; display:flex; align-items:center; }
+    .history-controls { grid-template-columns:1fr; }
+    .bottom-nav { position: fixed; left:50%; transform:translateX(-50%); bottom:0; z-index:9999; width:min(520px,100%); padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:rgba(255,255,255,.97); backdrop-filter: blur(12px); border-top:1px solid #dbe5e8; display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+    .bottom-nav button { border:0; background:transparent; color:#5a6b60; font-size:.68rem; font-weight:700; padding:8px 4px; border-radius:10px; min-height:52px; }
+    .bottom-nav button span { display:block; font-size:1.15rem; margin-bottom:3px; }
+    .bottom-nav button.active { background:#e0f2fe; color:#0369a1; }
+    .quick-start-card { background:linear-gradient(135deg,#ffffff,#f0f9ff); border:1px solid #bae6fd; }
+    .quick-actions { display:grid; grid-template-columns:1.25fr .75fr; gap:8px; }
+    .quick-actions .start { background:#0f766e; }
+    .quick-actions .map { background:#0369a1; }
+    @media (max-width: 420px) {
+      .container { padding-left:10px; padding-right:10px; }
+      .selectors-bar { grid-template-columns:1fr; }
+      .season-banner { gap:4px; }
+      .stat-val { font-size:1.25rem; }
+      .grid { grid-template-columns:1fr 1fr; gap:8px; }
+      .full-width { grid-column:1/-1; }
+      .card { padding:12px; }
+      h1 { font-size:1.18rem; }
+      .theme-toggle-btn #themeText { display:none; }
+      .theme-toggle-btn { border-radius:50%; width:42px; padding:0; justify-content:center; }
+    }
+
   </style>
 </head>
 <body>
@@ -398,6 +474,15 @@
           <!-- Dynamically populated -->
         </select>
       </div>
+    </div>
+  </div>
+
+  <div class="card quick-start-card">
+    <div class="section-title" style="border:0;margin-bottom:8px;color:#0f4c5c;">⚓ Ready for the water</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:10px;">Choose your species and region above, then start a trip. Your map, sets, weather and catch log stay in one field-focused flow.</div>
+    <div class="quick-actions">
+      <button type="button" class="btn start" onclick="document.getElementById('tripStatus').value='Start Night'; handleTripStatusChange('Start Night'); document.getElementById('logForm').scrollIntoView({behavior:'smooth'});">▶ Start Trip</button>
+      <button type="button" class="btn map" onclick="openSpotMapModal()">🗺️ Spots</button>
     </div>
   </div>
 
@@ -792,22 +877,27 @@
 </div>
 
 <div id="mapModal" class="modal-overlay">
-  <div class="modal-content" style="max-width: 620px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
-      <span style="font-weight: bold; color: var(--gold); font-size: 1.1rem;">🗺️ Spot Map & Waypoints</span>
-      <button type="button" class="btn-del" onclick="closeSpotMapModal()" style="font-size: 1.2rem;">✕</button>
+  <div class="map-shell">
+    <div class="map-topbar">
+      <div class="map-title-wrap">
+        <div class="map-kicker">Hoop & Hook Navigation</div>
+        <div class="map-title">My Spots & Catch Waypoints</div>
+      </div>
+      <button type="button" class="map-close" onclick="closeSpotMapModal()" aria-label="Close map">✕</button>
     </div>
-    
-    <!-- Marine Contour Toggle -->
-    <button type="button" id="contourToggleBtn" class="btn btn-secondary" style="margin-top: 0; margin-bottom: 12px; background-color: #0284c7; color: white; border: none; font-weight: bold;" onclick="toggleContourMap()">
-      🌊 Switch to Marine Depth Contours
-    </button>
+
+    <div class="map-mode-bar" aria-label="Map style">
+      <button type="button" id="standardMapBtn" class="map-mode-btn active" onclick="setMapMode(false)">🗺️ Coastal</button>
+      <button type="button" id="marineMapBtn" class="map-mode-btn" onclick="setMapMode(true)">🌊 Marine Depth</button>
+    </div>
 
     <div id="mapContainer"></div>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <span id="mapPinCount" style="font-size: 0.75rem; color: var(--muted);">0 spot pins plotted</span>
-      <button type="button" class="btn btn-secondary" style="width: auto; padding: 6px 14px;" onclick="closeSpotMapModal()">Close Map</button>
+
+    <div class="map-footer">
+      <span class="map-count-pill"><span class="map-count-dot"></span><span id="mapPinCount">0 spots plotted</span></span>
+      <span style="font-size:.68rem;color:#64748b;font-weight:700;">Tap a pin for details</span>
     </div>
+    <button type="button" id="contourToggleBtn" style="display:none;" onclick="toggleContourMap()"></button>
   </div>
 </div>
 
@@ -834,6 +924,10 @@
   let leafletMapInstance = null;
   let baseTileLayer = null;
   let isContourMap = false;
+
+  // CARTO Basemaps API key
+  // Replace ONLY the text between the quotes with your CARTO key.
+  const CARTO_API_KEY = 'cb1_4dq5_1_56bb2ec22c702736c3eee935';
 
   // Theme Management (Light mode default)
   function initTheme() {
@@ -1422,10 +1516,11 @@
     if (!leafletMapInstance) {
       leafletMapInstance = L.map('mapContainer').setView([33.725, -118.270], 9);
       
-      // Default OpenStreetMap Topographical Layer
-      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
+      // Clean modern coastal basemap (CARTO Voyager)
+      baseTileLayer = L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_API_KEY)}`, {
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       }).addTo(leafletMapInstance);
       
       isContourMap = false;
@@ -1471,7 +1566,14 @@
       const lng = parseFloat(parts[1]);
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        const marker = L.marker([lat, lng]).addTo(leafletMapInstance);
+        const modernPin = L.divIcon({
+          className: 'leaflet-div-icon hh-pin-wrap',
+          html: '<div class="hh-map-pin"></div>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 29],
+          popupAnchor: [0, -26]
+        });
+        const marker = L.marker([lat, lng], { icon: modernPin }).addTo(leafletMapInstance);
         const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
         marker.bindPopup(`
           <div style="font-family:sans-serif; font-size:12px;">
@@ -1486,7 +1588,7 @@
       }
     });
 
-    document.getElementById('mapPinCount').innerText = `${pinCount} spot pins plotted`;
+    document.getElementById('mapPinCount').innerText = `${pinCount} ${pinCount === 1 ? 'spot' : 'spots'} plotted`;
 
     setTimeout(() => {
       leafletMapInstance.invalidateSize();
@@ -1498,29 +1600,35 @@
     }, 200);
   }
 
-  // Toggles the leafet tilelayer to ESRI Ocean Basemap for Marine Contours
-  function toggleContourMap() {
+  // Modern two-mode map switcher: coastal street detail or marine depth contours
+  function setMapMode(useMarine) {
     if (!leafletMapInstance) return;
-    
-    if (baseTileLayer) {
-      leafletMapInstance.removeLayer(baseTileLayer);
-    }
-    
-    isContourMap = !isContourMap;
-    
+    if (baseTileLayer) leafletMapInstance.removeLayer(baseTileLayer);
+
+    isContourMap = !!useMarine;
     if (isContourMap) {
       baseTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 13,
-        attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri'
+        attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, and Esri'
       }).addTo(leafletMapInstance);
-      document.getElementById('contourToggleBtn').innerText = "🗺️ Switch to Standard Map View";
     } else {
-      baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
+      baseTileLayer = L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_API_KEY)}`, {
+        subdomains: 'abcd',
+        maxZoom: 20,
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
       }).addTo(leafletMapInstance);
-      document.getElementById('contourToggleBtn').innerText = "🌊 Switch to Marine Depth Contours";
     }
+
+    const standardBtn = document.getElementById('standardMapBtn');
+    const marineBtn = document.getElementById('marineMapBtn');
+    if (standardBtn && marineBtn) {
+      standardBtn.classList.toggle('active', !isContourMap);
+      marineBtn.classList.toggle('active', isContourMap);
+    }
+  }
+
+  function toggleContourMap() {
+    setMapMode(!isContourMap);
   }
 
   function closeSpotMapModal() {
@@ -2269,5 +2377,13 @@ ${csvData}
   setLiveDateTime();
   renderLogs();
 </script>
+
+<nav class="bottom-nav" aria-label="Primary navigation">
+  <button class="active" type="button" onclick="document.querySelector('.selectors-header').scrollIntoView({behavior:'smooth'});"><span>🏠</span>Home</button>
+  <button type="button" onclick="document.getElementById('logForm').scrollIntoView({behavior:'smooth'});"><span>➕</span>Log</button>
+  <button type="button" onclick="openSpotMapModal();"><span>🗺️</span>Map</button>
+  <button type="button" onclick="document.getElementById('logList').scrollIntoView({behavior:'smooth'});"><span>📖</span>History</button>
+</nav>
+
 </body>
 </html>
