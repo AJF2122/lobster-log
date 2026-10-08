@@ -1050,9 +1050,9 @@ body.hh-dialog-locked{overflow:hidden}
     el.innerHTML = html;
   }
 
-  function handleAnglerChange(val) {
+  async function handleAnglerChange(val) {
     if (val === '__ADD_ANGLERS__') {
-      const countStr = prompt("Enter total number of anglers/divers on board:");
+      const countStr = await hhDialog.prompt("Enter total number of anglers/divers on board:");
       const num = parseInt(countStr, 10);
       if (num && num > 0) {
         if (!anglerOptions.includes(num)) {
@@ -1069,13 +1069,13 @@ body.hh-dialog-locked{overflow:hidden}
     }
   }
 
-  function handleSpotChange(val) {
+  async function handleSpotChange(val) {
     if (val === '__ADD_NEW_SPOT__') {
       const customs = getCustomSpots();
-      const newSpot = prompt("Enter new fishing/crabbing area name:");
+      const newSpot = await hhDialog.prompt("Enter new fishing/crabbing area name:");
       if (newSpot && newSpot.trim()) {
         const cleanSpot = newSpot.trim();
-        if (confirm(`Add "${cleanSpot}" to your permanent spots list?`)) {
+        if (await hhDialog.confirm(`Add "${cleanSpot}" to your permanent spots list?`)) {
           if (!customs.includes(cleanSpot)) {
             customs.push(cleanSpot);
             localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
@@ -1097,12 +1097,12 @@ body.hh-dialog-locked{overflow:hidden}
     }
   }
 
-  function handleBaitChange(val) {
+  async function handleBaitChange(val) {
     if (val === '__ADD_NEW_BAIT__') {
-      const newBait = prompt("Enter the name of the new bait:");
+      const newBait = await hhDialog.prompt("Enter the name of the new bait:");
       if (newBait && newBait.trim()) {
         const cleanBait = newBait.trim();
-        if (confirm(`Add "${cleanBait}" to your permanent bait list?`)) {
+        if (await hhDialog.confirm(`Add "${cleanBait}" to your permanent bait list?`)) {
           const customs = getCustomBaits();
           if (!customs.includes(cleanBait)) {
             customs.push(cleanBait);
@@ -1137,10 +1137,10 @@ body.hh-dialog-locked{overflow:hidden}
           document.getElementById('gps').value = formatted;
           handleGPSInput(formatted);
         },
-        () => alert('Unable to retrieve GPS.')
+        () => hhDialog.alert('Unable to retrieve GPS.')
       );
     } else {
-      alert('Geolocation not supported on this device.');
+      hhDialog.alert('Geolocation not supported on this device.');
     }
   }
 
@@ -1166,7 +1166,7 @@ body.hh-dialog-locked{overflow:hidden}
             executeWeatherAPI(pos.coords.latitude, pos.coords.longitude, btnText);
           },
           () => { 
-            alert('Location access denied. Using default/last known coordinates.'); 
+            hhDialog.alert('Location access denied. Using default/last known coordinates.'); 
             executeWeatherAPI(lat, lng, btnText); 
           }
         );
@@ -1202,11 +1202,11 @@ body.hh-dialog-locked{overflow:hidden}
           const updatedWindStr = `Wind: ${wind}mph ${dir}`;
           document.getElementById('condNotes').value = existingNotes ? `${existingNotes} | ${updatedWindStr}` : updatedWindStr;
           
-          alert("✅ Live weather successfully loaded and filled!");
+          hhDialog.alert("✅ Live weather successfully loaded and filled!");
         }
       })
       .catch(err => {
-        alert("Failed to fetch live weather data.");
+        hhDialog.alert("Failed to fetch live weather data.");
         console.error(err);
       })
       .finally(() => {
@@ -1264,12 +1264,12 @@ body.hh-dialog-locked{overflow:hidden}
   function handleCatchDropdownChange(val) {
     if (val === 'sportfish') {
       document.getElementById('catchDropdown').value = activeCatch;
-      alert('Sport Fish mode is coming in a future update!');
+      hhDialog.alert('Sport Fish mode is coming in a future update!');
       return;
     }
 
     if (isSessionLocked) {
-      alert('Catch type is locked during an active session. End the session to switch.');
+      hhDialog.alert('Catch type is locked during an active session. End the session to switch.');
       document.getElementById('catchDropdown').value = activeCatch;
       return;
     }
@@ -1283,7 +1283,7 @@ body.hh-dialog-locked{overflow:hidden}
 
   function handleRegionDropdownChange(val) {
     if (isSessionLocked) {
-      alert('Region is locked during an active session. End the session to switch.');
+      hhDialog.alert('Region is locked during an active session. End the session to switch.');
       document.getElementById('regionDropdown').value = activeRegion;
       return;
     }
@@ -1493,8 +1493,8 @@ body.hh-dialog-locked{overflow:hidden}
     populateSpotDropdown();
   }
 
-  function deleteSpecificSpot(spotName) {
-    if (confirm(`Delete "${spotName}" from your spots list?`)) {
+  async function deleteSpecificSpot(spotName) {
+    if (await hhDialog.confirm(`Delete "${spotName}" from your spots list?`)) {
       let customs = getCustomSpots();
       customs = customs.filter(s => s !== spotName);
       localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
@@ -1506,20 +1506,20 @@ body.hh-dialog-locked{overflow:hidden}
     }
   }
 
-  function clearCustomSpots() {
-    if (confirm("Reset all spots and saved coordinates back to empty?")) {
+  async function clearCustomSpots() {
+    if (await hhDialog.confirm("Reset all spots and saved coordinates back to empty?")) {
       localStorage.removeItem('hookHoop_customSpots');
       localStorage.removeItem('hookHoop_spotGPSMap');
       populateSpotDropdown();
-      alert("Spots reset.");
+      hhDialog.alert("Spots reset.");
     }
   }
 
-  function clearCustomBaits() {
-    if (confirm("Reset custom baits back to defaults?")) {
+  async function clearCustomBaits() {
+    if (await hhDialog.confirm("Reset custom baits back to defaults?")) {
       localStorage.removeItem('hookHoop_customBaits');
       populateBaitDropdown();
-      alert("Custom baits reset.");
+      hhDialog.alert("Custom baits reset.");
     }
   }
 
@@ -1649,8 +1649,8 @@ body.hh-dialog-locked{overflow:hidden}
     document.getElementById('mapModal').style.display = 'none';
   }
 
-  function exportWaypointsCSV() {
-    const confirmation = prompt("To export GPS Waypoints CSV, type 'GPS':");
+  async function exportWaypointsCSV() {
+    const confirmation = await hhDialog.prompt("To export GPS Waypoints CSV, type 'GPS':");
     if (confirmation !== 'GPS') return;
 
     const spots = getAllActiveSpots();
@@ -1686,7 +1686,7 @@ body.hh-dialog-locked{overflow:hidden}
     reader.onload = function(e) {
       const text = e.target.result;
       const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
-      if (lines.length <= 1) return alert('No waypoint records found.');
+      if (lines.length <= 1) return hhDialog.alert('No waypoint records found.');
 
       let customs = getCustomSpots();
       let gpsMap = getSpotGPSMap();
@@ -1714,7 +1714,7 @@ body.hh-dialog-locked{overflow:hidden}
       localStorage.setItem('hookHoop_customSpots', JSON.stringify(customs));
       setSpotGPSMap(gpsMap);
       populateSpotDropdown();
-      alert(`Imported & updated ${importedCount} waypoint spots successfully!`);
+      hhDialog.alert(`Imported & updated ${importedCount} waypoint spots successfully!`);
       event.target.value = '';
     };
     reader.readAsText(file);
@@ -1742,7 +1742,7 @@ body.hh-dialog-locked{overflow:hidden}
   function toggleEmailEdit() {
     const email = emailInput.value.trim();
     localStorage.setItem('hookHoop_userEmail', email);
-    alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
+    hhDialog.alert('Email saved! Reports will be drafted to: ' + (email || 'None'));
   }
 
   function getMaxBoatLimit() {
@@ -1870,12 +1870,12 @@ body.hh-dialog-locked{overflow:hidden}
     };
   }
 
-  function handleTripStatusChange(status) {
+  async function handleTripStatusChange(status) {
     const statusSelect = document.getElementById('tripStatus');
     const finalizeBtn = document.getElementById('finalizeBtn');
 
     if (status === 'Start Night') {
-      const confirmed = confirm("Are you sure you want to START the session log? Catch & Region selections will be locked for this trip.");
+      const confirmed = await hhDialog.confirm("Are you sure you want to START the session log? Catch & Region selections will be locked for this trip.");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
@@ -1885,7 +1885,7 @@ body.hh-dialog-locked{overflow:hidden}
       setSessionLock(true);
       setLiveDateTime();
     } else if (status === 'End Night') {
-      const confirmed = confirm("Are you sure you want to END the trip and prepare close-out report?");
+      const confirmed = await hhDialog.confirm("Are you sure you want to END the trip and prepare close-out report?");
       if (!confirmed) {
         statusSelect.value = previousTripStatus;
         return;
@@ -1911,19 +1911,19 @@ body.hh-dialog-locked{overflow:hidden}
     renderLogs();
   }
 
-  function deleteLog(id) {
-    if (confirm('Delete this trip from history?')) {
+  async function deleteLog(id) {
+    if (await hhDialog.confirm('Delete this trip from history?')) {
       let logs = getStoredLogs();
       logs = logs.filter(l => l.id !== id);
       saveLogs(logs);
     }
   }
 
-  function resetFormOnly() {
-    const confirmation = prompt("To clear active form entries, type 'CLEAR':");
+  async function resetFormOnly() {
+    const confirmation = await hhDialog.prompt("To clear active form entries, type 'CLEAR':");
     if (confirmation === 'CLEAR') {
       executeFormReset();
-      alert("Form cleared and session unlocked.");
+      hhDialog.alert("Form cleared and session unlocked.");
     }
   }
 
@@ -1973,8 +1973,8 @@ body.hh-dialog-locked{overflow:hidden}
     syncRetainedFromSets();
   }
 
-  function nukeEntireLog() {
-    const confirmation = prompt("WARNING: This will permanently delete ALL catch history and reset the entire app. Type 'NUKE' to confirm:");
+  async function nukeEntireLog() {
+    const confirmation = await hhDialog.prompt("WARNING: This will permanently delete ALL catch history and reset the entire app. Type 'NUKE' to confirm:");
     if (confirmation === 'NUKE') {
       localStorage.removeItem('hookHoop_nightLogs');
       localStorage.removeItem('hookHoop_customSpots');
@@ -1982,7 +1982,7 @@ body.hh-dialog-locked{overflow:hidden}
       localStorage.removeItem('hookHoop_customBaits');
       executeFormReset();
       renderLogs();
-      alert('App has been completely wiped and factory reset.');
+      hhDialog.alert('App has been completely wiped and factory reset.');
     }
   }
 
@@ -2177,10 +2177,10 @@ ${csvData}
     window.location.href = mailtoUrl;
   }
 
-  function triggerCloseOut() {
+  async function triggerCloseOut() {
     saveCurrentSetToBuffer();
 
-    if (!confirm("Are you ready to close out tonight's session and draft your email report?")) {
+    if (!await hhDialog.confirm("Are you ready to close out tonight's session and draft your email report?")) {
       return;
     }
 
@@ -2272,14 +2272,14 @@ ${csvData}
       switchSet('Set 1');
     }
     syncRetainedFromSets();
-    alert('Set / Dive saved! Switched to next set with previous parameters carried forward.');
+    hhDialog.alert('Set / Dive saved! Switched to next set with previous parameters carried forward.');
   });
 
-  function exportToCSV() {
+  async function exportToCSV() {
     const logs = getStoredLogs();
-    if (logs.length === 0) return alert('No logs to export.');
+    if (logs.length === 0) return hhDialog.alert('No logs to export.');
 
-    const confirmation = prompt("To export and download season CSV, type 'CSV':");
+    const confirmation = await hhDialog.prompt("To export and download season CSV, type 'CSV':");
     if (confirmation !== 'CSV') return;
 
     const headers = [
@@ -2315,7 +2315,7 @@ ${csvData}
     reader.onload = function(e) {
       const text = e.target.result;
       const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
-      if (lines.length <= 1) return alert('No records found in selected file.');
+      if (lines.length <= 1) return hhDialog.alert('No records found in selected file.');
 
       const existingLogs = getStoredLogs();
       let importedCount = 0;
@@ -2362,7 +2362,7 @@ ${csvData}
       }
 
       saveLogs(existingLogs);
-      alert(`Import Complete! Successfully merged ${importedCount} past trip(s) into your history.`);
+      hhDialog.alert(`Import Complete! Successfully merged ${importedCount} past trip(s) into your history.`);
       event.target.value = '';
     };
     reader.readAsText(file);
@@ -2412,54 +2412,89 @@ ${csvData}
   </div>
 </div>
 <script>
-/* Async replacements for native alert/confirm/prompt. Existing calls are not yet migrated. */
+/* Hoop & Hook in-app dialogs. Native browser alert/confirm/prompt calls are migrated below. */
 const hhDialog = (() => {
   const overlay = document.getElementById('hhDialogOverlay');
   const message = document.getElementById('hhDialogMessage');
   const input = document.getElementById('hhDialogInput');
   const cancel = document.getElementById('hhDialogCancel');
   const accept = document.getElementById('hhDialogAccept');
+
   let resolveCurrent = null;
   let previousFocus = null;
+  const queue = [];
+
+  function openNext() {
+    if (resolveCurrent || queue.length === 0) return;
+
+    const request = queue.shift();
+    previousFocus = document.activeElement;
+    message.textContent = String(request.text);
+    input.style.display = request.mode === 'prompt' ? '' : 'none';
+    input.value = request.initial || '';
+    cancel.style.display = request.mode === 'alert' ? 'none' : '';
+    accept.textContent = request.mode === 'confirm' ? 'Confirm' : 'OK';
+
+    resolveCurrent = request.resolve;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('hh-dialog-locked');
+    document.addEventListener('keydown', onKey);
+    setTimeout(() => (request.mode === 'prompt' ? input : accept).focus(), 0);
+  }
+
   function close(value) {
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('hh-dialog-locked');
     document.removeEventListener('keydown', onKey);
+
+    const done = resolveCurrent;
+    resolveCurrent = null;
+
     if (previousFocus && previousFocus.isConnected) previousFocus.focus();
-    if (resolveCurrent) { const done = resolveCurrent; resolveCurrent = null; done(value); }
+    if (done) done(value);
+
+    setTimeout(openNext, 0);
   }
+
   function onKey(event) {
-    if (event.key === 'Escape') { event.preventDefault(); close(null); }
-    if (event.key === 'Enter' && event.target === input) { event.preventDefault(); close(input.value); }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close(null);
+    }
+    if (event.key === 'Enter' && event.target === input) {
+      event.preventDefault();
+      close(input.value);
+    }
     if (event.key === 'Tab') {
       const focusables = [...overlay.querySelectorAll('input:not([style*="display:none"]),button:not([style*="display:none"])')];
-      const first = focusables[0], last = focusables[focusables.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   }
+
   function show(text, mode='alert', initial='') {
-    if (resolveCurrent) return Promise.reject(new Error('Dialog already open'));
-    previousFocus = document.activeElement;
-    message.textContent = String(text);
-    input.style.display = mode === 'prompt' ? '' : 'none';
-    input.value = initial;
-    cancel.style.display = mode === 'alert' ? 'none' : '';
-    accept.textContent = mode === 'confirm' ? 'Confirm' : 'OK';
-    overlay.classList.add('is-open');
-    overlay.setAttribute('aria-hidden','false');
-    document.body.classList.add('hh-dialog-locked');
-    document.addEventListener('keydown',onKey);
-    setTimeout(() => (mode === 'prompt' ? input : accept).focus(),0);
-    return new Promise(resolve => { resolveCurrent = resolve; });
+    return new Promise(resolve => {
+      queue.push({ text, mode, initial, resolve });
+      openNext();
+    });
   }
+
   cancel.addEventListener('click', () => close(null));
   accept.addEventListener('click', () => close(input.style.display === 'none' ? true : input.value));
+
   return {
-    alert: text => show(text,'alert'),
-    confirm: async text => (await show(text,'confirm')) === true,
-    prompt: (text, initial='') => show(text,'prompt',initial)
+    alert: text => show(text, 'alert'),
+    confirm: async text => (await show(text, 'confirm')) === true,
+    prompt: (text, initial='') => show(text, 'prompt', initial)
   };
 })();
 </script>
