@@ -939,6 +939,23 @@ body.hh-dialog-locked{overflow:hidden}
   let baseTileLayer = null;
   let isContourMap = false;
 
+  // Grandfather marker for early free users.
+  // This saves the first date/time this installation opens a version containing this code.
+  // Later, we can compare this value to a cutoff date for the $2.99 Full Access rollout.
+  const HH_FIRST_USE_KEY = 'hookHoop_firstUse';
+
+  function ensureFirstUseMarker() {
+    try {
+      if (!localStorage.getItem(HH_FIRST_USE_KEY)) {
+        localStorage.setItem(HH_FIRST_USE_KEY, new Date().toISOString());
+      }
+    } catch (err) {
+      console.warn('Unable to save Hoop & Hook first-use marker.', err);
+    }
+  }
+
+  ensureFirstUseMarker();
+
   // CARTO Basemaps API key
   // Replace ONLY the text between the quotes with your CARTO key.
   const CARTO_API_KEY = 'cb1_4dq5_1_56bb2ec22c702736c3eee935';
